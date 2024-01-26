@@ -1,4 +1,4 @@
-# COS420-Project
+# ChatMaps
 Main repo for ChatMaps, our COS420 Project.
 
 
