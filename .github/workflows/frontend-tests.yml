@@ -20,11 +20,8 @@ jobs:
         with:
           node-version: 21.6.2
 
-      - name: Change Directory
-        run: cd frontend-next
-
       - name: Install dependencies
-        run: npm install
+        run: npm install frontend-next/
 
       - name: Buide
-        run: npm run build
+        run: npm run build frontend-next/
