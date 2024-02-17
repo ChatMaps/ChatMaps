@@ -24,4 +24,4 @@ jobs:
         run: npm install frontend-next/
 
       - name: Buide
-        run: npm run build frontend-next/
+        run: npm --prefix frontend-next/ run build
