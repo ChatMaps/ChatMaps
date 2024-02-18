@@ -1,0 +1,17 @@
+[Unit]
+Description=ChatMaps Backend Server Updater / Restarter
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+Restart=on-failure
+RestartSec=10
+WorkingDirectory=/root/ChatMaps/backend/server_update_hook
+ExecStartPre=/usr/bin/git pull
+ExecStartPre=/usr/bin/npm install
+ExecStart=/usr/bin/node api.js
+
+[Install]
+WantedBy=multi-user.target
