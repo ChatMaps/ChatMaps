@@ -22,5 +22,5 @@ jobs:
       - name: Install dependencies
         run: npm install frontend-next/
 
-      - name: Buide
+      - name: Build
         run: npm --prefix frontend-next/ run build
