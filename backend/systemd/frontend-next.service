@@ -10,6 +10,7 @@ Restart=on-failure
 RestartSec=10
 WorkingDirectory=/root/ChatMaps/frontend-next
 ExecStartPre=/usr/bin/git pull
+ExecStartPre=/usr/bin/git checkout main
 ExecStartPre=/usr/bin/npm install
 ExecStartPre=/usr/bin/npm run build
 ExecStart=/usr/bin/npm run start

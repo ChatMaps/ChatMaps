@@ -10,6 +10,7 @@ Restart=on-failure
 RestartSec=10
 WorkingDirectory=/root/ChatMaps/backend/server_update_hook
 ExecStartPre=/usr/bin/git pull
+ExecStartPre=/usr/bin/git checkout main
 ExecStartPre=/usr/bin/npm install
 ExecStart=/usr/bin/node api.js
 
