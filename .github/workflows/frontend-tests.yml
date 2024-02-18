@@ -1,4 +1,4 @@
-name: Next.Js Build Validation
+name: Frontend Next.Js Build Validation
 
 on:
   pull_request:
@@ -22,5 +22,8 @@ jobs:
       - name: Install dependencies
         run: npm install frontend-next/
 
-      - name: Build
+      - name: Lint
+        run: npm --prefix frontend-next/ run lint
+
+      - name: Build Frontend
         run: npm --prefix frontend-next/ run build
