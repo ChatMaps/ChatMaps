@@ -8,6 +8,9 @@ app.use(bodyParser.json());
 // Recieves webhook from Github at https://chatmaps.nicholaspease.com/api/v1/deploy
 app.post("/api/v1/deploy", function (req, res) {
     console.log(req.body)
+    if (req.body.action == "closed" && req.body.pull_request.merged == true && req.body.pull_request.base.ref == "main") {
+        console.log("Closed & Merged")
+    }
     res.send("OK")
 })
 
