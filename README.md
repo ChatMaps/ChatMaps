@@ -14,6 +14,7 @@ http://chatmaps.nicholaspease.com
 A local version can be run with:
 
 cd frontend-next/
+
 npm run dev
 
 then navigating to:
