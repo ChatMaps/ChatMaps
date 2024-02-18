@@ -11,6 +11,7 @@ app.use(bodyParser.json());
 app.post("/api/v1/deploy", function (req, res) {
     if (req.body.action == "closed" && req.body.pull_request.merged == true && req.body.pull_request.base.ref == "main") {
         exec("systemctl restart server_update_hook.service", (error, stdout, stderr) => {});
+        exec("systemctl restart frontend-next.service", (error, stdout, stderr) => {});
     }
     res.send("OK")
 })
