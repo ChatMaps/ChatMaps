@@ -11,8 +11,9 @@ app.post("/api/v1/deploy", function (req, res) {
     res.send("OK")
 })
 
+// Generic endpoint, useful to test if updater is alive
 app.get('/api/v1', (req, res) => {
-    res.send('Hello World!')
+    res.send('OK')
 })
 
 app.listen(8000)
