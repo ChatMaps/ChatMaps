@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import firebaseConfigFile from "../../../firebase-config"
+import firebaseConfigFile from "../../../../firebase-config"
 
 var firebaseConfig = firebaseConfigFile;
 

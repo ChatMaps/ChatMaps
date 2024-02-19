@@ -1,6 +1,6 @@
 // Import necessary functions
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../../lib/firebase-config";
+import { auth } from "../firebase-config";
 import { NextResponse } from "next/server";
 
 // Function to register a new user using Firebase Authentication

@@ -1,7 +1,4 @@
 "use client";
-import {createUserWithEmailAndPassword, getRedirectResult,signInWithRedirect,} from "firebase/auth";
-import { useEffect, useState } from "react";
-import { auth, provider } from "../../lib/firebase-config";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import "../globals.css"

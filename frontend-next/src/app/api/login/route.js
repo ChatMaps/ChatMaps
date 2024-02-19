@@ -4,8 +4,8 @@ import { NextResponse } from "next/server";
 import { auth } from "firebase-admin";
 import { signInWithEmailAndPassword } from "firebase/auth";
 // Lib Imports
-import { auth as authConfig } from "../../../lib/firebase-config";
-import { customInitApp } from "../../../lib/firebase-admin";
+import { auth as authConfig } from "../firebase-config";
+import { customInitApp } from "../firebase-admin";
 
 // Needs to "init" on each call to the API 
 customInitApp();
