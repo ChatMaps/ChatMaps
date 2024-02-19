@@ -18,6 +18,9 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 21.6.2
+          
+      - name: Install dependencies
+        run: npm install frontend-next/
 
       - name: Lint
         run: npm --prefix frontend-next/ run lint
