@@ -5,7 +5,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "ChatMaps",
-  description: "ChatMaps: Social Media for College Students",
+  description: "ChatMaps: Social Media for College Students"
 };
 
 export default function RootLayout({ children }) {
