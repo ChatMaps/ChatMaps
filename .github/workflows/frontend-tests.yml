@@ -19,17 +19,5 @@ jobs:
         with:
           node-version: 21.6.2
 
-      - name: Install dependencies
-        run: npm install frontend-next/
-
-      - name: Generate firebase-config.json
-        run: echo ${{ secrets.FIREBASE_CONFIG }} > firebase-config.json
-
-      - name: Generate firebase-admin.json
-        run: echo ${{ secrets.FIREBASE_ADMIN }} > firebase-admin.json
-
       - name: Lint
         run: npm --prefix frontend-next/ run lint
-
-      - name: Build Frontend
-        run: npm --prefix frontend-next/ run build
