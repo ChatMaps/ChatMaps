@@ -1,27 +1,23 @@
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col justify-between p-24">
-      <h1>Welcome to ChatMaps.</h1>
-
-
-      <div id="room">
-        <label>Room </label>
-        <select>
-          <option>Room 1</option>
-          <option>Room 2</option>
-          <option>Room 3</option>
-        </select>
-        <button>Join Room</button>
-      </div>
-
-
-      <div id="message">
-        <label>Enter a message</label>
-        <input />
-        <button>Send</button>
-      </div>
-
-
-    </main>
-  );
+function Home() {
+    return (
+        <div>
+            <div className="absolute right-[6%] top-[4%]">
+                <button>Download</button>
+            </div>
+            <div className="grid h-screen place-items-center">
+                <div>
+                    <img src="logos/logo_transparent_inverse.png"/>
+                    <span className="text-[36px]">
+                        Chat with friends!
+                    </span>
+                    <div className="m-5">
+                        <button>Login</button>
+                        <button>Signup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
 }
+
+export default Home;

@@ -2,17 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-main {
+body {
   background-color: aliceblue;
   text-align: center;
   text-wrap:pretty;
 }
 
 button {
-  background-color: rgb(205, 205, 205);
+  background: #dee0e0;
   border-color: black;
   border: 5px;
   border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+  filter: drop-shadow(0 25px 25px rgb(0 0 0 / 0.15));
 }
 
 button:hover {
@@ -23,5 +26,6 @@ input {
   border: 1px solid black;
   border-radius: 4px;
   padding: 10px 10px;
+  margin: 5px;
 }
 
