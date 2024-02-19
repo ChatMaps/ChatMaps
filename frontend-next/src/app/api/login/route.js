@@ -1,121 +1,63 @@
-// src/app/api/login/route.js
-import { auth } from "firebase-admin";
 import { cookies, headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { customInitApp } from "../../../lib/firebase-admin";
+// Firebase Imports
+import { auth } from "firebase-admin";
 import { signInWithEmailAndPassword } from "firebase/auth";
+// Lib Imports
 import { auth as authConfig } from "../../../lib/firebase-config";
+import { customInitApp } from "../../../lib/firebase-admin";
 
-// Init the Firebase SDK every time the server is called
+// Needs to "init" on each call to the API 
 customInitApp();
 
-async function handleBearerToken(authorization) {
-  if (authorization?.startsWith("Bearer ")) {
-    const idToken = authorization.split("Bearer ")[1];
-    const decodedToken = await auth().verifyIdToken(idToken);
-
-    if (decodedToken) {
-      const expiresIn = 5 * 60 * 1000;
-      const sessionCookie = await auth().createSessionCookie(idToken, {
-        expiresIn,
-      });
-      const options = {
-        name: "session",
-        value: sessionCookie,
-        maxAge: expiresIn,
-        httpOnly: true,
-        secure: true,
-      };
-
-      cookies().set(options);
-      return NextResponse.json({}, { status: 200 });
-    }
-  }
-}
-
+// Login with Email/Password
 async function handleEmailAndPassword(email, password) {
   try {
-    const userCredential = await signInWithEmailAndPassword(
-      authConfig,
-      email,
-      password
-    );
-
-    const user = userCredential.user;
-    const authorization = user.accessToken;
-
-    if (authorization) {
-      const idToken = authorization;
-      const decodedToken = await auth().verifyIdToken(idToken);
-
-      if (decodedToken) {
-        const expiresIn = 5 * 60 * 1000;
-        const sessionCookie = await auth().createSessionCookie(idToken, {
-          expiresIn,
-        });
-        const options = {
+    var userCredential = await signInWithEmailAndPassword(authConfig,email,password);
+    if (userCredential.user.accessToken) {
+      const token = await auth().verifyIdToken(userCredential.user.accessToken);
+      if (token) {
+        var expiresIn = 300000
+        var sessionCookie = await auth().createSessionCookie(userCredential.user.accessToken, {expiresIn,});
+        var options = {
           name: "session",
           value: sessionCookie,
-          maxAge: expiresIn,
+          maxAge: expiresIn, // 5 mins
           httpOnly: true,
           secure: true,
         };
-
         cookies().set(options);
         return NextResponse.json({ options }, { status: 200 });
       }
     }
   } catch (error) {
-    console.error("Authentication error:", error);
-
-    let errorMessage = "Authentication failed";
-
-    // Check Firebase authentication error codes and handle them accordingly
-    if (error.code === "auth/wrong-password") {
-      errorMessage = "Wrong password";
-    } else if (error.code === "auth/user-not-found") {
-      errorMessage = "User not found";
-    } else if (error.code === "auth/invalid-email") {
-      errorMessage = "Invalid email address";
-    }
-
-    return NextResponse.json({ error: errorMessage }, { status: 401 });
+    return NextResponse.json({ error: error.code }, { status: 401 });
   }
 }
 
-export async function POST(request, response) {
+// Handles POST requests (login requests)
+export async function POST(req, res) {
   try {
-    const { email, password } = await request?.json();
-
-    if (!email || !password) {
-      const authorization = headers().get("Authorization");
-      return await handleBearerToken(authorization);
-    } else {
-      return await handleEmailAndPassword(email, password);
-    }
+    var { email, password } = await req?.json()
+    return await handleEmailAndPassword(email, password); // need session token
   } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal Server Error" },{ status: 500 });
   }
 }
 
-export async function GET(request) {
-  const session = cookies().get("session")?.value || "";
-
+// Handles GET requests (is session still valid requests)
+export async function GET(req) {
+  var session = cookies().get("session")?.value || "";
   //Validate if the cookie exist in the request
   if (!session) {
     return NextResponse.json({ isLogged: false }, { status: 401 });
-  }
-
-  //Use Firebase Admin to validate the session cookie
-  const decodedClaims = await auth().verifySessionCookie(session, true);
-
-  if (!decodedClaims) {
-    return NextResponse.json({ isLogged: false }, { status: 401 });
-  }
-
-  return NextResponse.json({ isLogged: true }, { status: 200 });
+  } else {
+    // Validate session cookie
+    var validation = await auth().verifySessionCookie(session, true);
+    if (!validation) {
+      return NextResponse.json({ isLogged: false }, { status: 401 });
+    } else {
+      return NextResponse.json({ isLogged: true }, { status: 200 });
+    }
+  }  
 }

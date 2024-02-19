@@ -1,4 +1,5 @@
-function Home() {
+async function Home() {
+    
     return (
         <div>
             <div className="absolute right-[6%] top-[4%]">
@@ -11,8 +12,8 @@ function Home() {
                         Chat with friends!
                     </span>
                     <div className="m-5">
-                        <button>Login</button>
-                        <button>Signup</button>
+                        <a href="/login"><button>Login</button></a>
+                        <a href="/register"><button>Signup</button></a>
                     </div>
                 </div>
             </div>
