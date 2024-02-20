@@ -15,13 +15,17 @@ export async function middleware(req, res) {
       Cookie: `session=${session?.value}`,
     },
   });
+
   // Login if unauthorized
   if (responseAPI.status !== 200) {
+    console.log("redirecting to login - second")
     return NextResponse.redirect(new URL("/login", req.url));
   }
+
   // If new user, redirect to onboarding
   var { uid } = await responseAPI.json()
-  var firstName = await req.cookies.get("firstName")?.value;
+  var firstName = req.cookies.get("firstName")?.value;
+  console.log(firstName)
   if (firstName) {
     return NextResponse.next();
   } else {
