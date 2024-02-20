@@ -1,5 +1,6 @@
 // src/middleware.js
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { app } from "./app/api/firebase-config";
 import { getDatabase, ref, get as firebaseGet } from "firebase/database";
 
@@ -35,9 +36,9 @@ export async function middleware(req, res) {
       return NextResponse.redirect(new URL("/onboarding", req.url));
     } else {
       var returnedResponse = NextResponse.next();
-      returnedResponse.cookies.set("firstName",user.val()?.firstName)
-      returnedResponse.cookies.set("lastName",user.val()?.lastName)
-      returnedResponse.cookies.set("uid",uid)
+      cookies().set("firstName",user.val()?.firstName)
+      cookies().set("lastName",user.val()?.lastName)
+      cookies().set("uid",uid)
       return returnedResponse
     }
   }
