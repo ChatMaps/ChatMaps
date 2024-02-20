@@ -1,3 +1,7 @@
+# Firebase Stuff
+firebase-admin-key.json
+firebase*.json
+
 # Logs
 logs
 *.log

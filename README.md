@@ -1,4 +1,4 @@
-# ChatMaps
+![](/frontend-next/public/logos/logo_transparent.png)
 Main repo for ChatMaps, our COS420 Project.
 
 ChatMaps is a web-based social networking service that allows users to connect to others in their local geographic area. It will implement an interactable mapping utility to show general user locations relative to other users, as well as a chat room feature that allows users to start public conversations based on a specified topic. ChatMaps is primarily intended for use in densely populated areas, such as college campuses or metropolitan areas, so people of similar interests can start conversations. The goal of this project is to create a web app that plots locations, gives a radius of the local area, and connects users into different topic-based chat rooms.

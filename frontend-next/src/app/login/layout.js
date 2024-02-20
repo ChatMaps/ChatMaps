@@ -1,11 +1,11 @@
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "ChatMaps",
-  description: "ChatMaps: Social Media for College Students"
+  title: "ChatMaps: Login",
+  description: "ChatMaps: Social Media for College Students",
 };
 
 export default function RootLayout({ children }) {
