@@ -10,7 +10,7 @@ export async function middleware(req, res) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
   //Call the authentication endpoint
-  const responseAPI = await fetch("http://localhost:3000/api/login", {
+  const responseAPI = await fetch(new URL("/api/login", req.url), {
     headers: {
       Cookie: `session=${session?.value}`,
     },

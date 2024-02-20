@@ -7,7 +7,7 @@ import { getDatabase, ref, set as firebaseSet } from "firebase/database";
 async function onboard(firstName, lastName, req) {
   var session = req.cookies.get("session");
   //Call the authentication endpoint
-  var res = await fetch("http://localhost:3000/api/login", {headers: {Cookie: `session=${session?.value}`}})
+  var res = await fetch(new URL("/api/login", req.url), {headers: {Cookie: `session=${session?.value}`}})
   
   // Login if unauthorized
   if (res.status !== 200) {
