@@ -1,4 +1,4 @@
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 // Firebase Imports
 import { auth } from "firebase-admin";
@@ -15,14 +15,14 @@ async function handleEmailAndPassword(email, password) {
   try {
     var userCredential = await signInWithEmailAndPassword(authConfig,email,password);
     if (userCredential.user.accessToken) {
-      const token = await auth().verifyIdToken(userCredential.user.accessToken);
+      var token = await auth().verifyIdToken(userCredential.user.accessToken);
       if (token) {
-        var expiresIn = 300000
+        var expiresIn = 20 * 60 * 1000; // 20 minutes
         var sessionCookie = await auth().createSessionCookie(userCredential.user.accessToken, {expiresIn,});
         var options = {
           name: "session",
           value: sessionCookie,
-          maxAge: expiresIn, // 5 mins
+          maxAge: expiresIn, // 20 mins
           httpOnly: true,
           secure: true,
         };
@@ -53,11 +53,12 @@ export async function GET(req) {
     return NextResponse.json({ isLogged: false }, { status: 401 });
   } else {
     // Validate session cookie
-    var validation = await auth().verifySessionCookie(session, true);
-    if (!validation) {
-      return NextResponse.json({ isLogged: false }, { status: 401 });
-    } else {
-      return NextResponse.json({ isLogged: true }, { status: 200 });
+    try {
+      var validation = await auth().verifySessionCookie(session, true);
+      return NextResponse.json({ isLogged: true, uid: validation.uid, email: validation.email }, { status: 200 });
+    } catch (error) {
+      return NextResponse.json({ isLogged: false}, { status: 401 });
     }
+
   }  
 }

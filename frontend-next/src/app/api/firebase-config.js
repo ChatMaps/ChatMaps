@@ -7,4 +7,4 @@ var firebaseConfig = firebaseConfigFile;
 var app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 var auth = getAuth(app);
 
-export { auth };
+export { auth, app };

@@ -30,7 +30,8 @@ function Register() {
                         <form action="#" onSubmit={handleSubmit(RegisterWithEmail)}>
                             <input type="email" {...register("email")} placeholder="Enter Email Address"/><br/>
                             <input type="password" {...register("password")} placeholder="Enter Password"/><br/>
-                            <button type="submit">Register</button>
+                            <button type="submit" className="bg-[#dee0e0] m-5">Register</button><br/>
+                            Have an account? <a href="/login">Log In</a>
                         </form>
                     </div>
                 </div>

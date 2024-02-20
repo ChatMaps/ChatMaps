@@ -1,22 +1,24 @@
 "use client";
+import "../globals.css"
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import "../globals.css"
 
-function Login() {
+function Onboarding() {
     var router = useRouter();
     var { register, handleSubmit } = useForm();
-    async function Login(data) {
-        const res = await fetch("/api/login", {
+
+    async function Onboard(data) {
+        const res = await fetch("/api/onboard", {
             method: "POST",
             body: JSON.stringify(data ? data : {}),
         });
 
         if (res.ok) {
             router.push("/app");
+        } else {
+            router.push("/login");
         }
     }
-
     return (
         <div>
             <div className="grid h-screen place-items-center">
@@ -26,18 +28,17 @@ function Login() {
                         Chat with friends!
                     </span>
                     <div className="m-5">
-                        <h3 className="text-[24px] mt-[50px]">Login</h3>
-                        <form action="#" onSubmit={handleSubmit(Login)}>
-                            <input type="email" {...register("email")} placeholder="Enter Email Address"/><br/>
-                            <input type="password" {...register("password")} placeholder="Enter Password"/><br/>
-                            <button type="submit" className="bg-[#dee0e0] m-5">Login</button><br/>
-                            Don&apos;t have an account? <a href="/register">Sign Up</a>
-                        </form>
+                        Welcome to ChatMaps! We are excited to have you join our community!<br/>First we just need a little bit of information from you to get started.
                     </div>
+                    <form action="#" onSubmit={handleSubmit(Onboard)}>
+                            <input type="text" {...register("firstName")} placeholder="First Name"/><br/>
+                            <input type="text" {...register("lastName")} placeholder="Last Name"/><br/>
+                            <button type="submit" className="bg-[#dee0e0] m-5">Save</button>
+                    </form>
                 </div>
             </div>
         </div>
     )
 }
 
-export default Login;
+export default Onboarding;
