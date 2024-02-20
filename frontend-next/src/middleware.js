@@ -35,11 +35,11 @@ export async function middleware(req, res) {
     if (!user.exists()) {
       return NextResponse.redirect(new URL("/onboarding", req.url));
     } else {
-      var returnedResponse = NextResponse.next();
+      //var returnedResponse = NextResponse.next();
       cookies().set("firstName",user.val()?.firstName)
       cookies().set("lastName",user.val()?.lastName)
       cookies().set("uid",uid)
-      return returnedResponse
+      return NextResponse.next()
     }
   }
 }
