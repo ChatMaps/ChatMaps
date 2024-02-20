@@ -46,11 +46,11 @@ function Geo() {
   }, []);
   if (!isLoading) {
     return (
-      <Map className="rounded-lg" defaultCenter={[data.latitude, data.longitude]} defaultZoom={14}/>
+      <Map className="rounded-lg" center={[data.latitude, data.longitude]} defaultZoom={14}/>
     )
   } else {
     return (
-      <div>Loading...</div>
+      <Map className="rounded-lg" defaultCenter={[0, 0]} defaultZoom={14}/>
     )
   }
   
