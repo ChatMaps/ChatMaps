@@ -19,7 +19,6 @@ async function handleEmailAndPassword(email, password) {
       if (token) {
         var expiresIn = 20 * 60 * 1000; // 20 minutes
         var sessionCookie = await auth().createSessionCookie(userCredential.user.accessToken, {expiresIn,});
-        console.log(userCredential.user.uid)
         var options = {
           name: "session",
           value: sessionCookie,
