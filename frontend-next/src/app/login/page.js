@@ -30,7 +30,8 @@ function Login() {
                         <form action="#" onSubmit={handleSubmit(Login)}>
                             <input type="email" {...register("email")} placeholder="Enter Email Address"/><br/>
                             <input type="password" {...register("password")} placeholder="Enter Password"/><br/>
-                            <button type="submit" className="bg-[#dee0e0] m-5">Login</button><br/>
+                            <button type="submit" className="bg-[#dee0e0] m-5 bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
+                                Login</button><br/>
                             Don&apos;t have an account? <a href="/register">Sign Up</a>
                         </form>
                     </div>
