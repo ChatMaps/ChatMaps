@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react'
-import {Map} from "pigeon-maps"
+import {Map, Marker} from "pigeon-maps"
 
 function WelcomeMessage() {
   //TODO: REALLY GROSS WAY TO GET COOKIES, NEED NEW WAY TO STORE USER DATA WITHOUT API CALLS. THIS PAGE HAS TO BE CLIENT SIDE DUE TO MAPS / GEOLOCATION
@@ -45,11 +45,13 @@ function Geo() {
   }, []);
   if (!isLoading) {
     return (
-      <Map className="rounded-lg" defaultCenter={[data.latitude, data.longitude]} defaultZoom={14}/>
+      <Map className="rounded-lg" center={[data.latitude, data.longitude]} defaultZoom={14}>
+        <Marker width={50} anchor={[data.latitude, data.longitude]} color="red"/>
+      </Map>
     )
   } else {
     return (
-      <div>Loading...</div>
+      <Map className="rounded-lg" defaultCenter={[0, 0]} defaultZoom={14}/>
     )
   }
   
