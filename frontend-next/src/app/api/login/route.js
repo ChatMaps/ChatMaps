@@ -19,6 +19,7 @@ async function handleEmailAndPassword(email, password) {
       if (token) {
         var expiresIn = 20 * 60 * 1000; // 20 minutes
         var sessionCookie = await auth().createSessionCookie(userCredential.user.accessToken, {expiresIn,});
+        console.log(userCredential.user.uid)
         var options = {
           name: "session",
           value: sessionCookie,
@@ -27,6 +28,14 @@ async function handleEmailAndPassword(email, password) {
           secure: true,
         };
         cookies().set(options);
+        var uid_options = {
+          name: "uid",
+          value: userCredential.user.uid,
+          maxAge: expiresIn, // 20 mins
+          httpOnly: true,
+          secure: true,
+        };
+        cookies().set(uid_options);
         return NextResponse.json({ options }, { status: 200 });
       }
     }
