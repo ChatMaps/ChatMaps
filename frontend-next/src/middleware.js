@@ -1,7 +1,6 @@
 // src/middleware.js
 import { NextResponse } from "next/server";
-import { app } from "./app/api/firebase-config";
-import { getDatabase, ref, get as firebaseGet } from "firebase/database";
+import { cookies } from "next/headers";
 
 export async function middleware(req, res) {
   const session = req.cookies.get("session");
@@ -15,27 +14,23 @@ export async function middleware(req, res) {
       Cookie: `session=${session?.value}`,
     },
   });
+
   // Login if unauthorized
   if (responseAPI.status !== 200) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
+
   // If new user, redirect to onboarding
   var { uid } = await responseAPI.json()
-  var firstName = await req.cookies.get("firstName")?.value;
-  if (firstName) {
+  var user = await fetch(new URL("/api/user", req.url), {
+    method: "POST",
+    body: JSON.stringify(uid ? uid : {}),
+  });
+  user = await user.json();
+  if (user.firstName !== "not-found") {
     return NextResponse.next();
   } else {
-    var database = getDatabase(app)
-    var user = await firebaseGet(ref(database, `users/${uid}`));
-    if (!user.exists()) {
-      return NextResponse.redirect(new URL("/onboarding", req.url));
-    } else {
-      var returnedResponse = NextResponse.next();
-      returnedResponse.cookies.set("firstName",user.val()?.firstName)
-      returnedResponse.cookies.set("lastName",user.val()?.lastName)
-      returnedResponse.cookies.set("uid",uid)
-      return returnedResponse
-    }
+    return NextResponse.redirect(new URL("/onboarding", req.url));
   }
 }
 

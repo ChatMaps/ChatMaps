@@ -27,6 +27,14 @@ async function handleEmailAndPassword(email, password) {
           secure: true,
         };
         cookies().set(options);
+        var uid_options = {
+          name: "uid",
+          value: userCredential.user.uid,
+          maxAge: expiresIn, // 20 mins
+          httpOnly: true,
+          secure: true,
+        };
+        cookies().set(uid_options);
         return NextResponse.json({ options }, { status: 200 });
       }
     }
