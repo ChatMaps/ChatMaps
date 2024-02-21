@@ -12,8 +12,10 @@ function Home() {
                         Chat with friends!
                     </span>
                     <div className="m-5">
-                        <a href="/login"><button>Login</button></a>
-                        <a href="/register"><button>Signup</button></a>
+                        <a href="/login"><button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
+                            Login</button></a>
+                        <a href="/register"><button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
+                            Signup</button></a>
                     </div>
                 </div>
             </div>
