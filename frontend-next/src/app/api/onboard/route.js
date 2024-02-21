@@ -34,7 +34,6 @@ export async function POST(req, res) {
     var { firstName, lastName } = await req?.json()
     return await onboard(firstName, lastName, req);
   } catch (error) {
-    console.log(error)
     return NextResponse.json({ error: "Internal Server Error" },{ status: 500 });
   }
 }

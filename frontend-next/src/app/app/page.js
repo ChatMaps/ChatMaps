@@ -38,7 +38,6 @@ function Geo() {
         // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
         navigator.geolocation.getCurrentPosition(({ coords }) => {
             const { latitude, longitude } = coords;
-            console.log(latitude, longitude)
             setData(coords)
             setLoading(false)
         })
