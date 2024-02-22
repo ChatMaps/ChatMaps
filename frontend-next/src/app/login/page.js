@@ -15,9 +15,9 @@ function Login() {
                     <span className="text-[36px]">
                         Chat with friends!
                     </span>
-                    <div className="m-5 ">
-                        <h3 className="text-[24px] mt-[50px] mb-5">Login</h3>
-                        {(errors.email && errors.password) && <div className="text-[red] mb-5 text-[18px] text-bold">Invalid Email or Password.</div>}
+                    <div>
+                        <h3 className="text-[24px] mt-[25px] mb-2">Login</h3>
+                        {(errors.email && errors.password) && <div className="text-[red] mb-2 text-[18px] text-bold">Invalid Email or Password.</div>}
                         <Form action="/api/login" encType={'application/json'}
                         onSuccess={() => {
                             router.push("/app");
