@@ -1,22 +1,12 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, Form } from "react-hook-form";
 import "../globals.css"
 
 function Register() {
-    var {register, handleSubmit } = useForm()
+    var { register, control, setError, formState: { errors } } = useForm()
     var router = useRouter();
-    
-    async function RegisterWithEmail(data) {
-        const res = await fetch("/api/register", {
-            method: "POST",
-            body: JSON.stringify(data ? data : {}),
-        });
-        if (res.ok) {
-            router.push("/login");
-        }
-    }
-   
+    var emailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
     return (
         <div>
             <div className="grid h-screen place-items-center">
@@ -26,14 +16,19 @@ function Register() {
                         Chat with friends!
                     </span>
                     <div>
-                        <h3 className="text-[24px] mt-[25px]">Register</h3>
-                        <form action="#" onSubmit={handleSubmit(RegisterWithEmail)}>
-                            <input type="email" {...register("email")} placeholder="Enter Email Address"/><br/>
-                            <input type="password" {...register("password")} placeholder="Enter Password"/><br/>
+                        <h3 className="text-[24px] mt-[15px]">Register</h3>
+                        <Form action="/api/register" encType={'application/json'}
+                        onSuccess={() => {
+                            router.push("/app");
+                        }}
+                        control={control}
+                        >
+                            <input type="email" {...register("email", {required: true, pattern: emailRegex})} className={errors.email && "err"} placeholder="Enter Email Address"/><br/>
+                            <input type="password" {...register("password", {required: true})} className={errors.password && errors.password.type == 'required' && "err"} placeholder="Enter Password"/><br/>
                             <button type="submit" className="bg-[#dee0e0] m-5 bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
                                 Register</button><br/>
                             Have an account? <a href="/login">Log In</a>
-                        </form>
+                        </Form>
                     </div>
                 </div>
             </div>
