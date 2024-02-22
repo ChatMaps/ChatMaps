@@ -9,7 +9,7 @@ This app shares some similarities to other social networks that implement locati
 
 The live version of this app can be found at:
 
-http://chatmaps.nicholaspease.com
+https://chatma.ps/
 
 A local version can be run with:
 
