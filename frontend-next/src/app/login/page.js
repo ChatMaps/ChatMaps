@@ -6,8 +6,7 @@ import "../globals.css"
 function Login() {
     var router = useRouter();
     //var { register, handleSubmit } = useForm();
-    const { register, control, setError, formState: { errors } } = useForm()
-
+    var { register, control, setError, formState: { errors } } = useForm()
     return (
         <div>
             <div className="grid h-screen place-items-center">
@@ -31,8 +30,8 @@ function Login() {
                         }}
                         control={control}
                         >
-                            <input type="email" id="email" {...register("email", { required: true })} placeholder="Enter Email Address"/><br/>
-                            <input type="password" id="password" name="password" {...register("password", { required: true })} placeholder="Enter Password"/><br/>
+                            <input type="email" id="email" className={(errors.email && errors.password) && "err"} {...register("email", { required: true })} placeholder="Enter Email Address"/><br/>
+                            <input type="password" id="password" name="password" className={(errors.email && errors.password) && "err"} {...register("password", { required: true })} placeholder="Enter Password"/><br/>
                             <button className="bg-[#dee0e0] m-5 bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">Log In</button>
                             <br/>Need an account? <a href="/register">Sign Up</a><br/>
                         </Form>

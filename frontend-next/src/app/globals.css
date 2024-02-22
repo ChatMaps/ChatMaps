@@ -29,3 +29,9 @@ input {
   margin: 5px;
 }
 
+input.err {
+  border: 2px solid red;
+  border-radius: 4px;
+  padding: 10px 10px;
+  margin: 5px;
+}
