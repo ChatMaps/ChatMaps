@@ -11,7 +11,7 @@ function Login() {
         <div>
             <div className="grid h-screen place-items-center">
                 <div>
-                    <img src="logos/logo_transparent_inverse.png"/>
+                    <a href="/"><img src="logos/logo_transparent_inverse.png"/></a>
                     <span className="text-[36px]">
                         Chat with friends!
                     </span>

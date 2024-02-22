@@ -21,12 +21,12 @@ function Register() {
         <div>
             <div className="grid h-screen place-items-center">
                 <div>
-                    <img src="logos/logo_transparent_inverse.png"/>
+                    <a href="/"><img src="logos/logo_transparent_inverse.png"/></a>
                     <span className="text-[36px]">
                         Chat with friends!
                     </span>
-                    <div className="m-5">
-                        <h3 className="text-[24px] mt-[50px]">Register</h3>
+                    <div>
+                        <h3 className="text-[24px] mt-[25px]">Register</h3>
                         <form action="#" onSubmit={handleSubmit(RegisterWithEmail)}>
                             <input type="email" {...register("email")} placeholder="Enter Email Address"/><br/>
                             <input type="password" {...register("password")} placeholder="Enter Password"/><br/>
