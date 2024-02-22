@@ -2,9 +2,6 @@ function Home() {
     
     return (
         <div>
-            <div className="absolute right-[6%] top-[4%]">
-                <button>Download</button>
-            </div>
             <div className="grid h-screen place-items-center">
                 <div>
                     <img src="logos/logo_transparent_inverse.png"/>
