@@ -29,7 +29,7 @@ async function onboard(firstName, lastName, req) {
 
 
 // Handles POST requests (login requests)
-export async function POST(req, res) {
+export async function POST(req) {
   try {
     var { firstName, lastName } = await req?.json()
     return await onboard(firstName, lastName, req);

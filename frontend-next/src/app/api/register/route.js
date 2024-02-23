@@ -15,7 +15,7 @@ export async function registerUser(email, password) {
 }
 
 // POST request handler
-export async function POST(req, res) {
+export async function POST(req) {
   try {
     // Extract email and password from the request body
     var { email, password } = await req?.json();

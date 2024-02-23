@@ -67,7 +67,7 @@ async function handleEmailAndPassword(email, password) {
 }
 
 // Handles POST requests (login requests)
-export async function POST(req, res) {
+export async function POST(req) {
   try {
     var { email, password } = await req?.json()
     return await handleEmailAndPassword(email, password); // need session token
@@ -77,7 +77,7 @@ export async function POST(req, res) {
 }
 
 // Handles GET requests (is session still valid requests)
-export async function GET(req) {
+export async function GET() {
   var session = cookies().get("session")?.value || "";
   //Validate if the cookie exist in the request
   if (!session) {

@@ -1,8 +1,7 @@
 // src/middleware.js
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
-export async function middleware(req, res) {
+export async function middleware(req) {
   const session = await req.cookies.get("session");
   if (req.nextUrl.pathname !== "/login" && req.nextUrl.pathname != "/register") {
     // Login if not logged in
