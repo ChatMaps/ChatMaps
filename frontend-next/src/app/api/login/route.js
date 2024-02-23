@@ -4,8 +4,9 @@ import { NextResponse } from "next/server";
 import { auth } from "firebase-admin";
 import { signInWithEmailAndPassword } from "firebase/auth";
 // Lib Imports
-import { auth as authConfig } from "../firebase-config";
+import { app, auth as authConfig } from "../firebase-config";
 import { customInitApp } from "../firebase-admin";
+import { getDatabase, ref, get as firebaseGet } from "firebase/database";
 
 // Needs to "init" on each call to the API 
 customInitApp();
@@ -16,9 +17,32 @@ async function handleEmailAndPassword(email, password) {
     var userCredential = await signInWithEmailAndPassword(authConfig,email,password);
     if (userCredential.user.accessToken) {
       var token = await auth().verifyIdToken(userCredential.user.accessToken);
+      var expiresIn = 20 * 60 * 1000; // 20 minutes
+      var sessionCookie = await auth().createSessionCookie(userCredential.user.accessToken, {expiresIn,});
       if (token) {
-        var expiresIn = 20 * 60 * 1000; // 20 minutes
-        var sessionCookie = await auth().createSessionCookie(userCredential.user.accessToken, {expiresIn,});
+        var database = getDatabase(app)
+        var user = await firebaseGet(ref(database, `users/${userCredential.user.uid}`));
+        if (!user.exists()) {
+          var userOptions = {
+            name: "user",
+            value: JSON.stringify({defined: false, uid: userCredential.user.uid}),
+            maxAge: expiresIn, // 20 mins
+            httpOnly: true,
+            secure: true,
+          };
+        } else {
+          var userData = user.val()
+          userData.uid = userCredential.user.uid
+          userData.defined = true
+          var userOptions = {
+            name: "user",
+            value: JSON.stringify(userData),
+            maxAge: expiresIn, // 20 mins
+            httpOnly: true,
+            secure: true,
+          };
+        }
+        cookies().set(userOptions);
         var options = {
           name: "session",
           value: sessionCookie,
@@ -27,14 +51,13 @@ async function handleEmailAndPassword(email, password) {
           secure: true,
         };
         cookies().set(options);
-        var uid_options = {
+        cookies().set({
           name: "uid",
           value: userCredential.user.uid,
           maxAge: expiresIn, // 20 mins
           httpOnly: true,
           secure: true,
-        };
-        cookies().set(uid_options);
+        });
         return NextResponse.json({ options }, { status: 200 });
       }
     }

@@ -1,5 +1,16 @@
+"use client"
+import { useState, useEffect } from 'react'
+
+
 function Home() {
-    
+    const [statusCode, setData] = useState(null)
+    useEffect(() => {
+      fetch('/api/user')
+        .then((res) => res.status)
+        .then((status) => {
+          setData(status)
+        })
+    }, [])
     return (
         <div>
             <div className="grid h-screen place-items-center">
@@ -9,10 +20,14 @@ function Home() {
                         Chat with friends!
                     </span>
                     <div className="m-5">
-                        <a href="/login"><button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
-                            Login</button></a>
-                        <a href="/register"><button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
-                            Signup</button></a>
+                        {statusCode == 203 && 
+                            <div>
+                                <a href="/login"><button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">Login</button></a>
+                                <a href="/register"><button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">Sign Up</button></a>
+                            </div>
+                        }
+                        {statusCode == 200 &&  <a href="/app"><button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">Continue to App</button></a>}
+                        
                     </div>
                 </div>
             </div>
