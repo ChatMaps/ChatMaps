@@ -22,7 +22,7 @@ export async function middleware(req, res) {
 
   // If new user, redirect to onboarding
   var user = JSON.parse(req.cookies.get("user").value)
-  if (user.firstName !== "DNE") {
+  if (user.defined) {
     return NextResponse.next();
   } else {
     return NextResponse.redirect(new URL("/onboarding", req.url));

@@ -25,7 +25,7 @@ async function handleEmailAndPassword(email, password) {
         if (!user.exists()) {
           var userOptions = {
             name: "user",
-            value: JSON.stringify({firstName: 'DNE', uid: userCredential.user.uid}),
+            value: JSON.stringify({defined: false, uid: userCredential.user.uid}),
             maxAge: expiresIn, // 20 mins
             httpOnly: true,
             secure: true,
@@ -33,6 +33,7 @@ async function handleEmailAndPassword(email, password) {
         } else {
           var userData = user.val()
           userData.uid = userCredential.user.uid
+          userData.defined = true
           var userOptions = {
             name: "user",
             value: JSON.stringify(userData),
