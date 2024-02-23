@@ -21,13 +21,8 @@ export async function middleware(req, res) {
   }
 
   // If new user, redirect to onboarding
-  var { uid } = await responseAPI.json()
-  var user = await fetch(new URL("/api/user", req.url), {
-    method: "POST",
-    body: JSON.stringify(uid ? uid : {}),
-  });
-  user = await user.json();
-  if (user.firstName !== "not-found") {
+  var user = JSON.parse(req.cookies.get("user").value)
+  if (user.firstName !== "DNE") {
     return NextResponse.next();
   } else {
     return NextResponse.redirect(new URL("/onboarding", req.url));
