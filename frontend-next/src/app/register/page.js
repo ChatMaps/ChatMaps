@@ -13,6 +13,17 @@ function Register() {
 
     const passwordMatch = (data) => {
         return data.password === data.passwordCheck;
+    };
+    
+    const onSubmit = (data) => {
+        if (passwordMatch(data)) {
+            setPasswordMismatch(false);
+            router.push("/success");
+
+        } else{
+            setPasswordMismatch(true);
+            return;
+        }
     }
 
     return (
@@ -25,21 +36,17 @@ function Register() {
                     </span>
                     <div>
                         <h3 className="text-[24px] mt-[15px]">Register</h3>
-                        <Form action="/api/register" encType={'application/json'} 
-                        onSubmit={handleSubmit((data) => {
-                            if (passwordMatch(data)) {
-                                router.push("/app");
-                            } else {
-                                setPasswordMismatch(true);
-                                return;
-                            }
-                        })}
-                        
+                        <Form onSubmit={handleSubmit(onSubmit)}
+                        onSuccess={() => {
+                            router.push("/app");
+                        }}
+                        action="/api/register" 
+                        encType={'application/json'}
                         control={control}
                         >
                             <input type="email" {...register("email", {required: true, pattern: emailRegex})} className={errors.email && "err"} placeholder="Enter Email Address"/><br/>
                             <input type="password" {...register("password", {required: true})} className={errors.password && errors.password.type == 'required' && "err"} placeholder="Enter Password"/><br/>
-                            <input type ="password" {...register("passwordCheck", {required: false})} className ={errors.passwordCheck && errors.passwordCheck.type == 'required' && "err"} placeholder="Re-enter Password"/><br/>
+                            <input type ="password" {...register("passwordCheck", {required: false})} className ={errors.passwordCheckheck && errors.passwordCheck.type == 'required' && "err"} placeholder="Re-enter Password"/><br/>
                                 {passwordMismatch && <p className="text-red-500">Passwords do not match</p>}
                             <button type="submit" className="bg-[#dee0e0] m-5 bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
                                 Register</button><br/>
