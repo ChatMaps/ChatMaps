@@ -3,7 +3,6 @@ import { useRouter } from "next/navigation";
 import { useForm, Form } from "react-hook-form";
 import "../globals.css"
 import { useState } from "react";
-import { data } from "autoprefixer";
 
 function Register() {
     var { register, control, setError, handleSubmit, formState: { errors } } = useForm()
