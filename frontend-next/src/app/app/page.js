@@ -1,25 +1,44 @@
 "use client"
-import { useState, useEffect } from 'react'
+import { useState, useEffect, createContext, useContext } from 'react'
 import {Map, Marker, ZoomControl} from "pigeon-maps"
 import { Form, useForm } from "react-hook-form";
 import { app } from "../api/firebase-config";
-import { getDatabase, ref, onValue, get  } from "firebase/database";
+import { getDatabase, ref, onValue, get, set} from "firebase/database";
 var database = getDatabase(app)
 
-
-function ChatRoomSidebar({roomObj}) {
+// Data types
+function Chat({chatObj}) {
+  let dateOptions = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  };
   return (
-    <div className='border-[black] border-1 shadow-lg p-2 m-2 rounded-lg grid grid-cols-3 cursor-pointer'>
-      <div className=''>
-        Icons
+    <div className='width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2'>
+      <div>
+        {chatObj.user}: {chatObj.body}
       </div>
-      <div className='col-span-2'>
-        <div className='font-bold'>{roomObj.name}</div>
-        <div className='italic'> x Members</div>
+      <div className='text-right text-[#d1d1d1]'>
+        {new Date(chatObj.timestamp).toLocaleString(dateOptions)}
       </div>
     </div>
   )
 }
+
+function ChatRoomSidebar({roomObj, click}) {
+return (
+  <div onClick={click} className='border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer'>
+    <div className='col-span-2'>
+      <div className='font-bold'>{roomObj.name}</div>
+      <div className='italic'> x Members</div>
+    </div>
+  </div>
+)
+}
+
 
 function WelcomeMessage() {
   //TODO: REALLY GROSS WAY TO GET COOKIES, NEED NEW WAY TO STORE USER DATA WITHOUT API CALLS. THIS PAGE HAS TO BE CLIENT SIDE DUE TO MAPS / GEOLOCATION
@@ -77,6 +96,9 @@ function Geo() {
   
 }
 
+
+
+// Main Tabs
 function MainTabHome() {
   return (
     <>
@@ -88,21 +110,19 @@ function MainTabHome() {
   )
 }
 
-function Chat({chatObj}) {
-    return (
-      <div key="" className='width-[100%] bg-white rounded-lg mt-1 text-left p-1'>
-        {chatObj.user}: {chatObj.body}
-      </div>
-    )
-}
-
-function MainTabChatRoom({chatRoom}) {
-  var { register, control, setError, formState: { errors, isSubmitting, isSubmitted } } = useForm()
+function MainTabChatRoom({room}) {
+  var { register, control, reset, handleSubmit} = useForm()
   const [chats, setData] = useState(null)
   const [isLoading, setLoading] = useState(true)
+  var user
+  fetch('/api/user')
+      .then((res) => res.json())
+      .then((data) => {
+        user = data
+      })
   var unsubscribeUpdater
   useEffect(() => {
-    unsubscribeUpdater = onValue(ref(database, "/rooms/1"), (snapshot) => {
+    unsubscribeUpdater = onValue(ref(database, `/rooms/${room}`), (snapshot) => {
         var chatsarr = []
         var messages = snapshot.val()
         for (var message in messages) {
@@ -112,6 +132,18 @@ function MainTabChatRoom({chatRoom}) {
         setLoading(false)
     })
   }, [])
+
+  function sendMessage(data) {
+    reset()
+    var payload = {
+      body: data.message,
+      user: user.username,
+      timestamp: new Date().getTime()
+    }
+    set(ref(database,`/rooms/${room}/${user.username}-${new Date().getTime()}`), payload)
+  }
+
+
   if (isLoading) return <div>Loading</div>
   if (!chats) return <div>No Chats</div>
   return (
@@ -120,8 +152,8 @@ function MainTabChatRoom({chatRoom}) {
         {chats}
       </div>
       <div className='m-2 h-[10%] w-[100%] bg-white rounded-lg'>
-        <Form control={control} className='w-[100%]'>
-          <input type="text" className='w-[81%]'/>
+        <Form onSubmit={handleSubmit(sendMessage)} control={control} className='w-[100%]'>
+          <input type="text" {...register("message")} className='w-[81%]'/>
           <button className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Send</button>
         </Form>
       </div>
@@ -129,45 +161,31 @@ function MainTabChatRoom({chatRoom}) {
   )
 }
 
-function MyRooms() {
-  const [myrooms, setData] = useState(null)
-  const [isLoading, setLoading] = useState(true)
-  var unsubscribeUpdater
+function Home() {
+  var [tab, setTab] = useState("nearby")
+  var [mainTab, setMainTab] = useState("home")
+  var [chatRoom, setChatRoom] = useState("Dev")
+
+  const [myrooms, setRoomData] = useState(null)
+  const [isRoomLoading, setRoomLoading] = useState(true)
   useEffect(() => {
-        fetch('/api/user').then((res) => {
-            res.json().then((user) => {
-              console.log(user.uid)
-              get(ref(database,`/users/${user.uid}/rooms`), (snapshot) => {
-                var json = snapshot.val()
-                console.log(json)
-                var roomsArr = []
-                for (var room in json) {
-                  console.log(room,json[room])
-                  roomsArr.push(<ChatRoomSidebar roomObj={json[room]} id={json[room].name}/>)
-                }  
-                setData(roomsArr)
-                setLoading(false)
-              })   
+        fetch('/api/user').then((res) => res.json())
+        .then((user) => {
+          get(ref(database, '/users/'+user.uid+'/rooms')).then((snapshot) => {
+            var rooms = snapshot.val()
+            var roomArr = []
+            for (var room in rooms) {
+              roomArr.push(<ChatRoomSidebar roomObj={rooms[room]} key={rooms[room]} click={() => {setChatRoom(rooms[room].name);setMainTab("chat")}}/>)
+            }
+            setRoomData(roomArr)
+            setRoomLoading(false)
           })
         })
   }, [])
-  if (isLoading) return <div>Loading</div>
-  if (!myrooms) return <div>No Data</div>
-  return (
-    <div>
-      {myrooms}
-    </div>
-  )
-}
-
-function Home() {
-  var [tab, setTab] = useState("nearby")
-  var [mainTab, setMainTab] = useState("chat")
-  var [chatRoom, setChatRoom] = useState("NA")
 
   return (
     <div className="grid grid-cols-4 auto-cols-max overflow-hidden">
-      <div className="col-span-3 h-page">
+      <div className="col-span-3 h-dvh">
         <div className="m-2 rounded-lg h-[63px] bg-white shadow-2xl grid grid-cols-2 p-1">
           <div className='h-[60px]'>
             <a href="/"><img src="logos/logo_transparent_inverse.png" className='h-[60px]'/></a>
@@ -197,7 +215,9 @@ function Home() {
               {tab == "rooms" && <div className='overflow-y-auto h-[90%]'>
                 My Rooms
                 <div>
-                  <MyRooms/>
+                  {isRoomLoading && <div>Loading</div>}
+                  {!myrooms && <div>No User Saved Rooms</div>}
+                  {myrooms}
                 </div>
               </div>}
               {tab == "create" && <div className='overflow-y-auto h-[90%]'>
