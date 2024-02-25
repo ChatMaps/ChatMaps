@@ -2,15 +2,19 @@
 import { useState, useEffect } from 'react'
 import {Map, Marker, ZoomControl} from "pigeon-maps"
 import { Form, useForm } from "react-hook-form";
+import { app } from "../api/firebase-config";
+import { getDatabase, ref, onValue, get  } from "firebase/database";
+var database = getDatabase(app)
 
-function ChatRoomSidebar({roomName}) {
+
+function ChatRoomSidebar({roomObj}) {
   return (
     <div className='border-[black] border-1 shadow-lg p-2 m-2 rounded-lg grid grid-cols-3 cursor-pointer'>
       <div className=''>
         Icons
       </div>
       <div className='col-span-2'>
-        <div className='font-bold'>{roomName}</div>
+        <div className='font-bold'>{roomObj.name}</div>
         <div className='italic'> x Members</div>
       </div>
     </div>
@@ -84,19 +88,74 @@ function MainTabHome() {
   )
 }
 
-function ChatRoom({chatRoom}) {
+function Chat({chatObj}) {
+    return (
+      <div key="" className='width-[100%] bg-white rounded-lg mt-1 text-left p-1'>
+        {chatObj.user}: {chatObj.body}
+      </div>
+    )
+}
+
+function MainTabChatRoom({chatRoom}) {
   var { register, control, setError, formState: { errors, isSubmitting, isSubmitted } } = useForm()
+  const [chats, setData] = useState(null)
+  const [isLoading, setLoading] = useState(true)
+  var unsubscribeUpdater
+  useEffect(() => {
+    unsubscribeUpdater = onValue(ref(database, "/rooms/1"), (snapshot) => {
+        var chatsarr = []
+        var messages = snapshot.val()
+        for (var message in messages) {
+          chatsarr.push(<Chat chatObj={messages[message]} key={messages[message].timestamp}/>)
+        }
+        setData(chatsarr)
+        setLoading(false)
+    })
+  }, [])
+  if (isLoading) return <div>Loading</div>
+  if (!chats) return <div>No Chats</div>
   return (
     <div className='m-1 h-[100%] rounded-lg'>
-      <div className='h-[90%] m-4'>
-        Chats Go Here
+      <div className='h-[90%] m-4 overflow-y-auto'>
+        {chats}
       </div>
       <div className='m-2 h-[10%] w-[100%] bg-white rounded-lg'>
         <Form control={control} className='w-[100%]'>
-          <input type="text" className='w-[91%]'/>
+          <input type="text" className='w-[81%]'/>
           <button className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Send</button>
         </Form>
       </div>
+    </div>
+  )
+}
+
+function MyRooms() {
+  const [myrooms, setData] = useState(null)
+  const [isLoading, setLoading] = useState(true)
+  var unsubscribeUpdater
+  useEffect(() => {
+        fetch('/api/user').then((res) => {
+            res.json().then((user) => {
+              console.log(user.uid)
+              get(ref(database,`/users/${user.uid}/rooms`), (snapshot) => {
+                var json = snapshot.val()
+                console.log(json)
+                var roomsArr = []
+                for (var room in json) {
+                  console.log(room,json[room])
+                  roomsArr.push(<ChatRoomSidebar roomObj={json[room]} id={json[room].name}/>)
+                }  
+                setData(roomsArr)
+                setLoading(false)
+              })   
+          })
+        })
+  }, [])
+  if (isLoading) return <div>Loading</div>
+  if (!myrooms) return <div>No Data</div>
+  return (
+    <div>
+      {myrooms}
     </div>
   )
 }
@@ -120,7 +179,7 @@ function Home() {
         </div>
         <div className="mr-2 h-[calc(100%-110px)]">
           {mainTab == "home" && <MainTabHome/>}
-          {mainTab == "chat" && <ChatRoom room={chatRoom}/>}
+          {mainTab == "chat" && <MainTabChatRoom room={chatRoom}/>}
         </div>
       </div>
       <div className="h-dvh">
@@ -137,6 +196,9 @@ function Home() {
               </div> }
               {tab == "rooms" && <div className='overflow-y-auto h-[90%]'>
                 My Rooms
+                <div>
+                  <MyRooms/>
+                </div>
               </div>}
               {tab == "create" && <div className='overflow-y-auto h-[90%]'>
                 Create Room
