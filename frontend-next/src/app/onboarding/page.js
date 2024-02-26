@@ -31,6 +31,7 @@ function Onboarding() {
                         Welcome to ChatMaps! We are excited to have you join our community!<br/>First we just need a little bit of information from you to get started.
                     </div>
                     <form action="#" onSubmit={handleSubmit(Onboard)}>
+                            <input type="text" {...register("username")} placeholder="Display Name"/><br/>
                             <input type="text" {...register("firstName")} placeholder="First Name"/><br/>
                             <input type="text" {...register("lastName")} placeholder="Last Name"/><br/>
                             <button type="submit" className="bg-[#dee0e0] m-5">Save</button>
