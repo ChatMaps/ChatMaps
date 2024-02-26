@@ -17,7 +17,7 @@ function Chat({chatObj}) {
     minute: '2-digit'
   };
   return (
-    <div className='width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2'>
+    <div className='width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2'>
       <div>
         {chatObj.user}: {chatObj.body}
       </div>
@@ -33,7 +33,7 @@ return (
   <div onClick={click} className='border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer'>
     <div className='col-span-2'>
       <div className='font-bold'>{roomObj.name}</div>
-      <div className='italic'> x Members</div>
+      <div className='italic'>{roomObj.description}</div>
     </div>
   </div>
 )
@@ -68,23 +68,11 @@ function WelcomeMessage() {
 
 }
 
-function Geo() {
-  const [isLoading, setLoading] = useState(true)
-  const [data, setData] = useState();
-  useEffect(() => {
-    if('geolocation' in navigator) {
-        // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
-        navigator.geolocation.getCurrentPosition(({ coords }) => {
-            const { latitude, longitude } = coords;
-            setData(coords)
-            setLoading(false)
-        })
-    }
-  }, []);
-  if (!isLoading) {
+function Geo({loc}) {
+  if (loc) {
     return (
-      <Map className="rounded-lg" center={[data.latitude, data.longitude]} defaultZoom={14}>
-        <Marker width={50} anchor={[data.latitude, data.longitude]} color="red"/>
+      <Map className="rounded-lg" center={[loc.latitude, loc.longitude]} defaultZoom={14}>
+        <Marker width={50} anchor={[loc.latitude, loc.longitude]} color="red"/>
         <ZoomControl />
       </Map>
     )
@@ -99,12 +87,12 @@ function Geo() {
 
 
 // Main Tabs
-function MainTabHome() {
+function MainTabHome({loc}) {
   return (
     <>
     <WelcomeMessage />
     <div className='h-[calc(100%-110px)] m-5 rounded-lg'>
-      <Geo />
+      <Geo loc={loc}/>
     </div>
     </>
   )
@@ -114,21 +102,23 @@ function MainTabChatRoom({room}) {
   var { register, control, reset, handleSubmit} = useForm()
   const [chats, setData] = useState(null)
   const [isLoading, setLoading] = useState(true)
+
   var user
   fetch('/api/user')
       .then((res) => res.json())
       .then((data) => {
         user = data
       })
+
   var unsubscribeUpdater
   useEffect(() => {
-    unsubscribeUpdater = onValue(ref(database, `/rooms/${room}`), (snapshot) => {
-        var chatsarr = []
+    unsubscribeUpdater = onValue(ref(database, `/rooms/${room}/chats`), (snapshot) => {
+        var chatsArr = []
         var messages = snapshot.val()
         for (var message in messages) {
-          chatsarr.push(<Chat chatObj={messages[message]} key={messages[message].timestamp}/>)
+          chatsArr.push(<Chat chatObj={messages[message]} key={messages[message].timestamp}/>)
         }
-        setData(chatsarr)
+        setData(chatsArr.reverse())
         setLoading(false)
     })
   }, [])
@@ -140,7 +130,7 @@ function MainTabChatRoom({room}) {
       user: user.username,
       timestamp: new Date().getTime()
     }
-    set(ref(database,`/rooms/${room}/${user.username}-${new Date().getTime()}`), payload)
+    set(ref(database,`/rooms/${room}/chats/${user.username}-${new Date().getTime()}`), payload)
   }
 
 
@@ -148,15 +138,47 @@ function MainTabChatRoom({room}) {
   if (!chats) return <div>No Chats</div>
   return (
     <div className='m-1 h-[100%] rounded-lg'>
-      <div className='h-[90%] m-4 overflow-y-auto'>
+      <div className='h-[90%] m-4 overflow-y-auto flex flex-col-reverse'>
         {chats}
       </div>
       <div className='m-2 h-[10%] w-[100%] bg-white rounded-lg'>
-        <Form onSubmit={handleSubmit(sendMessage)} control={control} className='w-[100%]'>
-          <input type="text" {...register("message")} className='w-[81%]'/>
-          <button className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Send</button>
+        <Form onSubmit={handleSubmit(sendMessage)} control={control} className='w-[100%] p-[0px]'>
+          <input type="text" {...register("message")} placeholder="Enter message" className='w-[83%] border-[0px] mt-[8px] mb-[8px]'/>
+          <button className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5 w-[8%]">Send</button>
         </Form>
       </div>
+    </div>
+  )
+}
+
+function CreateRoom({loc}) {
+  var { register, control, reset, handleSubmit} = useForm()
+
+  function createRoom(data) {
+    reset()
+    var path = String(loc.latitude.toFixed(2)).replace(".","")+"/"+String(loc.longitude.toFixed(2)).replace(".","")
+    var timestamp = new Date().getTime()
+    var payload = {
+      name: data.name,
+      description: data.description,
+      timestamp: timestamp,
+      latitude: loc.latitude,
+      longitude: loc.longitude,
+      path: path
+    }
+    set(ref(database,`/rooms/${path}/${data.name}-${timestamp}`), payload)
+  }
+
+  return (
+    <div className='overflow-y-auto h-[90%]'>
+      <Form control={control} onSubmit={handleSubmit(createRoom)}>
+        <input {...register("name")} placeholder='Room Name' className='mt-2'/>
+        <input {...register("description")} placeholder='Room Description' className='mt-2'/><br/>
+        <div className='mt-3 mb-2'>
+          Creating room near ({loc.latitude.toFixed(2)}, {loc.longitude.toFixed(2)})
+        </div>
+        <button className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Create</button>
+      </Form>
     </div>
   )
 }
@@ -166,7 +188,7 @@ function Home() {
   var [mainTab, setMainTab] = useState("home")
   var [chatRoom, setChatRoom] = useState("Dev")
 
-  const [myrooms, setRoomData] = useState(null)
+  const [myRooms, setRoomData] = useState(null)
   const [isRoomLoading, setRoomLoading] = useState(true)
   useEffect(() => {
         fetch('/api/user').then((res) => res.json())
@@ -175,13 +197,43 @@ function Home() {
             var rooms = snapshot.val()
             var roomArr = []
             for (var room in rooms) {
-              roomArr.push(<ChatRoomSidebar roomObj={rooms[room]} key={rooms[room]} click={() => {setChatRoom(rooms[room].name);setMainTab("chat")}}/>)
+              roomArr.push(<ChatRoomSidebar roomObj={rooms[room]} key={rooms[room]} click={() => {setChatRoom(rooms[room].path+"/"+rooms[room].name+"-"+rooms[room].timestamp);setMainTab("chat")}}/>)
             }
             setRoomData(roomArr)
             setRoomLoading(false)
           })
         })
   }, [])
+
+
+  const [location, setLocation] = useState(null);
+  const [loadingLoc, setLoadingLoc] = useState(true)
+  const [nearby, setNearby] = useState(null);
+  const [loadingNearby, setLoadingNearby] = useState(true);
+  useEffect(() => {
+    if('geolocation' in navigator) {
+      // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
+      navigator.geolocation.getCurrentPosition(({ coords }) => {
+        setLocation(coords)
+        setLoadingLoc(false)
+        var nearbyArr = []
+        var path = String(coords.latitude.toFixed(2)).replace(".","")+"/"+String(coords.longitude.toFixed(2)).replace(".","")
+        get(ref(database, `/rooms/${path}`)).then((snapshot) => {
+          if (snapshot.exists()) {
+            var data = snapshot.val()
+            for (var room in data) {
+              nearbyArr.push(<ChatRoomSidebar roomObj={data[room]} click={() => {setChatRoom(data[room].path+"/"+data[room].name+"-"+data[room].timestamp);setMainTab("chat")}}/>)
+            }
+            setLoadingNearby(false)
+            setNearby(nearbyArr)
+          } else {
+            setLoadingNearby(false)
+          }
+        })
+      })
+    }
+  }, []);
+
 
   return (
     <div className="grid grid-cols-4 auto-cols-max overflow-hidden">
@@ -196,7 +248,8 @@ function Home() {
           </div>
         </div>
         <div className="mr-2 h-[calc(100%-110px)]">
-          {mainTab == "home" && <MainTabHome/>}
+          {(mainTab == "home" && !loadingLoc) && <MainTabHome loc={location}/>}
+          {(mainTab == "home" && loadingLoc) && <MainTabHome loc={null}/>}
           {mainTab == "chat" && <MainTabChatRoom room={chatRoom}/>}
         </div>
       </div>
@@ -210,19 +263,21 @@ function Home() {
                 </div>
               </div>
               {tab == "nearby" && <div className='overflow-y-auto h-[90%]'>
-                Nearby
-              </div> }
-              {tab == "rooms" && <div className='overflow-y-auto h-[90%]'>
-                My Rooms
                 <div>
-                  {isRoomLoading && <div>Loading</div>}
-                  {!myrooms && <div>No User Saved Rooms</div>}
-                  {myrooms}
+                  {(!nearby && !loadingNearby) && <div>No Nearby Rooms<br/>Create One?</div>}
+                  {loadingNearby && <div>Loading...</div>}
+                  {nearby}
                 </div>
               </div>}
-              {tab == "create" && <div className='overflow-y-auto h-[90%]'>
-                Create Room
+              {tab == "rooms" && <div className='overflow-y-auto h-[90%]'>
+                <div>
+                  {isRoomLoading && <div>Loading</div>}
+                  {(!myRooms && !isRoomLoading) && <div>No User Saved Rooms</div>}
+                  {myRooms}
+                </div>
               </div>}
+              {(tab == "create" && !loadingLoc) && <CreateRoom loc={location}/>}
+              {(tab == "create" && loadingLoc) && <div>Loading...</div>}
           </div>
       </div>
     </div>
