@@ -4,6 +4,7 @@ import { useForm, Form } from "react-hook-form";
 import "../globals.css"
 import { useState } from "react";
 
+
 function Register() {
     var { register, control, setError, handleSubmit, formState: { errors } } = useForm()
     var router = useRouter();
@@ -45,7 +46,7 @@ function Register() {
                         >
                             <input type="email" {...register("email", {required: true, pattern: emailRegex})} className={errors.email && "err"} placeholder="Enter Email Address"/><br/>
                             <input type="password" {...register("password", {required: true})} className={errors.password && errors.password.type == 'required' && "err"} placeholder="Enter Password"/><br/>
-                            <input type ="password" {...register("passwordCheck", {required: false})} className ={errors.passwordCheckheck && errors.passwordCheck.type == 'required' && "err"} placeholder="Re-enter Password"/><br/>
+                            <input type ="password" {...register("passwordCheck", {required: false})} className ={errors.passwordCheck && errors.passwordCheck.type == 'required' && "err"} placeholder="Re-enter Password"/><br/>
                                 {passwordMismatch && <p className="text-red-500">Passwords do not match</p>}
                             <button type="submit" className="bg-[#dee0e0] m-5 bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
                                 Register</button><br/>
