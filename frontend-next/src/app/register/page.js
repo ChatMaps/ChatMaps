@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useForm, Form } from "react-hook-form";
 import "../globals.css"
-import React, {useState} from 'react';
+import { useState } from "react";
 
 
 function Register() {
