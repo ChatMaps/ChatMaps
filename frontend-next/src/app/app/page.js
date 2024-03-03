@@ -187,12 +187,16 @@ function Home() {
   var [tab, setTab] = useState("nearby")
   var [mainTab, setMainTab] = useState("home")
   var [chatRoom, setChatRoom] = useState("Dev")
+  const [chatSidebar, setChatSidebar] = useState("home")
+  var [user, setUser] = useState(null)
+
 
   const [myRooms, setRoomData] = useState(null)
   const [isRoomLoading, setRoomLoading] = useState(true)
   useEffect(() => {
         fetch('/api/user').then((res) => res.json())
         .then((user) => {
+          setUser(user)
           get(ref(database, '/users/'+user.uid+'/rooms')).then((snapshot) => {
             var rooms = snapshot.val()
             var roomArr = []
@@ -210,6 +214,7 @@ function Home() {
   const [loadingLoc, setLoadingLoc] = useState(true)
   const [nearby, setNearby] = useState(null);
   const [loadingNearby, setLoadingNearby] = useState(true);
+  const [myRoomsData, setMyRoomsData] = useState(null)
   useEffect(() => {
     if('geolocation' in navigator) {
       // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
@@ -221,6 +226,7 @@ function Home() {
         get(ref(database, `/rooms/${path}`)).then((snapshot) => {
           if (snapshot.exists()) {
             var data = snapshot.val()
+            setMyRoomsData(data)
             for (var room in data) {
               nearbyArr.push(<ChatRoomSidebar roomObj={data[room]} click={() => {setChatRoom(data[room].path+"/"+data[room].name+"-"+data[room].timestamp);setMainTab("chat")}}/>)
             }
@@ -243,6 +249,8 @@ function Home() {
             <a href="/"><img src="logos/logo_transparent_inverse.png" className='h-[60px]'/></a>
           </div>
           <div className='h-[60px] p-4'>
+            {(mainTab == "chat") && <a onClick={() => {alert("WIP")}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Add to &quot;My Rooms&quot;</a>}
+            {(mainTab == "chat") && <a onClick={() => {alert("WIP")}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Remove from &quot;My Rooms&quot;</a>}
             {mainTab == "chat" && <a onClick={() => {setMainTab("home")}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Close Chat</a>}
             <a href="/api/signout" className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full">Sign Out</a>
           </div>
@@ -253,6 +261,7 @@ function Home() {
           {mainTab == "chat" && <MainTabChatRoom room={chatRoom}/>}
         </div>
       </div>
+      {mainTab == "home" &&
       <div className="h-dvh">
           <div className="bg-white shadow-2xl rounded-lg m-2 h-[98%]">
               <div className='p-2'>
@@ -279,7 +288,29 @@ function Home() {
               {(tab == "create" && !loadingLoc) && <CreateRoom loc={location}/>}
               {(tab == "create" && loadingLoc) && <div>Loading...</div>}
           </div>
+      </div> }
+      {(mainTab == "chat" && chatSidebar=="home") && 
+      <div className="h-dvh">
+        <div className="m-2 h-[98%] grid grid-cols-1">
+          <div className='bg-white rounded-lg m-2 shadow-2xl'>
+            Top
+          </div>
+          <div className='bg-white rounded-lg m-2 shadow-2xl'>
+            Online Members
+          </div>
+          <div className='bg-white rounded-lg m-2 shadow-2xl'>
+            Offline Members
+          </div>
+        </div>
       </div>
+      }
+      {(mainTab == "chat" && chatSidebar=="profile") && 
+      <div className="h-dvh">
+        <div className=" bg-white m-2 h-[98%]">
+          Profile
+        </div>
+      </div>
+      }
     </div>
   )
 }
