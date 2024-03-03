@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react'
 
 function Home() {
     const [statusCode, setData] = useState(null)
+    const [isLoading, setLoading] = useState(true)
     useEffect(() => {
       fetch('/api/user')
         .then((res) => res.status)
         .then((status) => {
           setData(status)
+          setLoading(false)
         })
     }, [])
     return (
@@ -20,7 +22,7 @@ function Home() {
                         Chat with friends!
                     </span>
                     <div className="m-5">
-                        {statusCode == 203 && 
+                        {(statusCode == 203 || isLoading) && 
                             <div>
                                 <a href="/login"><button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">Login</button></a>
                                 <a href="/register"><button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">Sign Up</button></a>
