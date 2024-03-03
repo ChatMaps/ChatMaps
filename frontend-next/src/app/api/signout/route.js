@@ -6,5 +6,5 @@ export async function GET(req) {
   cookies().delete('user')
   cookies().delete('session')
   cookies().delete('uid')
-  return NextResponse.json({}, { status: 200 });
+  return NextResponse.redirect(new URL("/",req.url))
 }

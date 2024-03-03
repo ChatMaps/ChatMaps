@@ -2,13 +2,13 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 var config = {
-    apiKey: process.env.FIREBASE_CONFIG_API_KEY,
-    authDomain: process.env.FIREBASE_CONFIG_AUTH_DOMAIN,
-    projectId: process.env.FIREBASE_CONFIG_PROJECT_ID,
-    storageBucket: process.env.FIREBASE_CONFIG_STORAGE_BUCKET,
-    messagingSenderId: process.env.FIREBASE_CONFIG_MESSAGING_SENDER_ID,
-    appId: process.env.FIREBASE_CONFIG_APPID,
-    databaseURL: process.env.FIREBASE_CONFIG_DATABASE_URL,
+    apiKey: "AIzaSyDbDPjQGt-lIjNPeTG-Q5AECM1m0vtOr2c",
+    authDomain: "chatmaps-3e7fa.firebaseapp.com",
+    projectId: "chatmaps-3e7fa",
+    storageBucket: "chatmaps-3e7fa.appspot.com",
+    messagingSenderId: "771010649524",
+    appId: "1:771010649524:web:b6e66d3457820c817b26e1",
+    databaseURL: "https://chatmaps-3e7fa-default-rtdb.firebaseio.com/",
 }
 
 var app = getApps().length > 0 ? getApp() : initializeApp(config);
