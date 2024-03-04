@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, createContext, useContext } from 'react'
+import { useState, useEffect } from 'react'
 import {Map, Marker, ZoomControl} from "pigeon-maps"
 import { Form, useForm } from "react-hook-form";
 import { app } from "../api/firebase-config";
@@ -24,6 +24,14 @@ function Chat({chatObj}) {
       <div className='text-right text-[#d1d1d1]'>
         {new Date(chatObj.timestamp).toLocaleString(dateOptions)}
       </div>
+    </div>
+  )
+}
+
+function Member() {
+  return (
+    <div className='bg-[aliceblue] rounded-lg m-3 shadow-xl p-2'>
+      LAX18
     </div>
   )
 }
@@ -68,12 +76,13 @@ function WelcomeMessage() {
 
 }
 
-function Geo({loc}) {
+// TODO: MAKE NOT MOVABLE
+function Geo({loc, zoom, movable}) {
   if (loc) {
     return (
       <Map className="rounded-lg" center={[loc.latitude, loc.longitude]} defaultZoom={14}>
         <Marker width={50} anchor={[loc.latitude, loc.longitude]} color="red"/>
-        <ZoomControl />
+        {zoom && <ZoomControl />}
       </Map>
     )
   } else {
@@ -92,23 +101,16 @@ function MainTabHome({loc}) {
     <>
     <WelcomeMessage />
     <div className='h-[calc(100%-110px)] m-5 rounded-lg'>
-      <Geo loc={loc}/>
+      <Geo loc={loc} zoom={true} movable={true}/>
     </div>
     </>
   )
 }
 
-function MainTabChatRoom({room}) {
+function MainTabChatRoom({room, user}) {
   var { register, control, reset, handleSubmit} = useForm()
   const [chats, setData] = useState(null)
   const [isLoading, setLoading] = useState(true)
-
-  var user
-  fetch('/api/user')
-      .then((res) => res.json())
-      .then((data) => {
-        user = data
-      })
 
   var unsubscribeUpdater
   useEffect(() => {
@@ -130,7 +132,7 @@ function MainTabChatRoom({room}) {
       user: user.username,
       timestamp: new Date().getTime()
     }
-    set(ref(database,`/rooms/${room}/chats/${user.username}-${new Date().getTime()}`), payload)
+    set(ref(database,`/rooms/${room}/chats/${new Date().getTime()}-${user.username}`), payload)
   }
 
 
@@ -201,7 +203,7 @@ function Home() {
             var rooms = snapshot.val()
             var roomArr = []
             for (var room in rooms) {
-              roomArr.push(<ChatRoomSidebar roomObj={rooms[room]} key={rooms[room]} click={() => {setChatRoom(rooms[room].path+"/"+rooms[room].name+"-"+rooms[room].timestamp);setMainTab("chat")}}/>)
+              roomArr.push(<ChatRoomSidebar roomObj={rooms[room]} key={rooms[room]} click={() => {setChatRoom(rooms[room].path+"/"+rooms[room].name+"-"+rooms[room].timestamp);setMainTab("chat")}} user={user}/>)
             }
             setRoomData(roomArr)
             setRoomLoading(false)
@@ -226,7 +228,6 @@ function Home() {
         get(ref(database, `/rooms/${path}`)).then((snapshot) => {
           if (snapshot.exists()) {
             var data = snapshot.val()
-            setMyRoomsData(data)
             for (var room in data) {
               nearbyArr.push(<ChatRoomSidebar roomObj={data[room]} click={() => {setChatRoom(data[room].path+"/"+data[room].name+"-"+data[room].timestamp);setMainTab("chat")}}/>)
             }
@@ -258,7 +259,7 @@ function Home() {
         <div className="mr-2 h-[calc(100%-110px)]">
           {(mainTab == "home" && !loadingLoc) && <MainTabHome loc={location}/>}
           {(mainTab == "home" && loadingLoc) && <MainTabHome loc={null}/>}
-          {mainTab == "chat" && <MainTabChatRoom room={chatRoom}/>}
+          {mainTab == "chat" && <MainTabChatRoom room={chatRoom} user={user}/>}
         </div>
       </div>
       {mainTab == "home" &&
@@ -292,11 +293,20 @@ function Home() {
       {(mainTab == "chat" && chatSidebar=="home") && 
       <div className="h-dvh">
         <div className="m-2 h-[98%] grid grid-cols-1">
-          <div className='bg-white rounded-lg m-2 shadow-2xl'>
-            Top
+          <div className='bg-white rounded-lg m-2 shadow-2xl relative'>
+              <div className='w-[100%] h-[100%] opacity-50 absolute'>
+                <Geo loc={location} zoom={false} movable={false}/>
+              </div>
+              <div className='z-10 top-0 left-0 w-[100%] h-[100%] absolute text-left pl-3 pt-2'>
+                <span className='font-bold text-[24px]'>Room Name</span><br/>
+                Room Description
+              </div>
           </div>
           <div className='bg-white rounded-lg m-2 shadow-2xl'>
-            Online Members
+            <div>
+              Online Members
+            </div>
+            <Member/>
           </div>
           <div className='bg-white rounded-lg m-2 shadow-2xl'>
             Offline Members
