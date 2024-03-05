@@ -6,7 +6,10 @@ import { app } from "../api/firebase-config";
 import { getDatabase, ref, onValue, get, set} from "firebase/database";
 var database = getDatabase(app)
 
-// Data types
+
+// Data Types
+
+// Chat Message
 function Chat({chatObj}) {
   let dateOptions = {
     weekday: 'long',
@@ -28,14 +31,16 @@ function Chat({chatObj}) {
   )
 }
 
+// Member for Active/Room members in sidebar
 function Member() {
   return (
-    <div className='bg-[aliceblue] rounded-lg m-3 shadow-xl p-2'>
+    <div className='cursor-pointer g-[aliceblue] rounded-lg m-3 shadow-xl p-2'>
       LAX18
     </div>
   )
 }
 
+// Chat Room for myRooms and Nearby in sidebar
 function ChatRoomSidebar({roomObj, click}) {
 return (
   <div onClick={click} className='border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer'>
@@ -47,7 +52,25 @@ return (
 )
 }
 
+// Map module for main page and chat room sidebar
+// TODO: MAKE NOT MOVABLE
+function Geo({loc, zoom, movable}) {
+  if (loc) {
+    return (
+      <Map className="rounded-lg" center={[loc.latitude, loc.longitude]} defaultZoom={14}>
+        <Marker width={50} anchor={[loc.latitude, loc.longitude]} color="red"/>
+        {zoom && <ZoomControl />}
+      </Map>
+    )
+  } else {
+    return (
+      <Map className="rounded-lg" defaultCenter={[0, 0]} defaultZoom={14}/>
+    )
+  }
+  
+}
 
+// Module for Welcome Message on main tab landing page
 function WelcomeMessage() {
   //TODO: REALLY GROSS WAY TO GET COOKIES, NEED NEW WAY TO STORE USER DATA WITHOUT API CALLS. THIS PAGE HAS TO BE CLIENT SIDE DUE TO MAPS / GEOLOCATION
   const [data, setData] = useState(null)
@@ -76,26 +99,8 @@ function WelcomeMessage() {
 
 }
 
-// TODO: MAKE NOT MOVABLE
-function Geo({loc, zoom, movable}) {
-  if (loc) {
-    return (
-      <Map className="rounded-lg" center={[loc.latitude, loc.longitude]} defaultZoom={14}>
-        <Marker width={50} anchor={[loc.latitude, loc.longitude]} color="red"/>
-        {zoom && <ZoomControl />}
-      </Map>
-    )
-  } else {
-    return (
-      <Map className="rounded-lg" defaultCenter={[0, 0]} defaultZoom={14}/>
-    )
-  }
-  
-}
-
-
-
 // Main Tabs
+// Primary App Landing Page
 function MainTabHome({loc}) {
   return (
     <>
@@ -107,6 +112,7 @@ function MainTabHome({loc}) {
   )
 }
 
+// Chatroom Module for Primary Tab
 function MainTabChatRoom({room, user}) {
   var { register, control, reset, handleSubmit} = useForm()
   const [chats, setData] = useState(null)
@@ -153,48 +159,56 @@ function MainTabChatRoom({room, user}) {
   )
 }
 
-function CreateRoom({loc}) {
-  var { register, control, reset, handleSubmit} = useForm()
+// Contains most everything for the app homepage
+// 
+function Home() {
+  // It's time to document and change these awful variable names
+  // State variables for app page
+  const [mainTab, setMainTab] = useState("home") // Primary tab
+  const [tab, setTab] = useState("nearby") // Sidebar Tab
+  const [chatRoom, setChatRoom] = useState(null) // Selected chatroom path
+  const [user, setUser] = useState(null) // Current user object
+  const [myRooms, setRoomData] = useState(null) // Current user saved rooms list
+  const [isRoomLoading, setRoomLoading] = useState(true) // myRooms loading variable, true = myrooms loading, false = finished loading
+  const [location, setLocation] = useState(null) // location variable [lat,long]
+  const [loadingLoc, setLoadingLoc] = useState(true) // location variable loading, true = loading, false = finished loading
+  const [nearby, setNearby] = useState(null); // nearby rooms array
+  const [loadingNearby, setLoadingNearby] = useState(true); // loading nearby rooms array, true = loading, false = finished loading
 
-  function createRoom(data) {
-    reset()
-    var path = String(loc.latitude.toFixed(2)).replace(".","")+"/"+String(loc.longitude.toFixed(2)).replace(".","")
-    var timestamp = new Date().getTime()
-    var payload = {
-      name: data.name,
-      description: data.description,
-      timestamp: timestamp,
-      latitude: loc.latitude,
-      longitude: loc.longitude,
-      path: path
+  // CreateRoom Module for Sidebar Create Tab
+  function CreateRoom({loc}) {
+    var { register, control, reset, handleSubmit} = useForm()
+  
+    function createRoom(data) {
+      reset()
+      var path = String(loc.latitude.toFixed(2)).replace(".","")+"/"+String(loc.longitude.toFixed(2)).replace(".","")
+      var timestamp = new Date().getTime()
+      var payload = {
+        name: data.name,
+        description: data.description,
+        timestamp: timestamp,
+        latitude: loc.latitude,
+        longitude: loc.longitude,
+        path: path
+      }
+      set(ref(database,`/rooms/${path}/${data.name}-${timestamp}`), payload)
     }
-    set(ref(database,`/rooms/${path}/${data.name}-${timestamp}`), payload)
+  
+    return (
+      <div className='overflow-y-auto h-[90%]'>
+        <Form control={control} onSubmit={handleSubmit(createRoom)}>
+          <input {...register("name")} placeholder='Room Name' className='mt-2'/>
+          <input {...register("description")} placeholder='Room Description' className='mt-2'/><br/>
+          <div className='mt-3 mb-2'>
+            Creating room near ({loc.latitude.toFixed(2)}, {loc.longitude.toFixed(2)})
+          </div>
+          <button className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Create</button>
+        </Form>
+      </div>
+    )
   }
 
-  return (
-    <div className='overflow-y-auto h-[90%]'>
-      <Form control={control} onSubmit={handleSubmit(createRoom)}>
-        <input {...register("name")} placeholder='Room Name' className='mt-2'/>
-        <input {...register("description")} placeholder='Room Description' className='mt-2'/><br/>
-        <div className='mt-3 mb-2'>
-          Creating room near ({loc.latitude.toFixed(2)}, {loc.longitude.toFixed(2)})
-        </div>
-        <button className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Create</button>
-      </Form>
-    </div>
-  )
-}
-
-function Home() {
-  var [tab, setTab] = useState("nearby")
-  var [mainTab, setMainTab] = useState("home")
-  var [chatRoom, setChatRoom] = useState("Dev")
-  const [chatSidebar, setChatSidebar] = useState("home")
-  var [user, setUser] = useState(null)
-
-
-  const [myRooms, setRoomData] = useState(null)
-  const [isRoomLoading, setRoomLoading] = useState(true)
+  // Grabs user data, saves to user, then lists the users saved rooms
   useEffect(() => {
         fetch('/api/user').then((res) => res.json())
         .then((user) => {
@@ -211,12 +225,7 @@ function Home() {
         })
   }, [])
 
-
-  const [location, setLocation] = useState(null);
-  const [loadingLoc, setLoadingLoc] = useState(true)
-  const [nearby, setNearby] = useState(null);
-  const [loadingNearby, setLoadingNearby] = useState(true);
-  const [myRoomsData, setMyRoomsData] = useState(null)
+  // Grabs the user location
   useEffect(() => {
     if('geolocation' in navigator) {
       // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
@@ -241,10 +250,11 @@ function Home() {
     }
   }, []);
 
-
   return (
     <div className="grid grid-cols-4 auto-cols-max overflow-hidden">
+      {/* Left Side of Page */}
       <div className="col-span-3 h-dvh">
+        {/* Header */}
         <div className="m-2 rounded-lg h-[63px] bg-white shadow-2xl grid grid-cols-2 p-1">
           <div className='h-[60px]'>
             <a href="/"><img src="logos/logo_transparent_inverse.png" className='h-[60px]'/></a>
@@ -256,12 +266,14 @@ function Home() {
             <a href="/api/signout" className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full">Sign Out</a>
           </div>
         </div>
+        {/* Main Page Section */}
         <div className="mr-2 h-[calc(100%-110px)]">
           {(mainTab == "home" && !loadingLoc) && <MainTabHome loc={location}/>}
           {(mainTab == "home" && loadingLoc) && <MainTabHome loc={null}/>}
           {mainTab == "chat" && <MainTabChatRoom room={chatRoom} user={user}/>}
         </div>
       </div>
+      {/* Sidebar (Right Side of Page) */}
       {mainTab == "home" &&
       <div className="h-dvh">
           <div className="bg-white shadow-2xl rounded-lg m-2 h-[98%]">
@@ -290,7 +302,7 @@ function Home() {
               {(tab == "create" && loadingLoc) && <div>Loading...</div>}
           </div>
       </div> }
-      {(mainTab == "chat" && chatSidebar=="home") && 
+      {(mainTab == "chat") && 
       <div className="h-dvh">
         <div className="m-2 h-[98%] grid grid-cols-1">
           <div className='bg-white rounded-lg m-2 shadow-2xl relative'>
@@ -314,7 +326,7 @@ function Home() {
         </div>
       </div>
       }
-      {(mainTab == "chat" && chatSidebar=="profile") && 
+      {(mainTab == "profile") && 
       <div className="h-dvh">
         <div className=" bg-white m-2 h-[98%]">
           Profile
