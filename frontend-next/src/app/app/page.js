@@ -168,6 +168,7 @@ function Home() {
   const [tab, setTab] = useState("nearby") // Sidebar Tab
   const [chatRoom, setChatRoom] = useState(null) // Selected chatroom path
   const [user, setUser] = useState(null) // Current user object
+  const [chatRoomObj, setChatRoomObj] = useState(null) // Current chatroom object
   const [myRooms, setRoomData] = useState(null) // Current user saved rooms list
   const [isRoomLoading, setRoomLoading] = useState(true) // myRooms loading variable, true = myrooms loading, false = finished loading
   const [location, setLocation] = useState(null) // location variable [lat,long]
@@ -208,6 +209,14 @@ function Home() {
     )
   }
 
+  function selectChatRoom(roomObj) {
+    var path = roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp
+    setChatRoomObj(roomObj)
+    setChatRoom(path)
+    setMainTab("chat")
+    console.log(roomObj)
+  }
+
   // Grabs user data, saves to user, then lists the users saved rooms
   useEffect(() => {
         fetch('/api/user').then((res) => res.json())
@@ -217,7 +226,7 @@ function Home() {
             var rooms = snapshot.val()
             var roomArr = []
             for (var room in rooms) {
-              roomArr.push(<ChatRoomSidebar roomObj={rooms[room]} key={rooms[room]} click={() => {setChatRoom(rooms[room].path+"/"+rooms[room].name+"-"+rooms[room].timestamp);setMainTab("chat")}} user={user}/>)
+              roomArr.push(<ChatRoomSidebar roomObj={rooms[room]} key={rooms[room]} click={() => {selectChatRoom(rooms[room])}} user={user}/>)
             }
             setRoomData(roomArr)
             setRoomLoading(false)
@@ -238,7 +247,7 @@ function Home() {
           if (snapshot.exists()) {
             var data = snapshot.val()
             for (var room in data) {
-              nearbyArr.push(<ChatRoomSidebar roomObj={data[room]} click={() => {setChatRoom(data[room].path+"/"+data[room].name+"-"+data[room].timestamp);setMainTab("chat")}}/>)
+              nearbyArr.push(<ChatRoomSidebar roomObj={data[room]} click={() => {selectChatRoom(data[room])}}/>)
             }
             setLoadingNearby(false)
             setNearby(nearbyArr)
@@ -307,11 +316,11 @@ function Home() {
         <div className="m-2 h-[98%] grid grid-cols-1">
           <div className='bg-white rounded-lg m-2 shadow-2xl relative'>
               <div className='w-[100%] h-[100%] opacity-50 absolute'>
-                <Geo loc={location} zoom={false} movable={false}/>
+                <Geo loc={{latitude: chatRoomObj.latitude, longitude: chatRoomObj.longitude}} zoom={false} movable={false}/>
               </div>
               <div className='z-10 top-0 left-0 w-[100%] h-[100%] absolute text-left pl-3 pt-2'>
-                <span className='font-bold text-[24px]'>Room Name</span><br/>
-                Room Description
+                <span className='font-bold text-[24px]'>{chatRoomObj.name}</span><br/>
+                {chatRoomObj.description}
               </div>
           </div>
           <div className='bg-white rounded-lg m-2 shadow-2xl'>
