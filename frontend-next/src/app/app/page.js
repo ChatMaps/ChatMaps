@@ -32,10 +32,10 @@ function Chat({chatObj}) {
 }
 
 // Member for Active/Room members in sidebar
-function Member() {
+function Member({memberObj}) {
   return (
     <div className='cursor-pointer g-[aliceblue] rounded-lg m-3 shadow-xl p-2'>
-      LAX18
+      {memberObj.username}
     </div>
   )
 }
@@ -175,6 +175,9 @@ function Home() {
   const [loadingLoc, setLoadingLoc] = useState(true) // location variable loading, true = loading, false = finished loading
   const [nearby, setNearby] = useState(null); // nearby rooms array
   const [loadingNearby, setLoadingNearby] = useState(true); // loading nearby rooms array, true = loading, false = finished loading
+  const [chatroomOnline, setChatRoomOnline] = useState(null) // holds online users
+  const [chatroomUsers, setChatroomUsers] = useState(null) // holds all chatroom users
+
 
   // CreateRoom Module for Sidebar Create Tab
   function CreateRoom({loc}) {
@@ -212,6 +215,11 @@ function Home() {
   function selectChatRoom(roomObj) {
     var path = roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp
     setChatRoomObj(roomObj)
+    /* Code for Room Data
+    get(ref(database, `/rooms/${path}`)).then((snapshot) => {
+      
+    })
+    */
     setChatRoom(path)
     setMainTab("chat")
     console.log(roomObj)
@@ -316,7 +324,7 @@ function Home() {
         <div className="m-2 h-[98%] grid grid-cols-1">
           <div className='bg-white rounded-lg m-2 shadow-2xl relative'>
               <div className='w-[100%] h-[100%] opacity-50 absolute'>
-                <Geo loc={{latitude: chatRoomObj.latitude, longitude: chatRoomObj.longitude}} zoom={false} movable={false}/>
+                <Geo loc={{latitude: chatRoomObj.latitude.toFixed(3), longitude: chatRoomObj.longitude.toFixed(3)}} zoom={false} movable={false}/>
               </div>
               <div className='z-10 top-0 left-0 w-[100%] h-[100%] absolute text-left pl-3 pt-2'>
                 <span className='font-bold text-[24px]'>{chatRoomObj.name}</span><br/>
@@ -327,7 +335,7 @@ function Home() {
             <div>
               Online Members
             </div>
-            <Member/>
+            <Member memberObj={{"username": "LAX18"}}/>
           </div>
           <div className='bg-white rounded-lg m-2 shadow-2xl'>
             Offline Members
