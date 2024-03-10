@@ -81,11 +81,12 @@ return (
 
 // Map module for main page and chat room sidebar
 // TODO: MAKE NOT MOVABLE
-function Geo({loc, zoom, movable, marker}) {
+function Geo({loc, zoom, movable, locMarker, markers}) {
   if (loc) {
     return (
       <Map center={[loc.latitude, loc.longitude]} defaultZoom={zoom}>
-        {marker && <Marker width={50} anchor={[loc.latitude, loc.longitude]} color="red"/>}
+        {markers && markers}
+        {locMarker && <Marker width={30} anchor={[loc.latitude, loc.longitude]} color="red"/>}
         {zoom && <ZoomControl />}
       </Map>
     )
@@ -127,12 +128,12 @@ function WelcomeMessage() {
 
 // Main Tabs
 // Primary App Landing Page
-function MainTabHome({loc}) {
+function MainTabHome({loc, markers}) {
   return (
     <>
     <WelcomeMessage />
     <div className='h-[calc(100%-110px)] m-5 rounded-lg'>
-      <Geo loc={loc} zoom={14} movable={true} marker={true}/>
+      <Geo loc={loc} zoom={14} movable={true} locMarker={true} markers={markers}/>
     </div>
     </>
   )
@@ -212,6 +213,7 @@ function Home() {
   const [chatroomUsers, setChatroomUsers] = useState(null) // holds all chatroom users
   const [users, setUsers] = useState(null) // all users from firebase
   const [alreadyLeft, setAlreadyLeft] = useState(false) // if already left from room
+  const [markers, setMarkers] = useState([])
 
   // Grabs user data, saves to user, then lists the users saved rooms
   useEffect(() => {
@@ -221,10 +223,13 @@ function Home() {
         var rooms = snapshot.val()
         setMyRoomsObj(rooms)
         var roomArr = []
+        var markerArr = markers
         for (var room in rooms) {
           var newRoom = <ChatRoomSidebar roomObj={rooms[room]} key={rooms[room].timestamp} click={selectChatRoom}/>
+          markerArr.push(<Marker width={30} anchor={[rooms[room].latitude, rooms[room].longitude]} color="blue"/>)
           roomArr.push(newRoom)
         }
+        setMarkers(markerArr)
         setRoomData(roomArr)
         setRoomLoading(false)
       })
@@ -240,12 +245,16 @@ function Home() {
         setLoadingLoc(false)
         var nearbyArr = []
         var path = String(coords.latitude.toFixed(2)).replace(".","")+"/"+String(coords.longitude.toFixed(2)).replace(".","")
+        var markersArr = markers
         get(ref(database, `/rooms/${path}`)).then((snapshot) => {
           if (snapshot.exists()) {
             var data = snapshot.val()
             for (var room in data) {
               nearbyArr.push(<ChatRoomSidebar roomObj={data[room]} click={selectChatRoom}/>)
+              // TODO: RANDOM LAST DIGIT TO MOVE AROUND THE MAP
+              markersArr.push(<Marker width={30} anchor={[data[room].latitude, data[room].longitude]} color="blue"/>)
             }
+            setMarkers(markersArr)
             setLoadingNearby(false)
             setNearby(nearbyArr)
           } else {
@@ -435,8 +444,8 @@ function Home() {
         </div>
         {/* Main Page Section */}
         <div className="mr-2 h-[calc(100%-110px)]">
-          {(mainTab == "home" && !loadingLoc) && <MainTabHome loc={location}/>}
-          {(mainTab == "home" && loadingLoc) && <MainTabHome loc={null}/>}
+          {(mainTab == "home" && !loadingLoc) && <MainTabHome loc={location} markers={markers}/>}
+          {(mainTab == "home" && loadingLoc) && <MainTabHome loc={null} markers={markers}/>}
           {mainTab == "chat" && <MainTabChatRoom roomObj={chatRoomObj}/>}
         </div>
       </div>
