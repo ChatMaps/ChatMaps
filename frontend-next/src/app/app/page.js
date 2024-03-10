@@ -67,7 +67,7 @@ function Member({memberObj}) {
 function ChatRoomSidebar({roomObj, click}) {
   // TODO: Gross fix but it works
 function clicker() {
-  click(roomObj.name, roomObj)
+  click(roomObj.name+"-"+roomObj.timestamp, roomObj)
 }
 return (
   <div onClick={clicker} className='border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer'>
@@ -201,6 +201,7 @@ function Home() {
   const [mainTab, setMainTab] = useState("home") // Primary tab
   const [tab, setTab] = useState("nearby") // Sidebar Tab
   const [chatRoomObj, setChatRoomObj] = useState(null) // Current chatroom object
+  const [myRoomsObj, setMyRoomsObj] = useState(null) // My Rooms Object
   const [myRooms, setRoomData] = useState(null) // Current user saved rooms list
   const [isRoomLoading, setRoomLoading] = useState(true) // myRooms loading variable, true = myRooms loading, false = finished loading
   const [isMyRoom, setIsMyRoom] = useState(false) // Is current room in myRooms? true, false
@@ -219,6 +220,7 @@ function Home() {
     .then((user) => {
       get(ref(database, '/users/'+user.uid+'/rooms')).then((snapshot) => {
         var rooms = snapshot.val()
+        setMyRoomsObj(rooms)
         var roomArr = []
         for (var room in rooms) {
           var newRoom = <ChatRoomSidebar roomObj={rooms[room]} key={rooms[room].timestamp} click={selectChatRoom}/>
@@ -263,6 +265,19 @@ function Home() {
     
   }, []);
 
+  useEffect(() => {
+   if (myRoomsObj && chatRoomObj) {
+    var roomName = chatRoomObj.name+"-"+chatRoomObj.timestamp
+    if (myRooms != null && roomName in myRoomsObj) {
+      // its in there
+      setIsMyRoom(true)
+    } else {
+      // its not in there
+      setIsMyRoom(false)
+    }
+   }
+  }, [chatRoomObj])
+
   // CreateRoom Module for Sidebar Create Tab
   function CreateRoom({loc}) {
     var { register, control, reset, handleSubmit} = useForm()
@@ -302,15 +317,6 @@ function Home() {
     .then((user) => {
       // Path of chatroom
       var path = roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp
-
-      // Test if Room is in myRooms
-      if (myRooms != null && roomName in myRooms.keys) {
-        // its in there
-        setIsMyRoom(true)
-      } else {
-        // its not in there
-        setIsMyRoom(false)
-      }
 
       setChatRoomObj(roomObj)
 
