@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import {Map, Marker, ZoomControl} from "pigeon-maps"
 import { Form, useForm } from "react-hook-form";
 import { app } from "../api/firebase-config";
-import { getDatabase, ref, onValue, get, set} from "firebase/database";
+import { getDatabase, ref, onValue, get, set, remove} from "firebase/database";
 var database = getDatabase(app)
 
 
@@ -23,6 +23,28 @@ function Chat({chatObj}) {
     <div className='width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2'>
       <div>
         {chatObj.user}: {chatObj.body}
+      </div>
+      <div className='text-right text-[#d1d1d1]'>
+        {new Date(chatObj.timestamp).toLocaleString(dateOptions)}
+      </div>
+    </div>
+  )
+}
+
+// System Chat Message
+function SystemMessage({chatObj}) {
+  let dateOptions = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  };
+  return (
+    <div className='width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2'>
+      <div className='text-[#d1d1d1]'>
+        {chatObj.user} has {chatObj.body} the room.
       </div>
       <div className='text-right text-[#d1d1d1]'>
         {new Date(chatObj.timestamp).toLocaleString(dateOptions)}
@@ -113,18 +135,22 @@ function MainTabHome({loc}) {
 }
 
 // Chatroom Module for Primary Tab
-function MainTabChatRoom({room, user}) {
+function MainTabChatRoom({roomObj}) {
   var { register, control, reset, handleSubmit} = useForm()
   const [chats, setData] = useState(null)
   const [isLoading, setLoading] = useState(true)
 
   var unsubscribeUpdater
   useEffect(() => {
-    unsubscribeUpdater = onValue(ref(database, `/rooms/${room}/chats`), (snapshot) => {
+    unsubscribeUpdater = onValue(ref(database, `/rooms/${roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp}/chats`), (snapshot) => {
         var chatsArr = []
         var messages = snapshot.val()
         for (var message in messages) {
-          chatsArr.push(<Chat chatObj={messages[message]} key={messages[message].timestamp}/>)
+          if (messages[message].isSystem) {
+            chatsArr.push(<SystemMessage chatObj={messages[message]} key={messages[message].timestamp}/>)
+          } else {
+            chatsArr.push(<Chat chatObj={messages[message]} key={messages[message].timestamp}/>)
+          }
         }
         setData(chatsArr.reverse())
         setLoading(false)
@@ -133,14 +159,17 @@ function MainTabChatRoom({room, user}) {
 
   function sendMessage(data) {
     reset()
-    var payload = {
-      body: data.message,
-      user: user.username,
-      timestamp: new Date().getTime()
-    }
-    set(ref(database,`/rooms/${room}/chats/${new Date().getTime()}-${user.username}`), payload)
+    fetch('/api/user').then((res) => res.json())
+    .then((user) => {
+      var payload = {
+        body: data.message,
+        user: user.username,
+        isSystem: false,
+        timestamp: new Date().getTime()
+      }
+      set(ref(database,`/rooms/${roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp}/chats/${new Date().getTime()}-${user.username}`), payload)
+    })
   }
-
 
   if (isLoading) return <div>Loading</div>
   if (!chats) return <div>No Chats</div>
@@ -166,8 +195,7 @@ function Home() {
   // State variables for app page
   const [mainTab, setMainTab] = useState("home") // Primary tab
   const [tab, setTab] = useState("nearby") // Sidebar Tab
-  const [chatRoom, setChatRoom] = useState(null) // Selected chatroom path
-  const [user, setUser] = useState(null) // Current user object
+  const [loadingUser, setLoadingUser] = useState(true)
   const [chatRoomObj, setChatRoomObj] = useState(null) // Current chatroom object
   const [myRooms, setRoomData] = useState(null) // Current user saved rooms list
   const [isRoomLoading, setRoomLoading] = useState(true) // myRooms loading variable, true = myrooms loading, false = finished loading
@@ -177,7 +205,76 @@ function Home() {
   const [loadingNearby, setLoadingNearby] = useState(true); // loading nearby rooms array, true = loading, false = finished loading
   const [chatroomOnline, setChatRoomOnline] = useState(null) // holds online users
   const [chatroomUsers, setChatroomUsers] = useState(null) // holds all chatroom users
+  const [users, setUsers] = useState(null) // all users from firebase
+  
+  // Handles closing the tab and removing the user from the online section
+  useEffect(() => {
+    window.addEventListener("beforeunload", (ev) => { 
+      ev.preventDefault();
+      fetch('/api/user').then((res) => res.json())
+      .then((user) => {
+        if (chatRoomObj != null) {
+          var payload = {
+            body: "left",
+            user: user.username,
+            isSystem: true,
+            timestamp: new Date().getTime()
+          }
+          set(ref(database,`/rooms/${chatRoomObj.path+"/"+chatRoomObj.name+"-"+chatRoomObj.timestamp}/chats/${new Date().getTime()}-${user.username}`), payload)
+          remove(ref(database, `/rooms/${chatRoomObj.path+"/"+chatRoomObj.name+"-"+chatRoomObj.timestamp}/users/online/${user.uid}`))
+        }
+      })
+    });
+  }, [chatRoomObj])
 
+  // Grabs user data, saves to user, then lists the users saved rooms
+  useEffect(() => {
+    fetch('/api/user').then((res) => res.json())
+    .then((user) => {
+      get(ref(database, '/users/'+user.uid+'/rooms')).then((snapshot) => {
+        var rooms = snapshot.val()
+        var roomArr = []
+        for (var room in rooms) {
+          roomArr.push(<ChatRoomSidebar roomObj={rooms[room]} key={rooms[room]} click={() => {selectChatRoom(rooms[room], user)}}/>)
+        }
+        setRoomData(roomArr)
+        setRoomLoading(false)
+      })
+    })
+}, [])
+
+  // Grabs the user location
+  useEffect(() => {
+    if('geolocation' in navigator) {
+      // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
+      navigator.geolocation.getCurrentPosition(({ coords }) => {
+        setLocation(coords)
+        setLoadingLoc(false)
+        var nearbyArr = []
+        var path = String(coords.latitude.toFixed(2)).replace(".","")+"/"+String(coords.longitude.toFixed(2)).replace(".","")
+        get(ref(database, `/rooms/${path}`)).then((snapshot) => {
+          if (snapshot.exists()) {
+            var data = snapshot.val()
+            for (var room in data) {
+              nearbyArr.push(<ChatRoomSidebar roomObj={data[room]} click={() => {selectChatRoom(data[room])}}/>)
+            }
+            setLoadingNearby(false)
+            setNearby(nearbyArr)
+          } else {
+            setLoadingNearby(false)
+          }
+        })
+      })
+    }
+  }, []);
+
+  // Grab list of all users
+  useEffect(() => {
+    get(ref(database, `/users`)).then((snapshot) => {
+      setUsers(snapshot.val())
+    })
+    
+  }, []);
 
   // CreateRoom Module for Sidebar Create Tab
   function CreateRoom({loc}) {
@@ -212,60 +309,66 @@ function Home() {
     )
   }
 
+  // Selects chat room
   function selectChatRoom(roomObj) {
-    var path = roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp
-    setChatRoomObj(roomObj)
-    /* Code for Room Data
-    get(ref(database, `/rooms/${path}`)).then((snapshot) => {
+    fetch('/api/user').then((res) => res.json())
+    .then((user) => {
+      // Path of chatroom
+      var path = roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp
+      setChatRoomObj(roomObj)
+
+      // Send entered message
+      var payload = {
+        body: "entered",
+        user: user.username,
+        isSystem: true,
+        timestamp: new Date().getTime()
+      }
+      set(ref(database,`/rooms/${path}/chats/${new Date().getTime()}-${user.username}`), payload)
       
+      // Code for Room Data
+      set(ref(database, `/rooms/${path}/users/online/${user.uid}`), user)
+      onValue(ref(database, `/rooms/${path}`), (snapshot) => {
+
+        // Active users list
+        if (snapshot.val().hasOwnProperty("users") && snapshot.val().users.hasOwnProperty("online")) {
+          var activeUsers = []
+          var activeUsersJSON = snapshot.val().users.online
+          for (var user in activeUsersJSON)
+            activeUsers.push(<Member memberObj={activeUsersJSON[user]}/>)
+          setChatRoomOnline(activeUsers)
+        }
+
+        // Users who added to "my rooms"
+        if (snapshot.val().hasOwnProperty("users") && snapshot.val().users.hasOwnProperty("all")) {
+          var allUsers = []
+          var allUsersJSON = snapshot.val().users.all
+          for (var user in allUsersJSON)
+            allUsers.push(<Member memberObj={allUsersJSON[user]}/>)
+          setChatroomUsers(allUsers)
+        }
+
+      })
+      setMainTab("chat")
     })
-    */
-    setChatRoom(path)
-    setMainTab("chat")
-    console.log(roomObj)
   }
 
-  // Grabs user data, saves to user, then lists the users saved rooms
-  useEffect(() => {
-        fetch('/api/user').then((res) => res.json())
-        .then((user) => {
-          setUser(user)
-          get(ref(database, '/users/'+user.uid+'/rooms')).then((snapshot) => {
-            var rooms = snapshot.val()
-            var roomArr = []
-            for (var room in rooms) {
-              roomArr.push(<ChatRoomSidebar roomObj={rooms[room]} key={rooms[room]} click={() => {selectChatRoom(rooms[room])}} user={user}/>)
-            }
-            setRoomData(roomArr)
-            setRoomLoading(false)
-          })
-        })
-  }, [])
-
-  // Grabs the user location
-  useEffect(() => {
-    if('geolocation' in navigator) {
-      // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
-      navigator.geolocation.getCurrentPosition(({ coords }) => {
-        setLocation(coords)
-        setLoadingLoc(false)
-        var nearbyArr = []
-        var path = String(coords.latitude.toFixed(2)).replace(".","")+"/"+String(coords.longitude.toFixed(2)).replace(".","")
-        get(ref(database, `/rooms/${path}`)).then((snapshot) => {
-          if (snapshot.exists()) {
-            var data = snapshot.val()
-            for (var room in data) {
-              nearbyArr.push(<ChatRoomSidebar roomObj={data[room]} click={() => {selectChatRoom(data[room])}}/>)
-            }
-            setLoadingNearby(false)
-            setNearby(nearbyArr)
-          } else {
-            setLoadingNearby(false)
-          }
-        })
-      })
-    }
-  }, []);
+  // Closes chat room
+  function closeChatRoom(roomObj) {
+    fetch('/api/user').then((res) => res.json())
+    .then((user) => {
+      var path = roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp
+      var payload = {
+        body: "left",
+        user: user.username,
+        isSystem: true,
+        timestamp: new Date().getTime()
+      }
+      set(ref(database,`/rooms/${path}/chats/${new Date().getTime()}-${user.username}`), payload)
+      remove(ref(database, `/rooms/${path}/users/online/${user.uid}`))
+      setMainTab("home")
+    })
+  }
 
   return (
     <div className="grid grid-cols-4 auto-cols-max overflow-hidden">
@@ -279,7 +382,7 @@ function Home() {
           <div className='h-[60px] p-4'>
             {(mainTab == "chat") && <a onClick={() => {alert("WIP")}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Add to &quot;My Rooms&quot;</a>}
             {(mainTab == "chat") && <a onClick={() => {alert("WIP")}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Remove from &quot;My Rooms&quot;</a>}
-            {mainTab == "chat" && <a onClick={() => {setMainTab("home")}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Close Chat</a>}
+            {mainTab == "chat" && <a onClick={() => {closeChatRoom(chatRoomObj)}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Close Chat</a>}
             <a href="/api/signout" className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full">Sign Out</a>
           </div>
         </div>
@@ -287,7 +390,7 @@ function Home() {
         <div className="mr-2 h-[calc(100%-110px)]">
           {(mainTab == "home" && !loadingLoc) && <MainTabHome loc={location}/>}
           {(mainTab == "home" && loadingLoc) && <MainTabHome loc={null}/>}
-          {mainTab == "chat" && <MainTabChatRoom room={chatRoom} user={user}/>}
+          {mainTab == "chat" && <MainTabChatRoom roomObj={chatRoomObj}/>}
         </div>
       </div>
       {/* Sidebar (Right Side of Page) */}
@@ -301,7 +404,7 @@ function Home() {
                   <div className={tab == "create"? 'select-none p-1 cursor-pointer rounded-lg hover:bg-[#C0C0C0] bg-[#D3D3D3]': 'select-none p-1 cursor-pointer rounded-lg hover:bg-[#C0C0C0]'} onClick={() => {setTab("create")}}>Create</div>
                 </div>
               </div>
-              {tab == "nearby" && <div className='overflow-y-auto h-[90%]'>
+              {(tab == "nearby") && <div className='overflow-y-auto h-[90%]'>
                 <div>
                   {(!nearby && !loadingNearby) && <div>No Nearby Rooms<br/>Create One?</div>}
                   {loadingNearby && <div>Loading...</div>}
@@ -335,10 +438,13 @@ function Home() {
             <div>
               Online Members
             </div>
-            <Member memberObj={{"username": "LAX18"}}/>
+            {chatroomOnline}
           </div>
           <div className='bg-white rounded-lg m-2 shadow-2xl'>
-            Offline Members
+            <div>
+              All Members
+            </div>
+            {chatroomUsers}
           </div>
         </div>
       </div>
