@@ -81,17 +81,17 @@ return (
 
 // Map module for main page and chat room sidebar
 // TODO: MAKE NOT MOVABLE
-function Geo({loc, zoom, movable}) {
+function Geo({loc, zoom, movable, marker}) {
   if (loc) {
     return (
-      <Map className="rounded-lg" center={[loc.latitude, loc.longitude]} defaultZoom={14}>
-        <Marker width={50} anchor={[loc.latitude, loc.longitude]} color="red"/>
+      <Map center={[loc.latitude, loc.longitude]} defaultZoom={zoom}>
+        {marker && <Marker width={50} anchor={[loc.latitude, loc.longitude]} color="red"/>}
         {zoom && <ZoomControl />}
       </Map>
     )
   } else {
     return (
-      <Map className="rounded-lg" defaultCenter={[0, 0]} defaultZoom={14}/>
+      <Map className="rounded-lg" defaultCenter={[0, 0]} defaultZoom={zoom}/>
     )
   }
   
@@ -99,7 +99,6 @@ function Geo({loc, zoom, movable}) {
 
 // Module for Welcome Message on main tab landing page
 function WelcomeMessage() {
-  //TODO: REALLY GROSS WAY TO GET COOKIES, NEED NEW WAY TO STORE USER DATA WITHOUT API CALLS. THIS PAGE HAS TO BE CLIENT SIDE DUE TO MAPS / GEOLOCATION
   const [data, setData] = useState(null)
   const [isLoading, setLoading] = useState(true)
   useEffect(() => {
@@ -133,7 +132,7 @@ function MainTabHome({loc}) {
     <>
     <WelcomeMessage />
     <div className='h-[calc(100%-110px)] m-5 rounded-lg'>
-      <Geo loc={loc} zoom={true} movable={true}/>
+      <Geo loc={loc} zoom={14} movable={true} marker={true}/>
     </div>
     </>
   )
@@ -474,8 +473,8 @@ function Home() {
       <div className="h-dvh">
         <div className="m-2 h-[98%] grid grid-cols-1">
           <div className='bg-white rounded-lg m-2 shadow-2xl relative'>
-              <div className='w-[100%] h-[100%] opacity-50 absolute'>
-                <Geo loc={{latitude: chatRoomObj.latitude.toFixed(3), longitude: chatRoomObj.longitude.toFixed(3)}} zoom={false} movable={false}/>
+              <div className='w-[100%] h-[100%] opacity-50 absolute rounded-lg z-10'>
+                <Geo loc={{latitude: parseFloat(chatRoomObj.latitude.toFixed(2)), longitude: parseFloat(chatRoomObj.longitude.toFixed(2))}} zoom={12} movable={false} marker={false}/>
               </div>
               <div className='z-10 top-0 left-0 w-[100%] h-[100%] absolute text-left pl-3 pt-2'>
                 <span className='font-bold text-[24px]'>{chatRoomObj.name}</span><br/>
