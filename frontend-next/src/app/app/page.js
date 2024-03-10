@@ -4,6 +4,7 @@ import {Map, Marker, ZoomControl} from "pigeon-maps"
 import { Form, useForm } from "react-hook-form";
 import { app } from "../api/firebase-config";
 import { getDatabase, ref, onValue, get, set, remove} from "firebase/database";
+import { useBeforeunload } from 'react-beforeunload';
 var database = getDatabase(app)
 
 
@@ -64,8 +65,12 @@ function Member({memberObj}) {
 
 // Chat Room for myRooms and Nearby in sidebar
 function ChatRoomSidebar({roomObj, click}) {
+  // TODO: Gross fix but it works
+function clicker() {
+  click(roomObj.name, roomObj)
+}
 return (
-  <div onClick={click} className='border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer'>
+  <div onClick={clicker} className='border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer'>
     <div className='col-span-2'>
       <div className='font-bold'>{roomObj.name}</div>
       <div className='italic'>{roomObj.description}</div>
@@ -140,9 +145,9 @@ function MainTabChatRoom({roomObj}) {
   const [chats, setData] = useState(null)
   const [isLoading, setLoading] = useState(true)
 
-  var unsubscribeUpdater
+  // Message updater
   useEffect(() => {
-    unsubscribeUpdater = onValue(ref(database, `/rooms/${roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp}/chats`), (snapshot) => {
+    onValue(ref(database, `/rooms/${roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp}/chats`), (snapshot) => {
         var chatsArr = []
         var messages = snapshot.val()
         for (var message in messages) {
@@ -195,10 +200,10 @@ function Home() {
   // State variables for app page
   const [mainTab, setMainTab] = useState("home") // Primary tab
   const [tab, setTab] = useState("nearby") // Sidebar Tab
-  const [loadingUser, setLoadingUser] = useState(true)
   const [chatRoomObj, setChatRoomObj] = useState(null) // Current chatroom object
   const [myRooms, setRoomData] = useState(null) // Current user saved rooms list
-  const [isRoomLoading, setRoomLoading] = useState(true) // myRooms loading variable, true = myrooms loading, false = finished loading
+  const [isRoomLoading, setRoomLoading] = useState(true) // myRooms loading variable, true = myRooms loading, false = finished loading
+  const [isMyRoom, setIsMyRoom] = useState(false) // Is current room in myRooms? true, false
   const [location, setLocation] = useState(null) // location variable [lat,long]
   const [loadingLoc, setLoadingLoc] = useState(true) // location variable loading, true = loading, false = finished loading
   const [nearby, setNearby] = useState(null); // nearby rooms array
@@ -206,26 +211,7 @@ function Home() {
   const [chatroomOnline, setChatRoomOnline] = useState(null) // holds online users
   const [chatroomUsers, setChatroomUsers] = useState(null) // holds all chatroom users
   const [users, setUsers] = useState(null) // all users from firebase
-  
-  // Handles closing the tab and removing the user from the online section
-  useEffect(() => {
-    window.addEventListener("beforeunload", (ev) => { 
-      ev.preventDefault();
-      fetch('/api/user').then((res) => res.json())
-      .then((user) => {
-        if (chatRoomObj != null) {
-          var payload = {
-            body: "left",
-            user: user.username,
-            isSystem: true,
-            timestamp: new Date().getTime()
-          }
-          set(ref(database,`/rooms/${chatRoomObj.path+"/"+chatRoomObj.name+"-"+chatRoomObj.timestamp}/chats/${new Date().getTime()}-${user.username}`), payload)
-          remove(ref(database, `/rooms/${chatRoomObj.path+"/"+chatRoomObj.name+"-"+chatRoomObj.timestamp}/users/online/${user.uid}`))
-        }
-      })
-    });
-  }, [chatRoomObj])
+  const [alreadyLeft, setAlreadyLeft] = useState(false) // if already left from room
 
   // Grabs user data, saves to user, then lists the users saved rooms
   useEffect(() => {
@@ -235,7 +221,8 @@ function Home() {
         var rooms = snapshot.val()
         var roomArr = []
         for (var room in rooms) {
-          roomArr.push(<ChatRoomSidebar roomObj={rooms[room]} key={rooms[room]} click={() => {selectChatRoom(rooms[room], user)}}/>)
+          var newRoom = <ChatRoomSidebar roomObj={rooms[room]} key={rooms[room].timestamp} click={selectChatRoom}/>
+          roomArr.push(newRoom)
         }
         setRoomData(roomArr)
         setRoomLoading(false)
@@ -256,7 +243,7 @@ function Home() {
           if (snapshot.exists()) {
             var data = snapshot.val()
             for (var room in data) {
-              nearbyArr.push(<ChatRoomSidebar roomObj={data[room]} click={() => {selectChatRoom(data[room])}}/>)
+              nearbyArr.push(<ChatRoomSidebar roomObj={data[room]} click={selectChatRoom}/>)
             }
             setLoadingNearby(false)
             setNearby(nearbyArr)
@@ -310,11 +297,21 @@ function Home() {
   }
 
   // Selects chat room
-  function selectChatRoom(roomObj) {
+  function selectChatRoom(roomName, roomObj) {
     fetch('/api/user').then((res) => res.json())
     .then((user) => {
       // Path of chatroom
       var path = roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp
+
+      // Test if Room is in myRooms
+      if (myRooms != null && roomName in myRooms.keys) {
+        // its in there
+        setIsMyRoom(true)
+      } else {
+        // its not in there
+        setIsMyRoom(false)
+      }
+
       setChatRoomObj(roomObj)
 
       // Send entered message
@@ -350,6 +347,7 @@ function Home() {
 
       })
       setMainTab("chat")
+      setAlreadyLeft(false)
     })
   }
 
@@ -366,9 +364,53 @@ function Home() {
       }
       set(ref(database,`/rooms/${path}/chats/${new Date().getTime()}-${user.username}`), payload)
       remove(ref(database, `/rooms/${path}/users/online/${user.uid}`))
+      setChatRoomObj(null)
+      setAlreadyLeft(true)
       setMainTab("home")
     })
   }
+
+  // Adds room to myRooms
+  function addToMyRooms() {
+    fetch('/api/user').then((res) => res.json())
+    .then((user) => {
+      set(ref(database,`/users/${user.uid}/rooms/${chatRoomObj.name}-${chatRoomObj.timestamp}`), {
+        name: chatRoomObj.name,
+        path: chatRoomObj.path,
+        timestamp: chatRoomObj.timestamp,
+        description: chatRoomObj.description,
+        longitude: chatRoomObj.longitude,
+        latitude: chatRoomObj.latitude,
+      })
+    })
+    setIsMyRoom(true)
+  }
+
+  // Deletes saved room from myRooms
+  function removeFromMyRooms() {
+    fetch('/api/user').then((res) => res.json())
+    .then((user) => {
+      remove(ref(database,`/users/${user.uid}/rooms/${chatRoomObj.name}-${chatRoomObj.timestamp}`))
+    })
+    setIsMyRoom(false)
+  }
+
+  // Fires to tell other uses that you are leaving the room
+  useBeforeunload(() => {
+    fetch('/api/user').then((res) => res.json())
+      .then((user) => {
+        if (chatRoomObj && mainTab == "chat") {
+          var payload = {
+            body: "left",
+            user: user.username,
+            isSystem: true,
+            timestamp: new Date().getTime()
+          }
+          set(ref(database,`/rooms/${chatRoomObj.path+"/"+chatRoomObj.name+"-"+chatRoomObj.timestamp}/chats/${new Date().getTime()}-${user.username}`), payload)
+          remove(ref(database, `/rooms/${chatRoomObj.path+"/"+chatRoomObj.name+"-"+chatRoomObj.timestamp}/users/online/${user.uid}`))
+        }
+      })
+  });
 
   return (
     <div className="grid grid-cols-4 auto-cols-max overflow-hidden">
@@ -380,8 +422,8 @@ function Home() {
             <a href="/"><img src="logos/logo_transparent_inverse.png" className='h-[60px]'/></a>
           </div>
           <div className='h-[60px] p-4'>
-            {(mainTab == "chat") && <a onClick={() => {alert("WIP")}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Add to &quot;My Rooms&quot;</a>}
-            {(mainTab == "chat") && <a onClick={() => {alert("WIP")}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Remove from &quot;My Rooms&quot;</a>}
+            {(mainTab == "chat" && isMyRoom == false) && <a onClick={() => {addToMyRooms()}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Add to &quot;My Rooms&quot;</a>}
+            {(mainTab == "chat" && isMyRoom == true) && <a onClick={() => {removeFromMyRooms()}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Remove from &quot;My Rooms&quot;</a>}
             {mainTab == "chat" && <a onClick={() => {closeChatRoom(chatRoomObj)}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Close Chat</a>}
             <a href="/api/signout" className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full">Sign Out</a>
           </div>
