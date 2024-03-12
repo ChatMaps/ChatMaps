@@ -211,6 +211,7 @@ function Home() {
   const [loadingNearby, setLoadingNearby] = useState(true); // loading nearby rooms array, true = loading, false = finished loading
   const [chatroomOnline, setChatRoomOnline] = useState(null) // holds online users
   const [chatroomUsers, setChatroomUsers] = useState(null) // holds all chatroom users
+  const [chatroomUsersLoading ,setChatroomUsersLoading] = useState(true)
   const [users, setUsers] = useState(null) // all users from firebase
   const [alreadyLeft, setAlreadyLeft] = useState(false) // if already left from room
   const [markers, setMarkers] = useState([])
@@ -219,7 +220,8 @@ function Home() {
   useEffect(() => {
     fetch('/api/user').then((res) => res.json())
     .then((user) => {
-      get(ref(database, '/users/'+user.uid+'/rooms')).then((snapshot) => {
+      onValue(ref(database, '/users/'+user.uid+'/rooms'),(snapshot) => {
+        setRoomLoading(true)
         var rooms = snapshot.val()
         setMyRoomsObj(rooms)
         var roomArr = []
@@ -273,6 +275,7 @@ function Home() {
     
   }, []);
 
+  // Dont Double Send Leaving Message
   useEffect(() => {
    if (myRoomsObj && chatRoomObj) {
     var roomName = chatRoomObj.name+"-"+chatRoomObj.timestamp
@@ -341,6 +344,9 @@ function Home() {
       set(ref(database, `/rooms/${path}/users/online/${user.uid}`), user)
       onValue(ref(database, `/rooms/${path}`), (snapshot) => {
 
+        setChatRoomOnline(null)
+        setChatroomUsers(null)
+        
         // Active users list
         if (snapshot.val().hasOwnProperty("users") && snapshot.val().users.hasOwnProperty("online")) {
           var activeUsers = []
@@ -351,12 +357,16 @@ function Home() {
         }
 
         // Users who added to "my rooms"
+        console.log(snapshot.val().hasOwnProperty("users") && snapshot.val().users.hasOwnProperty("all"))
         if (snapshot.val().hasOwnProperty("users") && snapshot.val().users.hasOwnProperty("all")) {
+          setChatroomUsersLoading(true)
           var allUsers = []
           var allUsersJSON = snapshot.val().users.all
           for (var user in allUsersJSON)
             allUsers.push(<Member memberObj={allUsersJSON[user]}/>)
           setChatroomUsers(allUsers)
+          setChatroomUsersLoading(false)
+
         }
 
       })
@@ -396,6 +406,8 @@ function Home() {
         longitude: chatRoomObj.longitude,
         latitude: chatRoomObj.latitude,
       })
+      var path = chatRoomObj.path+"/"+chatRoomObj.name+"-"+chatRoomObj.timestamp
+      set(ref(database, `/rooms/${path}/users/all/${user.uid}`), user)
     })
     setIsMyRoom(true)
   }
@@ -404,7 +416,9 @@ function Home() {
   function removeFromMyRooms() {
     fetch('/api/user').then((res) => res.json())
     .then((user) => {
+      var path = chatRoomObj.path+"/"+chatRoomObj.name+"-"+chatRoomObj.timestamp
       remove(ref(database,`/users/${user.uid}/rooms/${chatRoomObj.name}-${chatRoomObj.timestamp}`))
+      remove(ref(database, `/rooms/${path}/users/all/${user.uid}`))
     })
     setIsMyRoom(false)
   }
@@ -500,7 +514,7 @@ function Home() {
             <div>
               All Members
             </div>
-            {chatroomUsers}
+            {!chatroomUsersLoading && chatroomUsers}
           </div>
         </div>
       </div>
