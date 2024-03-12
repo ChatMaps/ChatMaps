@@ -1,12 +1,16 @@
 "use client"
-import { useState, useEffect, createContext, useContext } from 'react'
+import { useState, useEffect } from 'react'
 import {Map, Marker, ZoomControl} from "pigeon-maps"
 import { Form, useForm } from "react-hook-form";
 import { app } from "../api/firebase-config";
-import { getDatabase, ref, onValue, get, set} from "firebase/database";
+import { getDatabase, ref, onValue, get, set, remove} from "firebase/database";
+import { useBeforeunload } from 'react-beforeunload';
 var database = getDatabase(app)
 
-// Data types
+
+// Data Types
+
+// Chat Message
 function Chat({chatObj}) {
   let dateOptions = {
     weekday: 'long',
@@ -28,9 +32,45 @@ function Chat({chatObj}) {
   )
 }
 
+// System Chat Message
+function SystemMessage({chatObj}) {
+  let dateOptions = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  };
+  return (
+    <div className='width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2'>
+      <div className='text-[#d1d1d1]'>
+        {chatObj.user} has {chatObj.body} the room.
+      </div>
+      <div className='text-right text-[#d1d1d1]'>
+        {new Date(chatObj.timestamp).toLocaleString(dateOptions)}
+      </div>
+    </div>
+  )
+}
+
+// Member for Active/Room members in sidebar
+function Member({memberObj}) {
+  return (
+    <div className='cursor-pointer g-[aliceblue] rounded-lg m-3 shadow-xl p-2'>
+      {memberObj.username}
+    </div>
+  )
+}
+
+// Chat Room for myRooms and Nearby in sidebar
 function ChatRoomSidebar({roomObj, click}) {
+  // TODO: Gross fix but it works
+function clicker() {
+  click(roomObj.name+"-"+roomObj.timestamp, roomObj)
+}
 return (
-  <div onClick={click} className='border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer'>
+  <div onClick={clicker} className='border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer'>
     <div className='col-span-2'>
       <div className='font-bold'>{roomObj.name}</div>
       <div className='italic'>{roomObj.description}</div>
@@ -39,9 +79,27 @@ return (
 )
 }
 
+// Map module for main page and chat room sidebar
+// TODO: MAKE NOT MOVABLE
+function Geo({loc, zoom, movable, locMarker, markers}) {
+  if (loc) {
+    return (
+      <Map center={[loc.latitude, loc.longitude]} defaultZoom={zoom}>
+        {markers && markers}
+        {locMarker && <Marker width={30} anchor={[loc.latitude, loc.longitude]} color="red"/>}
+        {zoom && <ZoomControl />}
+      </Map>
+    )
+  } else {
+    return (
+      <Map className="rounded-lg" defaultCenter={[0, 0]} defaultZoom={zoom}/>
+    )
+  }
+  
+}
 
+// Module for Welcome Message on main tab landing page
 function WelcomeMessage() {
-  //TODO: REALLY GROSS WAY TO GET COOKIES, NEED NEW WAY TO STORE USER DATA WITHOUT API CALLS. THIS PAGE HAS TO BE CLIENT SIDE DUE TO MAPS / GEOLOCATION
   const [data, setData] = useState(null)
   const [isLoading, setLoading] = useState(true)
   useEffect(() => {
@@ -68,55 +126,36 @@ function WelcomeMessage() {
 
 }
 
-function Geo({loc}) {
-  if (loc) {
-    return (
-      <Map className="rounded-lg" center={[loc.latitude, loc.longitude]} defaultZoom={14}>
-        <Marker width={50} anchor={[loc.latitude, loc.longitude]} color="red"/>
-        <ZoomControl />
-      </Map>
-    )
-  } else {
-    return (
-      <Map className="rounded-lg" defaultCenter={[0, 0]} defaultZoom={14}/>
-    )
-  }
-  
-}
-
-
-
 // Main Tabs
-function MainTabHome({loc}) {
+// Primary App Landing Page
+function MainTabHome({loc, markers}) {
   return (
     <>
     <WelcomeMessage />
     <div className='h-[calc(100%-110px)] m-5 rounded-lg'>
-      <Geo loc={loc}/>
+      <Geo loc={loc} zoom={14} movable={true} locMarker={true} markers={markers}/>
     </div>
     </>
   )
 }
 
-function MainTabChatRoom({room}) {
+// Chatroom Module for Primary Tab
+function MainTabChatRoom({roomObj}) {
   var { register, control, reset, handleSubmit} = useForm()
   const [chats, setData] = useState(null)
   const [isLoading, setLoading] = useState(true)
 
-  var user
-  fetch('/api/user')
-      .then((res) => res.json())
-      .then((data) => {
-        user = data
-      })
-
-  var unsubscribeUpdater
+  // Message updater
   useEffect(() => {
-    unsubscribeUpdater = onValue(ref(database, `/rooms/${room}/chats`), (snapshot) => {
+    onValue(ref(database, `/rooms/${roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp}/chats`), (snapshot) => {
         var chatsArr = []
         var messages = snapshot.val()
         for (var message in messages) {
-          chatsArr.push(<Chat chatObj={messages[message]} key={messages[message].timestamp}/>)
+          if (messages[message].isSystem) {
+            chatsArr.push(<SystemMessage chatObj={messages[message]} key={messages[message].timestamp}/>)
+          } else {
+            chatsArr.push(<Chat chatObj={messages[message]} key={messages[message].timestamp}/>)
+          }
         }
         setData(chatsArr.reverse())
         setLoading(false)
@@ -125,14 +164,17 @@ function MainTabChatRoom({room}) {
 
   function sendMessage(data) {
     reset()
-    var payload = {
-      body: data.message,
-      user: user.username,
-      timestamp: new Date().getTime()
-    }
-    set(ref(database,`/rooms/${room}/chats/${user.username}-${new Date().getTime()}`), payload)
+    fetch('/api/user').then((res) => res.json())
+    .then((user) => {
+      var payload = {
+        body: data.message,
+        user: user.username,
+        isSystem: false,
+        timestamp: new Date().getTime()
+      }
+      set(ref(database,`/rooms/${roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp}/chats/${new Date().getTime()}-${user.username}`), payload)
+    })
   }
-
 
   if (isLoading) return <div>Loading</div>
   if (!chats) return <div>No Chats</div>
@@ -151,65 +193,52 @@ function MainTabChatRoom({room}) {
   )
 }
 
-function CreateRoom({loc}) {
-  var { register, control, reset, handleSubmit} = useForm()
-
-  function createRoom(data) {
-    reset()
-    var path = String(loc.latitude.toFixed(2)).replace(".","")+"/"+String(loc.longitude.toFixed(2)).replace(".","")
-    var timestamp = new Date().getTime()
-    var payload = {
-      name: data.name,
-      description: data.description,
-      timestamp: timestamp,
-      latitude: loc.latitude,
-      longitude: loc.longitude,
-      path: path
-    }
-    set(ref(database,`/rooms/${path}/${data.name}-${timestamp}`), payload)
-  }
-
-  return (
-    <div className='overflow-y-auto h-[90%]'>
-      <Form control={control} onSubmit={handleSubmit(createRoom)}>
-        <input {...register("name")} placeholder='Room Name' className='mt-2'/>
-        <input {...register("description")} placeholder='Room Description' className='mt-2'/><br/>
-        <div className='mt-3 mb-2'>
-          Creating room near ({loc.latitude.toFixed(2)}, {loc.longitude.toFixed(2)})
-        </div>
-        <button className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Create</button>
-      </Form>
-    </div>
-  )
-}
-
+// Contains most everything for the app homepage
+// 
 function Home() {
-  var [tab, setTab] = useState("nearby")
-  var [mainTab, setMainTab] = useState("home")
-  var [chatRoom, setChatRoom] = useState("Dev")
+  // It's time to document and change these awful variable names
+  // State variables for app page
+  const [mainTab, setMainTab] = useState("home") // Primary tab
+  const [tab, setTab] = useState("nearby") // Sidebar Tab
+  const [chatRoomObj, setChatRoomObj] = useState(null) // Current chatroom object
+  const [myRoomsObj, setMyRoomsObj] = useState(null) // My Rooms Object
+  const [myRooms, setRoomData] = useState(null) // Current user saved rooms list
+  const [isRoomLoading, setRoomLoading] = useState(true) // myRooms loading variable, true = myRooms loading, false = finished loading
+  const [isMyRoom, setIsMyRoom] = useState(false) // Is current room in myRooms? true, false
+  const [location, setLocation] = useState(null) // location variable [lat,long]
+  const [loadingLoc, setLoadingLoc] = useState(true) // location variable loading, true = loading, false = finished loading
+  const [nearby, setNearby] = useState(null); // nearby rooms array
+  const [loadingNearby, setLoadingNearby] = useState(true); // loading nearby rooms array, true = loading, false = finished loading
+  const [chatroomOnline, setChatRoomOnline] = useState(null) // holds online users
+  const [chatroomUsers, setChatroomUsers] = useState(null) // holds all chatroom users
+  const [chatroomUsersLoading ,setChatroomUsersLoading] = useState(true)
+  const [users, setUsers] = useState(null) // all users from firebase
+  const [alreadyLeft, setAlreadyLeft] = useState(false) // if already left from room
+  const [markers, setMarkers] = useState([])
 
-  const [myRooms, setRoomData] = useState(null)
-  const [isRoomLoading, setRoomLoading] = useState(true)
+  // Grabs user data, saves to user, then lists the users saved rooms
   useEffect(() => {
-        fetch('/api/user').then((res) => res.json())
-        .then((user) => {
-          get(ref(database, '/users/'+user.uid+'/rooms')).then((snapshot) => {
-            var rooms = snapshot.val()
-            var roomArr = []
-            for (var room in rooms) {
-              roomArr.push(<ChatRoomSidebar roomObj={rooms[room]} key={rooms[room]} click={() => {setChatRoom(rooms[room].path+"/"+rooms[room].name+"-"+rooms[room].timestamp);setMainTab("chat")}}/>)
-            }
-            setRoomData(roomArr)
-            setRoomLoading(false)
-          })
-        })
-  }, [])
+    fetch('/api/user').then((res) => res.json())
+    .then((user) => {
+      onValue(ref(database, '/users/'+user.uid+'/rooms'),(snapshot) => {
+        setRoomLoading(true)
+        var rooms = snapshot.val()
+        setMyRoomsObj(rooms)
+        var roomArr = []
+        var markerArr = markers
+        for (var room in rooms) {
+          var newRoom = <ChatRoomSidebar roomObj={rooms[room]} key={rooms[room].timestamp} click={selectChatRoom}/>
+          markerArr.push(<Marker width={30} anchor={[rooms[room].latitude, rooms[room].longitude]} color="blue"/>)
+          roomArr.push(newRoom)
+        }
+        setMarkers(markerArr)
+        setRoomData(roomArr)
+        setRoomLoading(false)
+      })
+    })
+}, [])
 
-
-  const [location, setLocation] = useState(null);
-  const [loadingLoc, setLoadingLoc] = useState(true)
-  const [nearby, setNearby] = useState(null);
-  const [loadingNearby, setLoadingNearby] = useState(true);
+  // Grabs the user location
   useEffect(() => {
     if('geolocation' in navigator) {
       // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
@@ -218,12 +247,16 @@ function Home() {
         setLoadingLoc(false)
         var nearbyArr = []
         var path = String(coords.latitude.toFixed(2)).replace(".","")+"/"+String(coords.longitude.toFixed(2)).replace(".","")
+        var markersArr = markers
         get(ref(database, `/rooms/${path}`)).then((snapshot) => {
           if (snapshot.exists()) {
             var data = snapshot.val()
             for (var room in data) {
-              nearbyArr.push(<ChatRoomSidebar roomObj={data[room]} click={() => {setChatRoom(data[room].path+"/"+data[room].name+"-"+data[room].timestamp);setMainTab("chat")}}/>)
+              nearbyArr.push(<ChatRoomSidebar roomObj={data[room]} click={selectChatRoom}/>)
+              // TODO: RANDOM LAST DIGIT TO MOVE AROUND THE MAP
+              markersArr.push(<Marker width={30} anchor={[data[room].latitude, data[room].longitude]} color="blue"/>)
             }
+            setMarkers(markersArr)
             setLoadingNearby(false)
             setNearby(nearbyArr)
           } else {
@@ -234,25 +267,204 @@ function Home() {
     }
   }, []);
 
+  // Grab list of all users
+  useEffect(() => {
+    get(ref(database, `/users`)).then((snapshot) => {
+      setUsers(snapshot.val())
+    })
+    
+  }, []);
+
+  // Dont Double Send Leaving Message
+  useEffect(() => {
+   if (myRoomsObj && chatRoomObj) {
+    var roomName = chatRoomObj.name+"-"+chatRoomObj.timestamp
+    if (myRooms != null && roomName in myRoomsObj) {
+      // its in there
+      setIsMyRoom(true)
+    } else {
+      // its not in there
+      setIsMyRoom(false)
+    }
+   }
+  }, [chatRoomObj])
+
+  // CreateRoom Module for Sidebar Create Tab
+  function CreateRoom({loc}) {
+    var { register, control, reset, handleSubmit} = useForm()
+  
+    function createRoom(data) {
+      reset()
+      var path = String(loc.latitude.toFixed(2)).replace(".","")+"/"+String(loc.longitude.toFixed(2)).replace(".","")
+      var timestamp = new Date().getTime()
+      var payload = {
+        name: data.name,
+        description: data.description,
+        timestamp: timestamp,
+        latitude: loc.latitude,
+        longitude: loc.longitude,
+        path: path
+      }
+      set(ref(database,`/rooms/${path}/${data.name}-${timestamp}`), payload)
+    }
+  
+    return (
+      <div className='overflow-y-auto h-[90%]'>
+        <Form control={control} onSubmit={handleSubmit(createRoom)}>
+          <input {...register("name")} placeholder='Room Name' className='mt-2'/>
+          <input {...register("description")} placeholder='Room Description' className='mt-2'/><br/>
+          <div className='mt-3 mb-2'>
+            Creating room near ({loc.latitude.toFixed(2)}, {loc.longitude.toFixed(2)})
+          </div>
+          <button className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Create</button>
+        </Form>
+      </div>
+    )
+  }
+
+  // Selects chat room
+  function selectChatRoom(roomName, roomObj) {
+    fetch('/api/user').then((res) => res.json())
+    .then((user) => {
+      // Path of chatroom
+      var path = roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp
+
+      setChatRoomObj(roomObj)
+
+      // Send entered message
+      var payload = {
+        body: "entered",
+        user: user.username,
+        isSystem: true,
+        timestamp: new Date().getTime()
+      }
+      set(ref(database,`/rooms/${path}/chats/${new Date().getTime()}-${user.username}`), payload)
+      
+      // Code for Room Data
+      set(ref(database, `/rooms/${path}/users/online/${user.uid}`), user)
+      onValue(ref(database, `/rooms/${path}`), (snapshot) => {
+
+        setChatRoomOnline(null)
+        setChatroomUsers(null)
+        
+        // Active users list
+        if (snapshot.val().hasOwnProperty("users") && snapshot.val().users.hasOwnProperty("online")) {
+          var activeUsers = []
+          var activeUsersJSON = snapshot.val().users.online
+          for (var user in activeUsersJSON)
+            activeUsers.push(<Member memberObj={activeUsersJSON[user]}/>)
+          setChatRoomOnline(activeUsers)
+        }
+
+        // Users who added to "my rooms"
+        console.log(snapshot.val().hasOwnProperty("users") && snapshot.val().users.hasOwnProperty("all"))
+        if (snapshot.val().hasOwnProperty("users") && snapshot.val().users.hasOwnProperty("all")) {
+          setChatroomUsersLoading(true)
+          var allUsers = []
+          var allUsersJSON = snapshot.val().users.all
+          for (var user in allUsersJSON)
+            allUsers.push(<Member memberObj={allUsersJSON[user]}/>)
+          setChatroomUsers(allUsers)
+          setChatroomUsersLoading(false)
+
+        }
+
+      })
+      setMainTab("chat")
+      setAlreadyLeft(false)
+    })
+  }
+
+  // Closes chat room
+  function closeChatRoom(roomObj) {
+    fetch('/api/user').then((res) => res.json())
+    .then((user) => {
+      var path = roomObj.path+"/"+roomObj.name+"-"+roomObj.timestamp
+      var payload = {
+        body: "left",
+        user: user.username,
+        isSystem: true,
+        timestamp: new Date().getTime()
+      }
+      set(ref(database,`/rooms/${path}/chats/${new Date().getTime()}-${user.username}`), payload)
+      remove(ref(database, `/rooms/${path}/users/online/${user.uid}`))
+      setChatRoomObj(null)
+      setAlreadyLeft(true)
+      setMainTab("home")
+    })
+  }
+
+  // Adds room to myRooms
+  function addToMyRooms() {
+    fetch('/api/user').then((res) => res.json())
+    .then((user) => {
+      set(ref(database,`/users/${user.uid}/rooms/${chatRoomObj.name}-${chatRoomObj.timestamp}`), {
+        name: chatRoomObj.name,
+        path: chatRoomObj.path,
+        timestamp: chatRoomObj.timestamp,
+        description: chatRoomObj.description,
+        longitude: chatRoomObj.longitude,
+        latitude: chatRoomObj.latitude,
+      })
+      var path = chatRoomObj.path+"/"+chatRoomObj.name+"-"+chatRoomObj.timestamp
+      set(ref(database, `/rooms/${path}/users/all/${user.uid}`), user)
+    })
+    setIsMyRoom(true)
+  }
+
+  // Deletes saved room from myRooms
+  function removeFromMyRooms() {
+    fetch('/api/user').then((res) => res.json())
+    .then((user) => {
+      var path = chatRoomObj.path+"/"+chatRoomObj.name+"-"+chatRoomObj.timestamp
+      remove(ref(database,`/users/${user.uid}/rooms/${chatRoomObj.name}-${chatRoomObj.timestamp}`))
+      remove(ref(database, `/rooms/${path}/users/all/${user.uid}`))
+    })
+    setIsMyRoom(false)
+  }
+
+  // Fires to tell other uses that you are leaving the room
+  useBeforeunload(() => {
+    fetch('/api/user').then((res) => res.json())
+      .then((user) => {
+        if (chatRoomObj && mainTab == "chat") {
+          var payload = {
+            body: "left",
+            user: user.username,
+            isSystem: true,
+            timestamp: new Date().getTime()
+          }
+          set(ref(database,`/rooms/${chatRoomObj.path+"/"+chatRoomObj.name+"-"+chatRoomObj.timestamp}/chats/${new Date().getTime()}-${user.username}`), payload)
+          remove(ref(database, `/rooms/${chatRoomObj.path+"/"+chatRoomObj.name+"-"+chatRoomObj.timestamp}/users/online/${user.uid}`))
+        }
+      })
+  });
 
   return (
     <div className="grid grid-cols-4 auto-cols-max overflow-hidden">
+      {/* Left Side of Page */}
       <div className="col-span-3 h-dvh">
+        {/* Header */}
         <div className="m-2 rounded-lg h-[63px] bg-white shadow-2xl grid grid-cols-2 p-1">
           <div className='h-[60px]'>
             <a href="/"><img src="logos/logo_transparent_inverse.png" className='h-[60px]'/></a>
           </div>
           <div className='h-[60px] p-4'>
-            {mainTab == "chat" && <a onClick={() => {setMainTab("home")}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Close Chat</a>}
+            {(mainTab == "chat" && isMyRoom == false) && <a onClick={() => {addToMyRooms()}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Add to &quot;My Rooms&quot;</a>}
+            {(mainTab == "chat" && isMyRoom == true) && <a onClick={() => {removeFromMyRooms()}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Remove from &quot;My Rooms&quot;</a>}
+            {mainTab == "chat" && <a onClick={() => {closeChatRoom(chatRoomObj)}} className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">Close Chat</a>}
             <a href="/api/signout" className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full">Sign Out</a>
           </div>
         </div>
+        {/* Main Page Section */}
         <div className="mr-2 h-[calc(100%-110px)]">
-          {(mainTab == "home" && !loadingLoc) && <MainTabHome loc={location}/>}
-          {(mainTab == "home" && loadingLoc) && <MainTabHome loc={null}/>}
-          {mainTab == "chat" && <MainTabChatRoom room={chatRoom}/>}
+          {(mainTab == "home" && !loadingLoc) && <MainTabHome loc={location} markers={markers}/>}
+          {(mainTab == "home" && loadingLoc) && <MainTabHome loc={null} markers={markers}/>}
+          {mainTab == "chat" && <MainTabChatRoom roomObj={chatRoomObj}/>}
         </div>
       </div>
+      {/* Sidebar (Right Side of Page) */}
+      {mainTab == "home" &&
       <div className="h-dvh">
           <div className="bg-white shadow-2xl rounded-lg m-2 h-[98%]">
               <div className='p-2'>
@@ -262,7 +474,7 @@ function Home() {
                   <div className={tab == "create"? 'select-none p-1 cursor-pointer rounded-lg hover:bg-[#C0C0C0] bg-[#D3D3D3]': 'select-none p-1 cursor-pointer rounded-lg hover:bg-[#C0C0C0]'} onClick={() => {setTab("create")}}>Create</div>
                 </div>
               </div>
-              {tab == "nearby" && <div className='overflow-y-auto h-[90%]'>
+              {(tab == "nearby") && <div className='overflow-y-auto h-[90%]'>
                 <div>
                   {(!nearby && !loadingNearby) && <div>No Nearby Rooms<br/>Create One?</div>}
                   {loadingNearby && <div>Loading...</div>}
@@ -279,7 +491,41 @@ function Home() {
               {(tab == "create" && !loadingLoc) && <CreateRoom loc={location}/>}
               {(tab == "create" && loadingLoc) && <div>Loading...</div>}
           </div>
+      </div> }
+      {(mainTab == "chat") && 
+      <div className="h-dvh">
+        <div className="m-2 h-[98%] grid grid-cols-1">
+          <div className='bg-white rounded-lg m-2 shadow-2xl relative'>
+              <div className='w-[100%] h-[100%] opacity-50 absolute rounded-lg z-10'>
+                <Geo loc={{latitude: parseFloat(chatRoomObj.latitude.toFixed(2)), longitude: parseFloat(chatRoomObj.longitude.toFixed(2))}} zoom={12} movable={false} marker={false}/>
+              </div>
+              <div className='z-10 top-0 left-0 w-[100%] h-[100%] absolute text-left pl-3 pt-2'>
+                <span className='font-bold text-[24px]'>{chatRoomObj.name}</span><br/>
+                {chatRoomObj.description}
+              </div>
+          </div>
+          <div className='bg-white rounded-lg m-2 shadow-2xl'>
+            <div>
+              Online Members
+            </div>
+            {chatroomOnline}
+          </div>
+          <div className='bg-white rounded-lg m-2 shadow-2xl'>
+            <div>
+              All Members
+            </div>
+            {!chatroomUsersLoading && chatroomUsers}
+          </div>
+        </div>
       </div>
+      }
+      {(mainTab == "profile") && 
+      <div className="h-dvh">
+        <div className=" bg-white m-2 h-[98%]">
+          Profile
+        </div>
+      </div>
+      }
     </div>
   )
 }
