@@ -132,3 +132,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Am I the only mac user
+**/.DS_Store
