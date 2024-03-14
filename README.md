@@ -15,6 +15,8 @@ A local version can be run with:
 
 cd frontend-next/
 
+npm run build
+
 npm run dev
 
 then navigating to:
