@@ -58,7 +58,8 @@ function Home() {
                             </div>
                         }
                         {statusCode == 200 &&  <a href="/app"><button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">Continue to App</button></a>}
-                        {(!isLoadingLoc && roomCount != 0) && <div className='text-[24px] pt-10'>Join others in {roomCount} rooms near you!</div>}
+                        {(!isLoadingLoc && roomCount == 1) && <div className='text-[24px] pt-10'>Join others in {roomCount} room near you!</div>}
+                        {(!isLoadingLoc && roomCount != 1 && roomCount != 0) && <div className='text-[24px] pt-10'>Join others in {roomCount} rooms near you!</div>}
                         {(isLoadingLoc || (roomCount == 0 && !isLoadingLoc)) && <div className='text-[24px] pt-10'>Start the conversation today!</div>}
                     </div>
                 </div>
