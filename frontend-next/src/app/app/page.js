@@ -245,10 +245,10 @@ function Home() {
       navigator.geolocation.getCurrentPosition(({ coords }) => {
         setLocation(coords)
         setLoadingLoc(false)
-        var nearbyArr = []
         var path = String(coords.latitude.toFixed(2)).replace(".","")+"/"+String(coords.longitude.toFixed(2)).replace(".","")
         var markersArr = markers
-        get(ref(database, `/rooms/${path}`)).then((snapshot) => {
+        onValue(ref(database, `/rooms/${path}`), (snapshot) => {
+          var nearbyArr = []
           if (snapshot.exists()) {
             var data = snapshot.val()
             for (var room in data) {
