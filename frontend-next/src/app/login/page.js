@@ -3,6 +3,22 @@ import { useForm, Form } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import "../globals.css"
 
+// Firebase imports
+import {auth, database} from "../api/firebase-config";
+import { setPersistence, signInWithEmailAndPassword, browserSessionPersistence } from "firebase/auth";
+import { ref, get } from "firebase/database";
+
+function authenticate({data}) {
+    setPersistence(auth, browserSessionPersistence)
+    .then(async () => {
+        var userCredential = await signInWithEmailAndPassword(auth,data.email,data.password);
+        if (userCredential.user.accessToken) {
+            var token = userCredential.user.accessToken
+            console.log(token)
+        }
+    })
+}
+
 function Login() {
     var router = useRouter();
     //var { register, handleSubmit } = useForm();
@@ -18,7 +34,7 @@ function Login() {
                     <div>
                         <h3 className="text-[24px] mt-[25px] mb-2">Login</h3>
                         {(errors.email && errors.password) && <div className="text-[red] mb-2 text-[18px] text-bold">Invalid Email or Password.</div>}
-                        <Form action="/api/login" encType={'application/json'}
+                        <Form onSubmit={authenticate} encType={'application/json'}
                         onSuccess={() => {
                             router.push("/app");
                         }}
