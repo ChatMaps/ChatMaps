@@ -102,7 +102,7 @@ export function Member({ memberObj }) {
 export function ChatRoomSidebar({ roomObj, click }) {
     // TODO: Gross fix but it works
     function clicker() {
-      click(roomObj.name + "-" + roomObj.timestamp, roomObj);
+      click(roomObj);
     }
     return (
       <div

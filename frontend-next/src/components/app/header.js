@@ -1,4 +1,4 @@
-import { database } from "../../src/app/api/firebase-config";
+import { database } from "../../app/api/firebase-config";
 import { ref, set, remove } from "firebase/database";
   
   // Closes chat room

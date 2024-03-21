@@ -2,25 +2,25 @@
 // System Imports
 import { useState, useEffect } from "react";
 import { database } from "../api/firebase-config";
-import { ref, onValue, get, set, remove } from "firebase/database";
+import { ref, onValue, set, remove } from "firebase/database";
 import { useBeforeunload } from "react-beforeunload";
 import {Marker} from "pigeon-maps";
 
 // Refactored Component Imports
 // Data Structure Imports
-import { ChatRoomSidebar, Member } from "../../../components/app/datatypes";
+import { ChatRoomSidebar, Member } from "../../components/app/datatypes";
 
-// Header import
-import { Header } from "../../../components/app/header";
+// Header Import
+import { Header } from "../../components/app/header";
 
 // Main Tab Imports
-import { MainTabChatRoom } from "../../../components/app/main_tab/chat";
-import { MainTabHome } from "../../../components/app/main_tab/home";
+import { MainTabChatRoom } from "../../components/app/main_tab/chat";
+import { MainTabHome } from "../../components/app/main_tab/home";
 
 // Sidebar Imports
-import {Home_Sidebar} from "../../../components/app/sidebar/home";
-import { Chat_Sidebar } from "../../../components/app/sidebar/chat";
-import { Profile_Sidebar } from "../../../components/app/sidebar/profile";
+import {Home_Sidebar} from "../../components/app/sidebar/home";
+import { Chat_Sidebar } from "../../components/app/sidebar/chat";
+import { Profile_Sidebar } from "../../components/app/sidebar/profile";
 
 // Contains most everything for the app homepage
 function Home() {
@@ -40,7 +40,6 @@ function Home() {
   const [chatroomOnline, setChatRoomOnline] = useState(null); // holds online users
   const [chatroomUsers, setChatroomUsers] = useState(null); // holds all chatroom users
   const [chatroomUsersLoading, setChatroomUsersLoading] = useState(true);
-  const [users, setUsers] = useState(null); // all users from firebase
   const [markers, setMarkers] = useState([]);
 
   // Grabs user data, saves to user, then lists the users saved rooms
@@ -76,7 +75,7 @@ function Home() {
           setRoomLoading(false);
         });
       });
-  });
+  },[]);
 
   // Grabs the user location
   useEffect(() => {
@@ -114,14 +113,8 @@ function Home() {
         });
       });
     }
-  });
+  },[]);
 
-  // Grab list of all users
-  useEffect(() => {
-    get(ref(database, `/users`)).then((snapshot) => {
-      setUsers(snapshot.val());
-    });
-  }, []);
 
   // Dont Double Send Leaving Message
   useEffect(() => {
