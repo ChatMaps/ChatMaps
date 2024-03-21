@@ -4,9 +4,9 @@ import { NextResponse } from "next/server";
 import { auth } from "firebase-admin";
 import { signInWithEmailAndPassword } from "firebase/auth";
 // Lib Imports
-import { app, auth as authConfig } from "../firebase-config";
+import { auth as authConfig, database} from "../firebase-config";
 import { customInitApp } from "../firebase-admin";
-import { getDatabase, ref, get as firebaseGet } from "firebase/database";
+import { ref, get as firebaseGet } from "firebase/database";
 
 // Needs to "init" on each call to the API 
 customInitApp();
@@ -20,7 +20,6 @@ async function handleEmailAndPassword(email, password) {
       var expiresIn = 20 * 60 * 1000; // 20 minutes
       var sessionCookie = await auth().createSessionCookie(userCredential.user.accessToken, {expiresIn,});
       if (token) {
-        var database = getDatabase(app)
         var user = await firebaseGet(ref(database, `users/${userCredential.user.uid}`));
         if (!user.exists()) {
           var userOptions = {

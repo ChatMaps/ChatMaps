@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 // Lib Imports
-import { app } from "../firebase-config";
-import { getDatabase, ref, set as firebaseSet } from "firebase/database";
+import {  database } from "../firebase-config";
+import { ref, set as firebaseSet } from "firebase/database";
 import { cookies } from "next/headers";
 
 
@@ -20,7 +20,6 @@ async function onboard(onboardingJSON, req) {
     onboardingJSON.email = email
     onboardingJSON.uid = uid
     onboardingJSON.defined = true
-    var database = getDatabase(app)
     await firebaseSet(ref(database, `users/${uid}`), onboardingJSON);
     var userOptions = {
       name: "user",

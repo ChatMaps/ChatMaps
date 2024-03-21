@@ -1,10 +1,8 @@
 "use client"
 import { useState, useEffect } from 'react'
 
-import { app } from "./api/firebase-config";
-import { getDatabase, ref, get} from "firebase/database";
-
-var database = getDatabase(app)
+import { app, database } from "./api/firebase-config";
+import { ref, get} from "firebase/database";
 
 
 function Home() {
