@@ -119,7 +119,7 @@ export function ChatRoomSidebar({ roomObj, click }) {
 
 // Map module for main page and chat room sidebar
 // TODO: MAKE NOT MOVABLE
-export function Geo({ loc, zoom, movable, locMarker, markers }) {
+export function Geo({ loc, zoom, locMarker, markers }) {
     if (loc) {
       return (
         <Map center={[loc.latitude, loc.longitude]} defaultZoom={zoom}>

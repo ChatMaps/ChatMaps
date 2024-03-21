@@ -76,7 +76,7 @@ function Home() {
           setRoomLoading(false);
         });
       });
-  }, []);
+  });
 
   // Grabs the user location
   useEffect(() => {
@@ -114,7 +114,7 @@ function Home() {
         });
       });
     }
-  }, []);
+  });
 
   // Grab list of all users
   useEffect(() => {

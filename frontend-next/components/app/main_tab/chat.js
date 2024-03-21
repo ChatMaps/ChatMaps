@@ -1,8 +1,8 @@
-import { Chat, SystemMessage, Member, ChatRoomSidebar } from "../datatypes"
+import { Chat, SystemMessage} from "../datatypes"
 import { useState, useEffect } from "react";
 import { Form, useForm } from "react-hook-form";
-import { ref, onValue, get, set, remove } from "firebase/database";
-import { app, database } from "../../../src/app/api/firebase-config";
+import { ref, onValue, set} from "firebase/database";
+import { database } from "../../../src/app/api/firebase-config";
 
 
   // Chatroom Module for Primary Tab
@@ -44,7 +44,7 @@ export function MainTabChatRoom({ roomObj }) {
           setLoading(false);
         }
       );
-    }, []);
+    });
   
     function sendMessage(data) {
       reset();

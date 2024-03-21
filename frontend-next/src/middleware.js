@@ -1,6 +1,5 @@
 // src/middleware.js
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 export async function middleware(req, res) {
   const session = await req.cookies.get("session");
