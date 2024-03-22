@@ -30,7 +30,7 @@ function Login() {
     async function authenticationPush({data}) {
         if (authenticate(data)) {
             console.log("Fire")
-            router.push("/");
+            router.push("/app");
         }
     }
 

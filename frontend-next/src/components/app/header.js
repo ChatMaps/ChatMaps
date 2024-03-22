@@ -2,6 +2,11 @@ import { auth, database } from "../../app/api/firebase-config";
 import { ref, set, remove } from "firebase/database";
 import {signOut} from "firebase/auth";
   
+  function logout() {
+    console.log("Fire")
+    signOut(auth)
+  }
+
   // Closes chat room
   function closeChatRoom(roomObj, setChatRoomObj, setMainTab, user) {
         var path = roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;
@@ -110,7 +115,8 @@ export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainT
               </a>
             )}
             <a
-              href={signOut}
+              onClick={logout}
+              href="/"
               className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full"
             >
               Sign Out

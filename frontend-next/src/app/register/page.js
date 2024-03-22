@@ -4,13 +4,21 @@ import { useForm, Form } from "react-hook-form";
 import "../globals.css"
 import { useState } from "react";
 
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from "firebase/auth";
 import {auth} from "../api/firebase-config";
 
 async function Signup(data) {
     var userCredential = await createUserWithEmailAndPassword(auth,data.email,data.password);
     if (userCredential.user) {
-        return true
+        setPersistence(auth, browserSessionPersistence)
+        .then(() => {
+            signInWithEmailAndPassword(auth,data.email,data.password)
+            .then((res) => {
+                console.log(res)
+                return true
+            })
+        })
+        
     } else {
         return false
     }
@@ -29,7 +37,7 @@ function Register() {
         if (passwordMatch(data)) {
             setPasswordMismatch(false);
             if (Signup(data)) {
-                router.push("/app");
+                router.push("/onboarding");
             }
 
         } else{
