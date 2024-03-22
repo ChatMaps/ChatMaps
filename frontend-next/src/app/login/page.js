@@ -8,14 +8,17 @@ import {auth, database} from "../api/firebase-config";
 import { setPersistence, signInWithEmailAndPassword, browserSessionPersistence } from "firebase/auth";
 import { ref, get } from "firebase/database";
 
-function authenticate({data}) {
+async function authenticate(data) {
     setPersistence(auth, browserSessionPersistence)
     .then(async () => {
-        var userCredential = await signInWithEmailAndPassword(auth,data.email,data.password);
-        if (userCredential.user.accessToken) {
-            var token = userCredential.user.accessToken
-            console.log(token)
-        }
+        signInWithEmailAndPassword(auth,data.email,data.password)
+        .then((userCredential) => {
+            if (userCredential.user) {
+                return true
+            } else {
+                return false
+            }
+        })
     })
 }
 
@@ -23,6 +26,14 @@ function Login() {
     var router = useRouter();
     //var { register, handleSubmit } = useForm();
     var { register, control, setError, formState: { errors, isSubmitting, isSubmitted } } = useForm()
+
+    async function authenticationPush({data}) {
+        if (authenticate(data)) {
+            console.log("Fire")
+            router.push("/");
+        }
+    }
+
     return (
         <div>
             <div className="grid h-screen place-items-center">
@@ -34,10 +45,7 @@ function Login() {
                     <div>
                         <h3 className="text-[24px] mt-[25px] mb-2">Login</h3>
                         {(errors.email && errors.password) && <div className="text-[red] mb-2 text-[18px] text-bold">Invalid Email or Password.</div>}
-                        <Form onSubmit={authenticate} encType={'application/json'}
-                        onSuccess={() => {
-                            router.push("/app");
-                        }}
+                        <Form onSubmit={authenticationPush} encType={'application/json'}
                         onError={() => {
                             const formError = { type: "server", message: "Username or Password Incorrect" }
                             // set same error in both:

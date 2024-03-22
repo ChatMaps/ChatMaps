@@ -1,10 +1,12 @@
 "use client";
 // System Imports
 import { useState, useEffect } from "react";
-import { database } from "../api/firebase-config";
-import { ref, onValue, set, remove } from "firebase/database";
+import { auth, database } from "../api/firebase-config";
+import { ref, onValue, set, remove, get } from "firebase/database";
 import { useBeforeunload } from "react-beforeunload";
+import {useRouter} from "next/router";
 import {Marker} from "pigeon-maps";
+import {onAuthStateChanged, signOut} from "firebase/auth"
 
 // Refactored Component Imports
 // Data Structure Imports
@@ -41,45 +43,61 @@ function Home() {
   const [chatroomUsers, setChatroomUsers] = useState(null); // holds all chatroom users
   const [chatroomUsersLoading, setChatroomUsersLoading] = useState(true);
   const [markers, setMarkers] = useState([]);
+  const [isAuthenticated, setAuth] = useState(false)
+  const [user, setUser] = useState(null)
+
+  // Authentication
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        get(ref(database, `users/${user.uid}`))
+        .then((user) => {
+          setUser(user.val())
+          setAuth(true)
+        })
+      } else {
+        setAuth(false)
+      }
+      })
+  }, [])
+
 
   // Grabs user data, saves to user, then lists the users saved rooms
   useEffect(() => {
-    fetch("/api/user")
-      .then((res) => res.json())
-      .then((user) => {
-        onValue(ref(database, "/users/" + user.uid + "/rooms"), (snapshot) => {
-          setRoomLoading(true);
-          var rooms = snapshot.val();
-          setMyRoomsObj(rooms);
-          var roomArr = [];
-          var markerArr = markers;
-          for (var room in rooms) {
-            var newRoom = (
-              <ChatRoomSidebar
-                roomObj={rooms[room]}
-                key={rooms[room].timestamp}
-                click={selectChatRoom}
-              />
-            );
-            markerArr.push(
-              <Marker
-                width={30}
-                anchor={[rooms[room].latitude, rooms[room].longitude]}
-                color="blue"
-              />
-            );
-            roomArr.push(newRoom);
-          }
-          setMarkers(markerArr);
-          setRoomData(roomArr);
-          setRoomLoading(false);
-        });
-      });
-  },[]);
+        if (user) {
+          onValue(ref(database, "/users/" + user.uid + "/rooms"), (snapshot) => {
+            setRoomLoading(true);
+            var rooms = snapshot.val();
+            setMyRoomsObj(rooms);
+            var roomArr = [];
+            var markerArr = markers;
+            for (var room in rooms) {
+              var newRoom = (
+                <ChatRoomSidebar
+                  roomObj={rooms[room]}
+                  key={rooms[room].timestamp}
+                  click={selectChatRoom}
+                />
+              );
+              markerArr.push(
+                <Marker
+                  width={30}
+                  anchor={[rooms[room].latitude, rooms[room].longitude]}
+                  color="blue"
+                />
+              );
+              roomArr.push(newRoom);
+            }
+            setMarkers(markerArr);
+            setRoomData(roomArr);
+            setRoomLoading(false);
+          });
+        }
+  },[user]);
 
   // Grabs the user location
   useEffect(() => {
-    if ("geolocation" in navigator) {
+    if ("geolocation" in navigator && user) {
       // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
       navigator.geolocation.getCurrentPosition(({ coords }) => {
 
@@ -113,7 +131,7 @@ function Home() {
         });
       });
     }
-  },[]);
+  },[user]);
 
 
   // Dont Double Send Leaving Message
@@ -132,9 +150,6 @@ function Home() {
 
   // Selects chat room
   function selectChatRoom(roomObj) {
-    fetch("/api/user")
-      .then((res) => res.json())
-      .then((user) => {
         // Path of chatroom
         var path = roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;
 
@@ -192,14 +207,10 @@ function Home() {
           }
         });
         setMainTab("chat");
-      });
   }
 
   // Fires to tell other uses that you are leaving the room
   useBeforeunload(() => {
-    fetch("/api/user")
-      .then((res) => res.json())
-      .then((user) => {
         if (chatRoomObj && mainTab == "chat") {
           var payload = {
             body: "left",
@@ -229,41 +240,44 @@ function Home() {
                 chatRoomObj.name +
                 "-" +
                 chatRoomObj.timestamp
-              }/users/online/${user.uid}`
+              }/users/online/${userID}`
             )
           );
         }
-      });
   });
 
   return (
-    <div className="grid grid-cols-4 auto-cols-max overflow-hidden">
-      {/* Left Side of Page */}
-      <div className="col-span-3 h-dvh">
-        {/* Header */}
-        <Header mainTab={mainTab} isMyRoom={isMyRoom} chatRoomObj={chatRoomObj} setChatRoomObj={setChatRoomObj} setMainTab={setMainTab} setIsMyRoom={setIsMyRoom}/>
-        {/* Main Page Section */}
-        <div className="mr-2 h-[calc(100%-110px)]">
-          {mainTab == "home" && !loadingLoc && (
-            <MainTabHome loc={location} markers={markers} />
+    <div>
+      {isAuthenticated && (
+        <div className="grid grid-cols-4 auto-cols-max overflow-hidden">
+          {/* Left Side of Page */}
+          <div className="col-span-3 h-dvh">
+            {/* Header */}
+            <Header mainTab={mainTab} isMyRoom={isMyRoom} chatRoomObj={chatRoomObj} setChatRoomObj={setChatRoomObj} setMainTab={setMainTab} setIsMyRoom={setIsMyRoom} user={user}/>
+            {/* Main Page Section */}
+            <div className="mr-2 h-[calc(100%-110px)]">
+              {mainTab == "home" && !loadingLoc && (
+                <MainTabHome loc={location} markers={markers} user={user}/>
+              )}
+              {mainTab == "home" && loadingLoc && (
+                <MainTabHome loc={null} markers={markers} user={user}/>
+              )}
+              {mainTab == "chat" && <MainTabChatRoom roomObj={chatRoomObj} user={user}/>}
+            </div>
+          </div>
+          {/* Sidebar (Right Side of Page) */}
+          {mainTab == "home" && (
+            <Home_Sidebar tab={tab} nearby={nearby} loadingNearby={loadingNearby} setTab={setTab} isRoomLoading={isRoomLoading} myRooms={myRooms} loadingLoc={loadingLoc} location={location}/>
           )}
-          {mainTab == "home" && loadingLoc && (
-            <MainTabHome loc={null} markers={markers} />
+          {mainTab == "chat" && (
+            <Chat_Sidebar chatRoomObj={chatRoomObj} chatroomOnline={chatroomOnline} chatroomUsersLoading={chatroomUsersLoading} chatroomUsers={chatroomUsers}/>
           )}
-          {mainTab == "chat" && <MainTabChatRoom roomObj={chatRoomObj}/>}
+          {mainTab == "profile" && (
+            <Profile_Sidebar/>
+          )}
         </div>
-      </div>
-      {/* Sidebar (Right Side of Page) */}
-      {mainTab == "home" && (
-        <Home_Sidebar tab={tab} nearby={nearby} loadingNearby={loadingNearby} setTab={setTab} isRoomLoading={isRoomLoading} myRooms={myRooms} loadingLoc={loadingLoc} location={location}/>
       )}
-      {mainTab == "chat" && (
-        <Chat_Sidebar chatRoomObj={chatRoomObj} chatroomOnline={chatroomOnline} chatroomUsersLoading={chatroomUsersLoading} chatroomUsers={chatroomUsers}/>
-      )}
-      {mainTab == "profile" && (
-        <Profile_Sidebar/>
-      )}
-    </div>
+  </div>
   );
 }
 

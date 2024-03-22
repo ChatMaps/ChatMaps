@@ -1,11 +1,9 @@
-import { database } from "../../app/api/firebase-config";
+import { auth, database } from "../../app/api/firebase-config";
 import { ref, set, remove } from "firebase/database";
+import {signOut} from "firebase/auth";
   
   // Closes chat room
-  function closeChatRoom(roomObj, setChatRoomObj, setMainTab) {
-    fetch("/api/user")
-      .then((res) => res.json())
-      .then((user) => {
+  function closeChatRoom(roomObj, setChatRoomObj, setMainTab, user) {
         var path = roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;
         var payload = {
           body: "left",
@@ -23,14 +21,10 @@ import { ref, set, remove } from "firebase/database";
         remove(ref(database, `/rooms/${path}/users/online/${user.uid}`));
         setChatRoomObj(null);
         setMainTab("home");
-      });
   }
 
   // Adds room to myRooms
-  function addToMyRooms(chatRoomObj, setIsMyRoom) {
-    fetch("/api/user")
-      .then((res) => res.json())
-      .then((user) => {
+  function addToMyRooms(chatRoomObj, setIsMyRoom, user) {
         set(
           ref(
             database,
@@ -52,15 +46,11 @@ import { ref, set, remove } from "firebase/database";
           "-" +
           chatRoomObj.timestamp;
         set(ref(database, `/rooms/${path}/users/all/${user.uid}`), user);
-      });
     setIsMyRoom(true);
   }
 
   // Deletes saved room from myRooms
-  function removeFromMyRooms(chatRoomObj, setIsMyRoom) {
-    fetch("/api/user")
-      .then((res) => res.json())
-      .then((user) => {
+  function removeFromMyRooms(chatRoomObj, setIsMyRoom, user) {
         var path =
           chatRoomObj.path +
           "/" +
@@ -74,11 +64,10 @@ import { ref, set, remove } from "firebase/database";
           )
         );
         remove(ref(database, `/rooms/${path}/users/all/${user.uid}`));
-      });
     setIsMyRoom(false);
   }
 
-export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainTab, setIsMyRoom}) {
+export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainTab, setIsMyRoom, user}) {
     return (
         <div className="m-2 rounded-lg h-[63px] bg-white shadow-2xl grid grid-cols-2 p-1">
           <div className="h-[60px]">
@@ -93,7 +82,7 @@ export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainT
             {mainTab == "chat" && isMyRoom == false && (
               <a
                 onClick={() => {
-                  addToMyRooms(chatRoomObj, setIsMyRoom);
+                  addToMyRooms(chatRoomObj, setIsMyRoom, user);
                 }}
                 className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5"
               >
@@ -103,7 +92,7 @@ export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainT
             {mainTab == "chat" && isMyRoom == true && (
               <a
                 onClick={() => {
-                  removeFromMyRooms(chatRoomObj, setIsMyRoom);
+                  removeFromMyRooms(chatRoomObj, setIsMyRoom, user);
                 }}
                 className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5"
               >
@@ -113,7 +102,7 @@ export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainT
             {mainTab == "chat" && (
               <a
                 onClick={() => {
-                  closeChatRoom(chatRoomObj, setChatRoomObj, setMainTab);
+                  closeChatRoom(chatRoomObj, setChatRoomObj, setMainTab, user);
                 }}
                 className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5"
               >
@@ -121,7 +110,7 @@ export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainT
               </a>
             )}
             <a
-              href="/api/signout"
+              href={signOut}
               className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full"
             >
               Sign Out

@@ -1,23 +1,28 @@
 "use client"
 import { useState, useEffect } from 'react'
 
-import { database } from "./api/firebase-config";
+import { auth, database } from "./api/firebase-config";
 import { ref, get} from "firebase/database";
+import {onAuthStateChanged} from "firebase/auth"
 
 
 function Home() {
-    const [statusCode, setData] = useState(null)
-    const [isLoading, setLoading] = useState(true)
     const [isLoadingLoc, setLoadingLoc] = useState(true)
     const [roomCount, setRoomCount] = useState(null)
-    useEffect(() => {
-      fetch('/api/user')
-        .then((res) => res.status)
-        .then((status) => {
-          setData(status)
-          setLoading(false)
-        })
-    }, [])
+    const [isAuthenticated, setAuth] = useState(false)
+    const [userID, setUserID] = useState(null)
+
+    // Authentication
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserID(user.uid)
+        setAuth(true)
+      } else {
+        setAuth(false)
+      }
+      })
+  }, [])
 
     useEffect(() => {
         if('geolocation' in navigator) {
@@ -49,13 +54,13 @@ function Home() {
                         Chat with friends!
                     </span>
                     <div className="m-5">
-                        {(statusCode == 203 || isLoading) && 
+                        {(!isAuthenticated) && 
                             <div>
                                 <a href="/login"><button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">Login</button></a>
                                 <a href="/register"><button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">Sign Up</button></a>
                             </div>
                         }
-                        {statusCode == 200 &&  <a href="/app"><button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">Continue to App</button></a>}
+                        {isAuthenticated &&  <a href="/app"><button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">Continue to App</button></a>}
                         {(!isLoadingLoc && roomCount == 1) && <div className='text-[24px] pt-10'>Join others in {roomCount} room near you!</div>}
                         {(!isLoadingLoc && roomCount != 1 && roomCount != 0) && <div className='text-[24px] pt-10'>Join others in {roomCount} rooms near you!</div>}
                         {(isLoadingLoc || (roomCount == 0 && !isLoadingLoc)) && <div className='text-[24px] pt-10'>Start the conversation today!</div>}

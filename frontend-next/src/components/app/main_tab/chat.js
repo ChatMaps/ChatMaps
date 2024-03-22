@@ -6,7 +6,7 @@ import { database } from "../../../app/api/firebase-config";
 
 
   // Chatroom Module for Primary Tab
-export function MainTabChatRoom({ roomObj }) {
+export function MainTabChatRoom({ roomObj, user }) {
     var { register, control, reset, handleSubmit } = useForm();
     const [chats, setData] = useState(null);
     const [isLoading, setLoading] = useState(true);
@@ -48,9 +48,6 @@ export function MainTabChatRoom({ roomObj }) {
   
     function sendMessage(data) {
       reset();
-      fetch("/api/user")
-        .then((res) => res.json())
-        .then((user) => {
           var payload = {
             body: data.message,
             user: user.username,
@@ -66,7 +63,6 @@ export function MainTabChatRoom({ roomObj }) {
             ),
             payload
           );
-        });
     }
   
     if (isLoading) return <div>Loading</div>;
