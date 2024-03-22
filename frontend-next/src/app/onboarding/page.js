@@ -2,22 +2,35 @@
 import "../globals.css"
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { ref, set } from "firebase/database";
+import {auth, database} from "../api/firebase-config"
+import {onAuthStateChanged} from "firebase/auth"
+
+function createUser(data) {
+    onAuthStateChanged(auth, (user) => {
+        if (user.uid) {
+            console.log(user)
+            data.uid = user.uid
+            data.defined = true
+            data.email = user.email
+            set(ref(database, `users/${user.uid}`), data);
+            return true
+        } else {
+            return false
+        }
+    })
+}
+
+
 
 function Onboarding() {
     var router = useRouter();
     var { register, handleSubmit } = useForm();
 
-    async function Onboard(data) {
-        const res = await fetch("/api/onboard", {
-            method: "POST",
-            body: JSON.stringify(data ? data : {}),
-        });
-
-        if (res.ok) {
-            router.push("/app");
-        } else {
-            router.push("/login");
-        }
+    function Onboard(data) {
+        createUser(data)
+        router.push("/app");
+        
     }
     return (
         <div>
@@ -34,7 +47,7 @@ function Onboarding() {
                             <input type="text" {...register("username")} placeholder="Display Name"/><br/>
                             <input type="text" {...register("firstName")} placeholder="First Name"/><br/>
                             <input type="text" {...register("lastName")} placeholder="Last Name"/><br/>
-                            <button type="submit" className="bg-[#dee0e0] m-5">Save</button>
+                            <button type="submit" className="inline-flex items-center px-4 py-2 transition ease-in-out duration-150 bg-[#dee0e0] m-5 bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">Save</button>
                     </form>
                 </div>
             </div>
