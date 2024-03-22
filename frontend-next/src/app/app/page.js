@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { auth, database } from "../api/firebase-config";
 import { ref, onValue, set, remove, get } from "firebase/database";
 import { useBeforeunload } from "react-beforeunload";
-import {useRouter} from "next/router";
+import {useRouter} from "next/navigation";
 import {Marker} from "pigeon-maps";
 import {onAuthStateChanged, signOut} from "firebase/auth"
 
@@ -51,12 +51,20 @@ function Home() {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         get(ref(database, `users/${user.uid}`))
-        .then((user) => {
-          setUser(user.val())
-          setAuth(true)
+        .then((userData) => {
+          userData = userData.val()
+          console.log(userData)
+          if (userData) {
+            setUser(userData)
+            setAuth(true)
+          } else {
+            window.location.href = "/onboarding"
+          }
+          
         })
       } else {
         setAuth(false)
+        window.location.href = "/login"
       }
       })
   }, [])

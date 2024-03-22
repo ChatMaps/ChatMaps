@@ -47,7 +47,7 @@ function Onboarding() {
                             <input type="text" {...register("username")} placeholder="Display Name"/><br/>
                             <input type="text" {...register("firstName")} placeholder="First Name"/><br/>
                             <input type="text" {...register("lastName")} placeholder="Last Name"/><br/>
-                            <button type="submit" className="bg-[#dee0e0] m-5">Save</button>
+                            <button type="submit" className="inline-flex items-center px-4 py-2 transition ease-in-out duration-150 bg-[#dee0e0] m-5 bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">Save</button>
                     </form>
                 </div>
             </div>
