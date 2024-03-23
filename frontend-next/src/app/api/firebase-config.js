@@ -1,5 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getDatabase} from "firebase/database"
 
 var config = {
     apiKey: "AIzaSyDbDPjQGt-lIjNPeTG-Q5AECM1m0vtOr2c",
@@ -13,5 +14,6 @@ var config = {
 
 var app = getApps().length > 0 ? getApp() : initializeApp(config);
 var auth = getAuth(app);
+var database = getDatabase(app);
 
-export { auth, app };
+export { auth, app, database };

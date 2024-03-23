@@ -4,21 +4,41 @@ import { useForm, Form } from "react-hook-form";
 import "../globals.css"
 import { useState } from "react";
 
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from "firebase/auth";
+import {auth} from "../api/firebase-config";
+
+async function Signup(data) {
+    var userCredential = await createUserWithEmailAndPassword(auth,data.email,data.password);
+    if (userCredential.user) {
+        setPersistence(auth, browserSessionPersistence)
+        .then(() => {
+            signInWithEmailAndPassword(auth,data.email,data.password)
+            .then((res) => {
+                console.log(res)
+                return true
+            })
+        })
+        
+    } else {
+        return false
+    }
+}
 
 function Register() {
-    var { register, control, setError, handleSubmit, formState: { errors } } = useForm()
     var router = useRouter();
+    var { register, control, formState: { errors } } = useForm()
     var emailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
     var [passwordMismatch, setPasswordMismatch] = useState(false);
-
     const passwordMatch = (data) => {
         return data.password === data.passwordCheck;
     };
-    
-    const onSubmit = (data) => {
+
+    function onSubmit({data}) {
         if (passwordMatch(data)) {
             setPasswordMismatch(false);
-            router.push("/success");
+            if (Signup(data)) {
+                router.push("/onboarding");
+            }
 
         } else{
             setPasswordMismatch(true);
@@ -36,11 +56,7 @@ function Register() {
                     </span>
                     <div>
                         <h3 className="text-[24px] mt-[15px]">Register</h3>
-                        <Form onSubmit={handleSubmit(onSubmit)}
-                        onSuccess={() => {
-                            router.push("/app");
-                        }}
-                        action="/api/register" 
+                        <Form onSubmit={onSubmit}
                         encType={'application/json'}
                         control={control}
                         >

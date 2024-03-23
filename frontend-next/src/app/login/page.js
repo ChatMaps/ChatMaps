@@ -3,10 +3,32 @@ import { useForm, Form } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import "../globals.css"
 
+// Firebase imports
+import {auth} from "../api/firebase-config";
+import { setPersistence, signInWithEmailAndPassword, browserSessionPersistence } from "firebase/auth";
+
 function Login() {
     var router = useRouter();
     //var { register, handleSubmit } = useForm();
-    var { register, control, setError, formState: { errors, isSubmitting, isSubmitted } } = useForm()
+    var { register, control, setError, handleSubmit, formState: { errors, isSubmitting, isSubmitted } } = useForm()
+
+    function authenticate(data) {
+        setPersistence(auth, browserSessionPersistence)
+        .then(() => {
+            signInWithEmailAndPassword(auth,data.email,data.password)
+            .then((userCredential) => {
+                if (userCredential.user) {
+                    router.push("/app")
+                } else {
+                    const formError = { type: "server", message: "Username or Password Incorrect" }
+                // set same error in both:
+                setError('password', formError)
+                setError('email', formError)
+                }
+            })
+        })
+    }
+
     return (
         <div>
             <div className="grid h-screen place-items-center">
@@ -18,16 +40,7 @@ function Login() {
                     <div>
                         <h3 className="text-[24px] mt-[25px] mb-2">Login</h3>
                         {(errors.email && errors.password) && <div className="text-[red] mb-2 text-[18px] text-bold">Invalid Email or Password.</div>}
-                        <Form action="/api/login" encType={'application/json'}
-                        onSuccess={() => {
-                            router.push("/app");
-                        }}
-                        onError={() => {
-                            const formError = { type: "server", message: "Username or Password Incorrect" }
-                            // set same error in both:
-                            setError('password', formError)
-                            setError('email', formError)
-                        }}
+                        <Form onSubmit={handleSubmit(authenticate)} encType={'application/json'}
                         control={control}
                         >
                             <input type="email" id="email" className={(errors.email && errors.password) && "err"} {...register("email", { required: true })} placeholder="Enter Email Address"/><br/>
