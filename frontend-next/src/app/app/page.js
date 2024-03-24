@@ -69,7 +69,6 @@ function Home() {
       })
   }, [])
 
-
   // Grabs user data, saves to user, then lists the users saved rooms
   useEffect(() => {
         if (user) {
@@ -278,7 +277,7 @@ function Home() {
             <Home_Sidebar tab={tab} nearby={nearby} loadingNearby={loadingNearby} setTab={setTab} isRoomLoading={isRoomLoading} myRooms={myRooms} loadingLoc={loadingLoc} location={location}/>
           )}
           {mainTab == "chat" && (
-            <Chat_Sidebar chatRoomObj={chatRoomObj} chatroomOnline={chatroomOnline} chatroomUsersLoading={chatroomUsersLoading} chatroomUsers={chatroomUsers}/>
+            <Chat_Sidebar chatRoomObj={chatRoomObj} chatroomOnline={chatroomOnline} chatroomUsersLoading={chatroomUsersLoading} chatroomUsers={chatroomUsers} setTab={setTab}/>
           )}
           {mainTab == "profile" && (
             <Profile_Sidebar/>

@@ -17,6 +17,16 @@ const userColors = [
     "#c3cb71",
   ];
 
+  const generateColor = (user_str) => {
+    // hashes username for consistent colors, maybe all functionality to pick color later
+    let hash = 0;
+    for (let i = 0; i < user_str.length; i++) {
+      hash = user_str.charCodeAt(i) + (hash * 32 - hash);
+    }
+    const index = Math.abs(hash) % userColors.length;
+    return index;
+  };
+
 // Chat Message
 export function Chat({ chatObj }) {
     let dateOptions = {
@@ -26,16 +36,6 @@ export function Chat({ chatObj }) {
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    };
-  
-    const generateColor = (user_str) => {
-      // hashes username for consistent colors, maybe all functionality to pick color later
-      let hash = 0;
-      for (let i = 0; i < user_str.length; i++) {
-        hash = user_str.charCodeAt(i) + (hash * 32 - hash);
-      }
-      const index = Math.abs(hash) % userColors.length;
-      return index;
     };
   
     return (
@@ -140,3 +140,15 @@ export function Geo({ loc, zoom, locMarker, markers }) {
       );
     }
   }
+
+
+// Interest for Profile
+export function Interest({interest}) {
+  return (
+    <div>
+      <div className="rounded-lg m-2 p-2 shadow-xl">
+        {interest}
+      </div>
+    </div>
+  )
+}
