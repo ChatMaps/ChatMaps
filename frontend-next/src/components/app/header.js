@@ -16,6 +16,7 @@ import { Popover } from '@headlessui/react'
           user: user.username,
           isSystem: true,
           timestamp: new Date().getTime(),
+          uid: user.uid
         };
         set(
           ref(

@@ -51,6 +51,7 @@ export function MainTabChatRoom({ roomObj, user }) {
           var payload = {
             body: data.message,
             user: user.username,
+            uid: user.uid,
             isSystem: false,
             timestamp: new Date().getTime(),
           };

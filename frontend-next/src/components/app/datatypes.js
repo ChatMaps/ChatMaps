@@ -42,7 +42,7 @@ export function Chat({ chatObj }) {
       <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
         <div>
           <span style={{ color: userColors[generateColor(chatObj.user)] }}>
-            {chatObj.user}
+          <a href={chatObj.uid && ("/user/"+chatObj.uid)} className="hover:font-bold cursor-pointer" target="_blank">{chatObj.user}</a>
           </span>
           : {chatObj.body}
         </div>
@@ -70,7 +70,7 @@ return (
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
     <div className="text-[#d1d1d1]">
         <span style={{ color: userColors[generateColor(chatObj.user)] }}>
-        {chatObj.user}
+        <a href={chatObj.uid && ("/user/"+chatObj.uid)} className="hover:font-bold cursor-pointer" target="_blank">{chatObj.user}</a>
         </span>{" "}
         has {chatObj.body} the room.
     </div>
@@ -149,8 +149,8 @@ export function Interest({interest}) {
 
 export function ProfileRoom({room}) {
   return (
-    <div>
-      <div className="rounded-lg p-2 shadow-xl bg-white h-[250px] w-[350px] m-2 grow-0">
+    <div className="gap-x-5">
+      <div className="rounded-lg p-2 shadow-xl bg-white h-[250px] w-[350px] grow-0">
         <div className="relative z-1 h-[235px] opacity-50">
           <Geo loc={{"latitude": room.latitude, "longitude": room.longitude}} zoom={12} locMarker={false}/>
         </div>
