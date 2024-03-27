@@ -1,12 +1,12 @@
 "use client";
 // System Imports
 import { useState, useEffect } from "react";
-import { auth, database } from "../api/firebase-config";
+import { auth, database } from "../../firebase-config";
 import { ref, onValue, set, remove, get } from "firebase/database";
 import { useBeforeunload } from "react-beforeunload";
-import {useRouter} from "next/navigation";
 import {Marker} from "pigeon-maps";
-import {onAuthStateChanged, signOut} from "firebase/auth"
+import {onAuthStateChanged} from "firebase/auth"
+import { useSearchParams } from 'next/navigation'
 
 // Refactored Component Imports
 // Data Structure Imports
@@ -45,6 +45,17 @@ function Home() {
   const [markers, setMarkers] = useState([]);
   const [isAuthenticated, setAuth] = useState(false)
   const [user, setUser] = useState(null)
+  const [usingSearchParams, setUsingSearchParams] = useState(true)
+
+  const searchParams = useSearchParams()
+  var roomSwitch = null
+  if (searchParams.has("room") && usingSearchParams && user) {
+      roomSwitch = searchParams.get("room")
+      setUsingSearchParams(false)
+      get(ref(database, `rooms/${searchParams.get("room")}`)).then((snapshot) => {
+        selectChatRoom(snapshot.val())
+      });
+  }
 
   // Authentication
   useEffect(() => {
@@ -53,7 +64,6 @@ function Home() {
         get(ref(database, `users/${user.uid}`))
         .then((userData) => {
           userData = userData.val()
-          console.log(userData)
           if (userData) {
             setUser(userData)
             setAuth(true)
@@ -140,7 +150,6 @@ function Home() {
     }
   },[user]);
 
-
   // Dont Double Send Leaving Message
   useEffect(() => {
     if (myRoomsObj && chatRoomObj) {
@@ -196,10 +205,6 @@ function Home() {
           }
 
           // Users who added to "my rooms"
-          console.log(
-            snapshot.val().hasOwnProperty("users") &&
-              snapshot.val().users.hasOwnProperty("all")
-          );
           if (
             snapshot.val().hasOwnProperty("users") &&
             snapshot.val().users.hasOwnProperty("all")

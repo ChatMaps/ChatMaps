@@ -17,6 +17,15 @@ const userColors = [
     "#c3cb71",
   ];
 
+  let dateOptions = {
+    weekday: "long",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  };
+
   const generateColor = (user_str) => {
     // hashes username for consistent colors, maybe all functionality to pick color later
     let hash = 0;
@@ -29,15 +38,6 @@ const userColors = [
 
 // Chat Message
 export function Chat({ chatObj }) {
-    let dateOptions = {
-      weekday: "long",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    };
-  
     return (
       <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
         <div>
@@ -55,14 +55,6 @@ export function Chat({ chatObj }) {
   
 // System Chat Message
 export function SystemMessage({ chatObj }) {
-let dateOptions = {
-    weekday: "long",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-};
 
 const generateColor = (user_str) => {
     // hashes username for consistent colors, maybe all functionality to pick color later
@@ -92,9 +84,11 @@ return (
 // Member for Active/Room members in sidebar
 export function Member({ memberObj }) {
     return (
-      <div className="cursor-pointer g-[aliceblue] rounded-lg m-3 shadow-xl p-2">
+    <a href={"/user/"+memberObj.uid} target="_blank">
+      <div className="cursor-pointer g-[aliceblue] rounded-lg m-3 shadow-xl p-2" >
         {memberObj.username}
       </div>
+    </a>
     );
   }
 
@@ -148,6 +142,24 @@ export function Interest({interest}) {
     <div>
       <div className="rounded-lg m-2 p-2 shadow-xl">
         {interest}
+      </div>
+    </div>
+  )
+}
+
+export function ProfileRoom({room}) {
+  return (
+    <div>
+      <div className="rounded-lg p-2 shadow-xl bg-white h-[250px] w-[350px] m-2 grow-0">
+        <div className="relative z-1 h-[235px] opacity-50">
+          <Geo loc={{"latitude": room.latitude, "longitude": room.longitude}} zoom={12} locMarker={false}/>
+        </div>
+        <div className="relative z-2 top-[-235px] text-left p-2">
+          <div className="text-2xl font-bold">{room.name}</div>
+          <div>{room.description}</div>
+          <div>Created on {new Date(room.timestamp).toLocaleString(dateOptions)}</div>
+          <a href={"/app?room="+room.path+"/"+room.name+"-"+room.timestamp} className="absolute z-2 top-[190px] w-[108px] p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center">Open Room</a>
+        </div>
       </div>
     </div>
   )

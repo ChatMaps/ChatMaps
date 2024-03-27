@@ -4,17 +4,16 @@ import { useForm, Form } from "react-hook-form";
 import "../globals.css"
 import { useState } from "react";
 
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from "firebase/auth";
-import {auth} from "../api/firebase-config";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, indexedDBLocalPersistence  } from "firebase/auth";
+import {auth} from "../../firebase-config";
 
 async function Signup(data) {
     var userCredential = await createUserWithEmailAndPassword(auth,data.email,data.password);
     if (userCredential.user) {
-        setPersistence(auth, browserSessionPersistence)
+        setPersistence(auth, indexedDBLocalPersistence )
         .then(() => {
             signInWithEmailAndPassword(auth,data.email,data.password)
             .then((res) => {
-                console.log(res)
                 return true
             })
         })
@@ -56,16 +55,12 @@ function Register() {
                     </span>
                     <div>
                         <h3 className="text-[24px] mt-[15px]">Register</h3>
-                        <Form onSubmit={onSubmit}
-                        encType={'application/json'}
-                        control={control}
-                        >
+                        <Form onSubmit={onSubmit} encType={'application/json'} control={control}>
                             <input type="email" {...register("email", {required: true, pattern: emailRegex})} className={errors.email && "err"} placeholder="Enter Email Address"/><br/>
                             <input type="password" {...register("password", {required: true})} className={errors.password && errors.password.type == 'required' && "err"} placeholder="Enter Password"/><br/>
                             <input type ="password" {...register("passwordCheck", {required: false})} className ={errors.passwordCheck && errors.passwordCheck.type == 'required' && "err"} placeholder="Re-enter Password"/><br/>
                                 {passwordMismatch && <p className="text-red-500">Passwords do not match</p>}
-                            <button type="submit" className="bg-[#dee0e0] m-5 bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
-                                Register</button><br/>
+                            <button type="submit" className="bg-[#dee0e0] m-5 bg-cyan-500 text-white font-bold py-2 px-4 rounded-full"> Register</button><br/>
                             Have an account? <a href="/login">Log In</a>
                         </Form>
                     </div>

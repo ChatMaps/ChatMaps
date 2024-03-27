@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react'
 
-import { auth, database } from "./api/firebase-config";
+import { auth, database } from "../firebase-config";
 import { ref, get} from "firebase/database";
 import {onAuthStateChanged} from "firebase/auth"
 
@@ -37,7 +37,6 @@ function Home() {
                     }
                     setRoomCount(count)
                 } else {
-                    console.log("No rooms nearby")
                     setRoomCount(0)
                 }
                 setLoadingLoc(false)
