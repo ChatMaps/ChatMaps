@@ -6,7 +6,7 @@ import { ref, onValue, set, remove, get } from "firebase/database";
 import { useBeforeunload } from "react-beforeunload";
 import {Marker} from "pigeon-maps";
 import {onAuthStateChanged} from "firebase/auth"
-import { useSearchParams } from 'next/navigation'
+
 
 // Refactored Component Imports
 // Data Structure Imports
@@ -47,15 +47,17 @@ function Home() {
   const [user, setUser] = useState(null)
   const [usingSearchParams, setUsingSearchParams] = useState(true)
 
-  const searchParams = useSearchParams()
-  var roomSwitch = null
-  if (searchParams.has("room") && usingSearchParams && user) {
-      roomSwitch = searchParams.get("room")
-      setUsingSearchParams(false)
-      get(ref(database, `rooms/${searchParams.get("room")}`)).then((snapshot) => {
-        selectChatRoom(snapshot.val())
-      });
-  }
+  useEffect(() => {
+    const searchParams = new URLSearchParams(document.location.search);
+    var roomSwitch = null
+    if (searchParams.has("room") && usingSearchParams && user) {
+        roomSwitch = searchParams.get("room")
+        setUsingSearchParams(false)
+        get(ref(database, `rooms/${searchParams.get("room")}`)).then((snapshot) => {
+          selectChatRoom(snapshot.val())
+        });
+    }
+  }, [user])
 
   // Authentication
   useEffect(() => {
