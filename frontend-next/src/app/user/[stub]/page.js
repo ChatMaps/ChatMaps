@@ -1,8 +1,9 @@
 "use client";
 // System Imports
 import { useState, useEffect } from "react";
-import { auth, database } from "../../../firebase-config";
-import { ref, onValue, get, set, update  } from "firebase/database";
+import { auth, database, storage } from "../../../../firebase-config";
+import { ref, onValue, get, update  } from "firebase/database";
+import { ref as sRef, getDownloadURL  } from "firebase/storage";
 import {Marker} from "pigeon-maps";
 import {onAuthStateChanged} from "firebase/auth"
 import { useForm, Form } from "react-hook-form";
@@ -13,6 +14,7 @@ import { useForm, Form } from "react-hook-form";
 
 // Header Import
 import { Header } from "../../../components/app/header";
+import { uploadBytes } from "firebase/storage";
 
 // Contains most everything for the app homepage
 function Home({ params }) {
@@ -77,14 +79,23 @@ function Home({ params }) {
   },[]);
 
   function save({data}) {
-    for (var key in data) {
-      if (data[key] == "") {
-        data[key] = profileData[key]
-      }
+    if (data.pfp) {
+      // image stuff
+      uploadBytes(sRef(storage, `users/${user.uid}/pfp`), data.pfp[0]).then(() => {
+        getDownloadURL(sRef(storage, `users/${user.uid}/pfp`)).then((url) => {
+          console.log(url)
+          data.pfp = url
+          for (var key in data) {
+            if (data[key] == "") {
+              data[key] = profileData[key]
+            }
+          }
+      
+          setEdit(false)
+          update(ref(database, `users/${user.uid}`), data)
+        })
+      })
     }
-    console.log(data)
-    setEdit(false)
-    update(ref(database, `users/${user.uid}`), data)
   }
 
   return (

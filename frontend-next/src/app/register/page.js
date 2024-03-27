@@ -5,7 +5,7 @@ import "../globals.css"
 import { useState } from "react";
 
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, setPersistence, indexedDBLocalPersistence  } from "firebase/auth";
-import {auth} from "../../firebase-config";
+import {auth} from "../../../firebase-config";
 
 async function Signup(data) {
     var userCredential = await createUserWithEmailAndPassword(auth,data.email,data.password);

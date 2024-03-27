@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import "../globals.css"
 
 // Firebase imports
-import {auth} from "../../firebase-config";
+import {auth} from "../../../firebase-config";
 import { setPersistence, signInWithEmailAndPassword, indexedDBLocalPersistence  } from "firebase/auth";
 
 function Login() {

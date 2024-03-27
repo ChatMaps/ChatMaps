@@ -1,7 +1,7 @@
 "use client";
 // System Imports
 import { useState, useEffect } from "react";
-import { auth, database } from "../../firebase-config";
+import { auth, database } from "../../../firebase-config";
 import { ref, onValue, set, remove, get } from "firebase/database";
 import { useBeforeunload } from "react-beforeunload";
 import {Marker} from "pigeon-maps";

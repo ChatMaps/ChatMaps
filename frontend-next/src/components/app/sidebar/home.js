@@ -1,5 +1,5 @@
 import { Form, useForm } from "react-hook-form";
-import { database } from "../../../firebase-config";
+import { database } from "../../../../firebase-config";
 import { ref, set } from "firebase/database";
 
 // CreateRoom Module for Sidebar Create Tab

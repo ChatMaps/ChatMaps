@@ -1,4 +1,4 @@
-import { auth, database } from "../../firebase-config";
+import { auth, database } from "../../../firebase-config";
 import { ref, set, remove } from "firebase/database";
 import {signOut} from "firebase/auth";
 import { Popover } from '@headlessui/react'

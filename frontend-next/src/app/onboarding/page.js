@@ -3,7 +3,7 @@ import "../globals.css"
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { ref, set } from "firebase/database";
-import {auth, database} from "../../firebase-config"
+import {auth, database} from "../../../firebase-config"
 import {onAuthStateChanged} from "firebase/auth"
 
 function createUser(data) {
