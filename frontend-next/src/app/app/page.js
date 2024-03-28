@@ -1,12 +1,12 @@
 "use client";
 // System Imports
 import { useState, useEffect } from "react";
-import { auth, database } from "../api/firebase-config";
+import { auth, database } from "../../../firebase-config";
 import { ref, onValue, set, remove, get } from "firebase/database";
 import { useBeforeunload } from "react-beforeunload";
-import {useRouter} from "next/navigation";
 import {Marker} from "pigeon-maps";
-import {onAuthStateChanged, signOut} from "firebase/auth"
+import {onAuthStateChanged} from "firebase/auth"
+
 
 // Refactored Component Imports
 // Data Structure Imports
@@ -45,6 +45,19 @@ function Home() {
   const [markers, setMarkers] = useState([]);
   const [isAuthenticated, setAuth] = useState(false)
   const [user, setUser] = useState(null)
+  const [usingSearchParams, setUsingSearchParams] = useState(true)
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(document.location.search);
+    var roomSwitch = null
+    if (searchParams.has("room") && usingSearchParams && user) {
+        roomSwitch = searchParams.get("room")
+        setUsingSearchParams(false)
+        get(ref(database, `rooms/${searchParams.get("room")}`)).then((snapshot) => {
+          selectChatRoom(snapshot.val())
+        });
+    }
+  }, [user])
 
   // Authentication
   useEffect(() => {
@@ -53,7 +66,6 @@ function Home() {
         get(ref(database, `users/${user.uid}`))
         .then((userData) => {
           userData = userData.val()
-          console.log(userData)
           if (userData) {
             setUser(userData)
             setAuth(true)
@@ -68,7 +80,6 @@ function Home() {
       }
       })
   }, [])
-
 
   // Grabs user data, saves to user, then lists the users saved rooms
   useEffect(() => {
@@ -141,7 +152,6 @@ function Home() {
     }
   },[user]);
 
-
   // Dont Double Send Leaving Message
   useEffect(() => {
     if (myRoomsObj && chatRoomObj) {
@@ -169,6 +179,7 @@ function Home() {
           user: user.username,
           isSystem: true,
           timestamp: new Date().getTime(),
+          uid: user.uid
         };
         set(
           ref(
@@ -197,10 +208,6 @@ function Home() {
           }
 
           // Users who added to "my rooms"
-          console.log(
-            snapshot.val().hasOwnProperty("users") &&
-              snapshot.val().users.hasOwnProperty("all")
-          );
           if (
             snapshot.val().hasOwnProperty("users") &&
             snapshot.val().users.hasOwnProperty("all")
@@ -225,6 +232,7 @@ function Home() {
             user: user.username,
             isSystem: true,
             timestamp: new Date().getTime(),
+            uid: user.uid
           };
           set(
             ref(
@@ -278,7 +286,7 @@ function Home() {
             <Home_Sidebar tab={tab} nearby={nearby} loadingNearby={loadingNearby} setTab={setTab} isRoomLoading={isRoomLoading} myRooms={myRooms} loadingLoc={loadingLoc} location={location}/>
           )}
           {mainTab == "chat" && (
-            <Chat_Sidebar chatRoomObj={chatRoomObj} chatroomOnline={chatroomOnline} chatroomUsersLoading={chatroomUsersLoading} chatroomUsers={chatroomUsers}/>
+            <Chat_Sidebar chatRoomObj={chatRoomObj} chatroomOnline={chatroomOnline} chatroomUsersLoading={chatroomUsersLoading} chatroomUsers={chatroomUsers} setTab={setTab}/>
           )}
           {mainTab == "profile" && (
             <Profile_Sidebar/>

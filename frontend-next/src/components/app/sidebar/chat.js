@@ -1,6 +1,6 @@
 import { Geo } from "../datatypes";
 
-export function Chat_Sidebar({chatRoomObj, chatroomOnline, chatroomUsersLoading, chatroomUsers}) {
+export function Chat_Sidebar({chatRoomObj, chatroomOnline, chatroomUsersLoading, chatroomUsers, setTab}) {
     return (
         <div className="h-dvh">
           <div className="m-2 h-[98%] grid grid-cols-1">
