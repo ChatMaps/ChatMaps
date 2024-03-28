@@ -2,7 +2,7 @@ import { Chat, SystemMessage} from "../datatypes"
 import { useState, useEffect } from "react";
 import { Form, useForm } from "react-hook-form";
 import { ref, onValue, set} from "firebase/database";
-import { database } from "../../../app/api/firebase-config";
+import { database } from "../../../../firebase-config";
 
 
   // Chatroom Module for Primary Tab
@@ -51,6 +51,7 @@ export function MainTabChatRoom({ roomObj, user }) {
           var payload = {
             body: data.message,
             user: user.username,
+            uid: user.uid,
             isSystem: false,
             timestamp: new Date().getTime(),
           };

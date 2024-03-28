@@ -1,9 +1,10 @@
-import { auth, database } from "../../app/api/firebase-config";
+import { auth, database } from "../../../firebase-config";
 import { ref, set, remove } from "firebase/database";
 import {signOut} from "firebase/auth";
+import { Popover } from '@headlessui/react'
+
   
   function logout() {
-    console.log("Fire")
     signOut(auth)
   }
 
@@ -15,6 +16,7 @@ import {signOut} from "firebase/auth";
           user: user.username,
           isSystem: true,
           timestamp: new Date().getTime(),
+          uid: user.uid
         };
         set(
           ref(
@@ -74,22 +76,22 @@ import {signOut} from "firebase/auth";
 
 export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainTab, setIsMyRoom, user}) {
     return (
-        <div className="m-2 rounded-lg h-[63px] bg-white shadow-2xl grid grid-cols-2 p-1">
-          <div className="h-[60px]">
-            <a href="/">
+        <div className="flex m-2 rounded-lg h-[63px] bg-white shadow-2xl p-1">
+          <div className="flex shrink h-[60px]">
+            <a href="/app">
               <img
-                src="logos/logo_transparent_inverse.png"
+                src="/logos/logo_transparent_inverse.png"
                 className="h-[60px]"
               />
             </a>
           </div>
-          <div className="h-[60px] p-4">
+          <div className="grow grid grid-rows-1 grid-flow-col auto-cols-max justify-end gap-2 h-[60px] p-2">
             {mainTab == "chat" && isMyRoom == false && (
               <a
                 onClick={() => {
                   addToMyRooms(chatRoomObj, setIsMyRoom, user);
                 }}
-                className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5"
+                className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
               >
                 Add to &quot;My Rooms&quot;
               </a>
@@ -99,7 +101,7 @@ export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainT
                 onClick={() => {
                   removeFromMyRooms(chatRoomObj, setIsMyRoom, user);
                 }}
-                className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5"
+                className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
               >
                 Remove from &quot;My Rooms&quot;
               </a>
@@ -109,18 +111,33 @@ export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainT
                 onClick={() => {
                   closeChatRoom(chatRoomObj, setChatRoomObj, setMainTab, user);
                 }}
-                className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5"
+                className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
               >
                 Close Chat
               </a>
             )}
-            <a
-              onClick={logout}
-              href="/"
-              className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full"
-            >
-              Sign Out
-            </a>
+           
+                <Popover className="relative">
+                  <Popover.Button as="div">
+                    <div className="mr-5 h-[44px] p-[2px] pr-[15px] cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full shadow-2xl flex">
+                      <div className="flex items-center pl-1">
+                      Nicholas
+                      </div>
+                      <div className="ml-3 rounded-lg">
+                        <img src={user.pfp} width="40px" className="relative mx-auto rounded-xl overflow-hidden"/>
+                      </div>
+                    </div>
+                  </Popover.Button>
+
+                  <Popover.Panel className="absolute z-10 bg-white mt-[4px] rounded-xl ml-3 shadow-2xl">
+                    <div className="grid grid-cols-1">
+                      <a className="rounded-xl p-4 hover:bg-[#C0C0C0]" href={"/user/"+user.uid}>View Profile</a>
+                      <a className="rounded-xl p-4 hover:bg-[#C0C0C0]" onClick={logout} href="/">Sign Out</a>
+                    </div>
+
+                    <img src="/solutions.jpg" alt="" />
+                  </Popover.Panel>
+                </Popover>
           </div>
         </div>
     )
