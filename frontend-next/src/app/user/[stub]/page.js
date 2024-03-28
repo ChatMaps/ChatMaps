@@ -175,8 +175,8 @@ function Home({ params }) {
                   </div>
                 )}
               </div>
-              <div className="col-span-2 ">
-                <div className="grid grid-flow-col-dense auto-cols-auto pl-5">
+              <div className="col-span-2">
+                <div className="grid grid-cols-3 gap-y-1 pl-5 gap-1 h-[100%] w-[100%]">
                   {userRoomsArray}
                 </div>
               </div>
