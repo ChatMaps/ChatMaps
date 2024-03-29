@@ -121,7 +121,7 @@ export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainT
                   <Popover.Button as="div">
                     <div className="mr-5 h-[44px] p-[2px] pr-[15px] cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full shadow-2xl flex">
                       <div className="flex items-center pl-1">
-                      Nicholas
+                      {user.firstName}
                       </div>
                       <div className="ml-3 rounded-lg">
                         <img src={user.pfp} width="40px" className="relative mx-auto rounded-xl overflow-hidden"/>
