@@ -1,4 +1,4 @@
-import {Geo} from "../datatypes"
+import {Geo} from "../map/geo"
 
 // Module for Welcome Message on main tab landing page
 function WelcomeMessage({user}) {

@@ -103,6 +103,7 @@ function Home() {
                   width={30}
                   anchor={[rooms[room].latitude, rooms[room].longitude]}
                   color="blue"
+                  onClick = {() => window.location.href = "/app?room="+rooms[room].path+"/"+rooms[room].name+"-"+rooms[room].timestamp}
                 />
               );
               roomArr.push(newRoom);
@@ -138,6 +139,7 @@ function Home() {
                   width={30}
                   anchor={[data[room].latitude, data[room].longitude]}
                   color="blue"
+                  onClick = {() => window.location.href = "/app?room="+data[room].path+"/"+data[room].name+"-"+data[room].timestamp}
                 />
               );
             }
