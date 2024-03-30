@@ -42,7 +42,7 @@ function CreateRoom({ loc }) {
             Creating room near ({loc.latitude.toFixed(2)},{" "}
             {loc.longitude.toFixed(2)})
           </div>
-          <button className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5">
+          <button className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5">
             Create
           </button>
         </Form>

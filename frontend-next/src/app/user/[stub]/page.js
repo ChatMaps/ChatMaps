@@ -129,8 +129,8 @@ function Home({ params }) {
                     {userInterestArray}
                     </div>
                     <div className="grid grid-cols-1 auto-cols-min justify-items-center">
-                    {isOwner && ( <a onClick={() => {setEdit(true)}} className="w-[120px] p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full text-center"> Edit Profile </a> )}
-                    {!isOwner && ( <a className="w-[120px] p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full text-center"> Add Friend </a> )}
+                    {isOwner && ( <a onClick={() => {setEdit(true)}} className="w-[120px] p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full text-center"> Edit Profile </a> )}
+                    {!isOwner && ( <a className="w-[120px] p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full text-center"> Add Friend </a> )}
                     </div>
                   </div>
                 )}
@@ -168,7 +168,7 @@ function Home({ params }) {
                             <textarea className="w-[92%] border-2 border-gray-300 p-2 rounded-lg"  {...register("bio")} type="text" placeholder={profileData.bio}/>
                           </div>
                           <div className="justify-items-center pt-5 col-span-2">
-                            <button type="submit" className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full text-center"> Save Changes </button>
+                            <button type="submit" className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full text-center"> Save Changes </button>
                           </div>
                         </div>
                       </Form>

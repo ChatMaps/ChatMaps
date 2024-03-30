@@ -91,7 +91,7 @@ export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainT
                 onClick={() => {
                   addToMyRooms(chatRoomObj, setIsMyRoom, user);
                 }}
-                className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
+                className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
               >
                 Add to &quot;My Rooms&quot;
               </a>
@@ -101,7 +101,7 @@ export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainT
                 onClick={() => {
                   removeFromMyRooms(chatRoomObj, setIsMyRoom, user);
                 }}
-                className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
+                className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
               >
                 Remove from &quot;My Rooms&quot;
               </a>
@@ -111,7 +111,7 @@ export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainT
                 onClick={() => {
                   closeChatRoom(chatRoomObj, setChatRoomObj, setMainTab, user);
                 }}
-                className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
+                className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
               >
                 Close Chat
               </a>
@@ -119,7 +119,7 @@ export function Header({mainTab, isMyRoom, chatRoomObj, setChatRoomObj, setMainT
            
                 <Popover className="relative">
                   <Popover.Button as="div">
-                    <div className="mr-5 h-[44px] p-[2px] pr-[15px] cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full shadow-2xl flex">
+                    <div className="mr-5 h-[44px] p-[2px] pr-[15px] cursor-pointer bg-cyan-500 text-white font-bold rounded-full shadow-2xl flex">
                       <div className="flex items-center pl-1">
                       {user.firstName}
                       </div>

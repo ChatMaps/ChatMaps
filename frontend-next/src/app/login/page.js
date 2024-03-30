@@ -45,7 +45,7 @@ function Login() {
                         >
                             <input type="email" id="email" className={(errors.email && errors.password) && "err"} {...register("email", { required: true })} placeholder="Enter Email Address"/><br/>
                             <input type="password" id="password" name="password" className={(errors.email && errors.password) && "err"} {...register("password", { required: true })} placeholder="Enter Password"/><br/>
-                            <button type="submit" className="inline-flex items-center px-4 py-2 transition ease-in-out duration-150 bg-[#dee0e0] m-5 bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
+                            <button type="submit" className="inline-flex items-center transition ease-in-out duration-150 m-5 bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
                                 {(isSubmitting || isSubmitted) && <span className="inline-block">
                                     <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" strokeWidth="4"></circle>

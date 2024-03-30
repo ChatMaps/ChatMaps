@@ -84,7 +84,7 @@ export function MainTabChatRoom({ roomObj, user }) {
             placeholder="Enter message"
             className="w-[83%] border-[0px] mt-[8px] mb-[8px]"
           />
-          <button className="p-2 cursor-pointer bg-[#dee0e0] bg-cyan-500 text-white font-bold rounded-full mr-5 w-[8%]">
+          <button className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 w-[8%]">
             Send
           </button>
         </Form>
