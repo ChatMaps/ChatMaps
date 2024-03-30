@@ -1,5 +1,6 @@
 import { Geo } from "../map/geo";
 
+// Sidebar when in a Chatrooms
 export function Chat_Sidebar({
   chatRoomObj,
   chatroomOnline,
