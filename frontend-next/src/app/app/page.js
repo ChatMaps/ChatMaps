@@ -7,6 +7,7 @@ import { useBeforeunload } from "react-beforeunload";
 import { Marker } from "pigeon-maps";
 import { onAuthStateChanged } from "firebase/auth";
 
+
 // Refactored Component Imports
 // Data Structure Imports
 import { ChatRoomSidebar, Member } from "../../components/app/datatypes";
@@ -31,18 +32,18 @@ function Home() {
   const [tab, setTab] = useState("nearby"); // Sidebar Tab
   const [chatRoomObj, setChatRoomObj] = useState(null); // Current chatroom object
   const [myRoomsObj, setMyRoomsObj] = useState(null); // My Rooms Object
-  const [myRooms, setRoomData] = useState(null); // Current user saved rooms list
-  const [isRoomLoading, setRoomLoading] = useState(true); // myRooms loading variable, true = myRooms loading, false = finished loading
+  const [roomData, setRoomData] = useState(null); // Current user saved rooms list
+  const [isRoomLoading, setIsRoomLoading] = useState(true); // myRooms loading variable, true = myRooms loading, false = finished loading
   const [isMyRoom, setIsMyRoom] = useState(false); // Is current room in myRooms? true, false
   const [location, setLocation] = useState(null); // location variable [lat,long]
   const [loadingLoc, setLoadingLoc] = useState(true); // location variable loading, true = loading, false = finished loading
   const [nearby, setNearby] = useState(null); // nearby rooms array
   const [loadingNearby, setLoadingNearby] = useState(true); // loading nearby rooms array, true = loading, false = finished loading
-  const [chatroomOnline, setChatRoomOnline] = useState(null); // holds online users
+  const [chatroomOnline, setChatroomOnline] = useState(null); // holds online users
   const [chatroomUsers, setChatroomUsers] = useState(null); // holds all chatroom users
   const [chatroomUsersLoading, setChatroomUsersLoading] = useState(true);
   const [markers, setMarkers] = useState([]);
-  const [isAuthenticated, setAuth] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [usingSearchParams, setUsingSearchParams] = useState(true);
 
@@ -68,13 +69,13 @@ function Home() {
           userData = userData.val();
           if (userData) {
             setUser(userData);
-            setAuth(true);
+            setIsAuthenticated(true);
           } else {
             window.location.href = "/onboarding";
           }
         });
       } else {
-        setAuth(false);
+        setIsAuthenticated(false);
         window.location.href = "/login";
       }
     });
@@ -84,7 +85,7 @@ function Home() {
   useEffect(() => {
     if (user) {
       onValue(ref(database, "/users/" + user.uid + "/rooms"), (snapshot) => {
-        setRoomLoading(true);
+        setIsRoomLoading(true);
         var rooms = snapshot.val();
         setMyRoomsObj(rooms);
         var roomArr = [];
@@ -117,7 +118,7 @@ function Home() {
         }
         setMarkers(markerArr);
         setRoomData(roomArr);
-        setRoomLoading(false);
+        setIsRoomLoading(false);
       });
     }
   }, [user]);
@@ -175,7 +176,7 @@ function Home() {
   useEffect(() => {
     if (myRoomsObj && chatRoomObj) {
       var roomName = chatRoomObj.name + "-" + chatRoomObj.timestamp;
-      if (myRooms != null && roomName in myRoomsObj) {
+      if (roomData != null && roomName in myRoomsObj) {
         // its in there
         setIsMyRoom(true);
       } else {
@@ -211,7 +212,7 @@ function Home() {
     // Code for Room Data
     set(ref(database, `/rooms/${path}/users/online/${user.uid}`), user);
     onValue(ref(database, `/rooms/${path}`), (snapshot) => {
-      setChatRoomOnline(null);
+      setChatroomOnline(null);
       setChatroomUsers(null);
 
       // Active users list
@@ -223,7 +224,7 @@ function Home() {
         var activeUsersJSON = snapshot.val().users.online;
         for (var user in activeUsersJSON)
           activeUsers.push(<Member memberObj={activeUsersJSON[user]} />);
-        setChatRoomOnline(activeUsers);
+        setChatroomOnline(activeUsers);
       }
 
       // Users who added to "my rooms"
@@ -318,7 +319,7 @@ function Home() {
               loadingNearby={loadingNearby}
               setTab={setTab}
               isRoomLoading={isRoomLoading}
-              myRooms={myRooms}
+              myRooms={roomData}
               loadingLoc={loadingLoc}
               location={location}
             />
@@ -329,7 +330,6 @@ function Home() {
               chatroomOnline={chatroomOnline}
               chatroomUsersLoading={chatroomUsersLoading}
               chatroomUsers={chatroomUsers}
-              setTab={setTab}
             />
           )}
           {mainTab == "profile" && <Profile_Sidebar />}

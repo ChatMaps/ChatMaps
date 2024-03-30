@@ -6,7 +6,6 @@ export function Chat_Sidebar({
   chatroomOnline,
   chatroomUsersLoading,
   chatroomUsers,
-  setTab,
 }) {
   return (
     <div className="h-dvh">

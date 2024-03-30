@@ -61,7 +61,7 @@ function Onboarding() {
             <br />
             <button
               type="submit"
-              className="inline-flex items-center px-4 py-2 transition ease-in-out duration-150 bg-[#dee0e0] m-5 bg-cyan-500 text-white font-bold py-2 px-4 rounded-full"
+              className="inline-flex items-center transition ease-in-out duration-150 m-5 bg-cyan-500 text-white font-bold py-2 px-4 rounded-full"
             >
               Save
             </button>

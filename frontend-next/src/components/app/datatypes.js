@@ -1,5 +1,3 @@
-import { Geo } from "./map/geo.js";
-
 // Colors for Messages
 const userColors = [
   "#ff80ed",
