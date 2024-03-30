@@ -1,4 +1,4 @@
-import { Map, Marker, ZoomControl } from "pigeon-maps";
+import {Geo} from './map/geo.js';
 
 // Colors for Messages
 const userColors = [
