@@ -2,13 +2,15 @@ import { auth, database } from "../../../firebase-config";
 import { ref, set, remove } from "firebase/database";
 import { signOut } from "firebase/auth";
 import { Popover } from "@headlessui/react";
+import { useState, useEffect } from "react";
+
 
 function logout() {
   signOut(auth);
 }
 
 // Closes chat room
-function closeChatRoom(roomObj, setChatRoomObj, setMainTab, user) {
+function closeChatRoom(roomObj, user) {
   var path = roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;
   var payload = {
     body: "left",
@@ -25,12 +27,11 @@ function closeChatRoom(roomObj, setChatRoomObj, setMainTab, user) {
     payload
   );
   remove(ref(database, `/rooms/${path}/users/online/${user.uid}`));
-  setChatRoomObj(null);
-  setMainTab("home");
+  location.href = "/app";
 }
 
 // Adds room to myRooms
-function addToMyRooms(chatRoomObj, setIsMyRoom, user) {
+function addToMyRooms(chatRoomObj, user) {
   set(
     ref(
       database,
@@ -48,11 +49,10 @@ function addToMyRooms(chatRoomObj, setIsMyRoom, user) {
   var path =
     chatRoomObj.path + "/" + chatRoomObj.name + "-" + chatRoomObj.timestamp;
   set(ref(database, `/rooms/${path}/users/all/${user.uid}`), user);
-  setIsMyRoom(true);
 }
 
 // Deletes saved room from myRooms
-function removeFromMyRooms(chatRoomObj, setIsMyRoom, user) {
+function removeFromMyRooms(chatRoomObj, user) {
   var path =
     chatRoomObj.path + "/" + chatRoomObj.name + "-" + chatRoomObj.timestamp;
   remove(
@@ -62,18 +62,23 @@ function removeFromMyRooms(chatRoomObj, setIsMyRoom, user) {
     )
   );
   remove(ref(database, `/rooms/${path}/users/all/${user.uid}`));
-  setIsMyRoom(false);
 }
 
 export function Header({
   mainTab,
-  isMyRoom,
   chatRoomObj,
-  setChatRoomObj,
-  setMainTab,
-  setIsMyRoom,
   user,
 }) {
+
+  var roomName = chatRoomObj.name + "-" + chatRoomObj.timestamp;
+  if (user.rooms != null && roomName in user.rooms) {
+    // its in there
+    var isMyRoom = true;
+  } else {
+    // its not in there
+    var isMyRoom = false;
+  }
+
   return (
     <div className="flex m-2 rounded-lg h-[63px] bg-white shadow-2xl p-1">
       <div className="flex shrink h-[60px]">
@@ -85,7 +90,8 @@ export function Header({
         {mainTab == "chat" && isMyRoom == false && (
           <a
             onClick={() => {
-              addToMyRooms(chatRoomObj, setIsMyRoom, user);
+              addToMyRooms(chatRoomObj, user);
+              
             }}
             className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
           >
@@ -95,7 +101,8 @@ export function Header({
         {mainTab == "chat" && isMyRoom == true && (
           <a
             onClick={() => {
-              removeFromMyRooms(chatRoomObj, setIsMyRoom, user);
+              removeFromMyRooms(chatRoomObj, user);
+              
             }}
             className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
           >
@@ -105,7 +112,7 @@ export function Header({
         {mainTab == "chat" && (
           <a
             onClick={() => {
-              closeChatRoom(chatRoomObj, setChatRoomObj, setMainTab, user);
+              closeChatRoom(chatRoomObj, user);
             }}
             className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
           >

@@ -27,6 +27,9 @@ import { Profile_Sidebar } from "../../components/app/sidebar/profile";
 function Home() {
   // It's time to document and change these awful variable names
   // State variables for app page
+  const [user, setUser] = useState(null);
+
+  
   const [mainTab, setMainTab] = useState("home"); // Primary tab
   const [tab, setTab] = useState("nearby"); // Sidebar Tab
   const [chatRoomObj, setChatRoomObj] = useState(null); // Current chatroom object
@@ -43,7 +46,6 @@ function Home() {
   const [chatroomUsersLoading, setChatroomUsersLoading] = useState(true);
   const [markers, setMarkers] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
   const [usingSearchParams, setUsingSearchParams] = useState(true);
 
   useEffect(() => {

@@ -7,43 +7,29 @@ import { database } from "../../../../firebase-config";
 // Chatroom Module for Primary Tab
 export function MainTabChatRoom({ roomObj, user }) {
   var { register, control, reset, handleSubmit } = useForm();
-  const [chats, setData] = useState(null);
   const [isLoading, setLoading] = useState(true);
 
   // Message updater
-  useEffect(() => {
-    onValue(
-      ref(
-        database,
-        `/rooms/${
-          roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp
-        }/chats`
-      ),
-      (snapshot) => {
-        var chatsArr = [];
-        var messages = snapshot.val();
-        for (var message in messages) {
-          if (messages[message].isSystem) {
-            chatsArr.push(
-              <SystemMessage
-                chatObj={messages[message]}
-                key={messages[message].timestamp}
-              />
-            );
-          } else {
-            chatsArr.push(
-              <Chat
-                chatObj={messages[message]}
-                key={messages[message].timestamp}
-              />
-            );
-          }
-        }
-        setData(chatsArr.reverse());
-        setLoading(false);
-      }
-    );
-  });
+  var chatsArr = [];
+  var messages = roomObj.chats;
+  for (var message in messages) {
+    if (messages[message].isSystem) {
+      chatsArr.push(
+        <SystemMessage
+          chatObj={messages[message]}
+          key={messages[message].timestamp}
+        />
+      );
+    } else {
+      chatsArr.push(
+        <Chat
+          chatObj={messages[message]}
+          key={messages[message].timestamp}
+        />
+      );
+    }
+  }
+  var chats = chatsArr.reverse();
 
   function sendMessage(data) {
     reset();
@@ -65,7 +51,6 @@ export function MainTabChatRoom({ roomObj, user }) {
     );
   }
 
-  if (isLoading) return <div>Loading</div>;
   if (!chats) return <div>No Chats</div>;
   return (
     <div className="m-1 h-[100%] rounded-lg">

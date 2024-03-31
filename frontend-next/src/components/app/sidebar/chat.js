@@ -1,12 +1,34 @@
 import { Geo } from "../map/geo";
 
+import { Member } from "../datatypes"
+
 // Sidebar when in a Chatrooms
 export function Chat_Sidebar({
   chatRoomObj,
-  chatroomOnline,
-  chatroomUsersLoading,
-  chatroomUsers,
 }) {
+  // Active users list
+  if (
+    chatRoomObj.hasOwnProperty("users") &&
+    chatRoomObj.users.hasOwnProperty("online")
+  ) {
+    var activeUsers = [];
+    var activeUsersJSON = chatRoomObj.users.online;
+    for (var user in activeUsersJSON)
+      activeUsers.push(<Member memberObj={activeUsersJSON[user]} />);
+    var chatroomOnline = activeUsers
+  }
+
+  // Users who added to "my rooms"
+  if (
+    chatRoomObj.hasOwnProperty("users") &&
+    chatRoomObj.users.hasOwnProperty("all")
+  ) {
+    var allUsers = [];
+    var allUsersJSON = chatRoomObj.users.all;
+    for (var user in allUsersJSON)
+      allUsers.push(<Member memberObj={allUsersJSON[user]} />);
+    var chatroomUsers = allUsers
+  }
   return (
     <div className="h-dvh">
       <div className="m-2 h-[98%] grid grid-cols-1">
@@ -34,7 +56,7 @@ export function Chat_Sidebar({
         </div>
         <div className="bg-white rounded-lg m-2 shadow-2xl">
           <div>All Members</div>
-          {!chatroomUsersLoading && chatroomUsers}
+          {chatroomUsers}
         </div>
       </div>
     </div>
