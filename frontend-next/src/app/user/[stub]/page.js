@@ -15,20 +15,19 @@ import { Interest } from "../../../components/app/profile/Interest";
 // Header Import
 import { Header } from "../../../components/app/header";
 
-// Contains most everything for the app homepage
-function Home({ params }) {
+// User Profile Page
+function UserProfile({ params }) {
   // It's time to document and change these awful variable names
   // State variables for app page
   const [profileData, setProfileData] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
-  const [userInterestArray, setUserInterestArray] = useState(null);
-  const [userRoomsArray, setUserRoomsArray] = useState(null);
-  const [isOwner, setIsOwner] = useState(false);
+  const [userInterestArray, setUserInterestArray] = useState(null); // Array of user's interests
+  const [userRoomsArray, setUserRoomsArray] = useState(null); // Array of user's rooms
+  const [isOwner, setIsOwner] = useState(false); // Determines if user is owner of profile
 
+  // Handles Edit State in Component, shares useState with ProfileEdit
   const [isEditing, setIsEditing] = useState(false);
-
-  //Handles Edit State in Component, shares useState with ProfileEdit
   const handleIsEditing = (newValue) => {
     setIsEditing(newValue);
   };
@@ -60,6 +59,8 @@ function Home({ params }) {
   useEffect(() => {
     onValue(ref(database, "/users/" + params.stub), (snapshot) => {
       setProfileData(snapshot.val());
+
+      // Populates array with user's interests
       var interests = snapshot.val().interests || null;
       if (interests == null) {
         // Placeholder for no interests specified, will be replaced with default interests
@@ -74,6 +75,8 @@ function Home({ params }) {
         i++;
       }
       setUserInterestArray(interestArray);
+
+      // Populates array with user's rooms
       var rooms = snapshot.val().rooms;
       var roomArray = [];
       for (var room in rooms) {
@@ -117,13 +120,11 @@ function Home({ params }) {
                           }}
                           className="w-[120px] p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full text-center"
                         >
-                          {" "}
                           Edit Profile{" "}
                         </a>
                       )}
                       {!isOwner && (
                         <a className="w-[120px] p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full text-center">
-                          {" "}
                           Add Friend{" "}
                         </a>
                       )}
@@ -131,7 +132,11 @@ function Home({ params }) {
                   </div>
                 )}
                 {isEditing && (
-                  <ProfileEdit profileData={profileData} user={user} onSave={handleIsEditing}/>
+                  <ProfileEdit
+                    profileData={profileData}
+                    user={user}
+                    onSave={handleIsEditing}
+                  />
                 )}
               </div>
               <div className="col-span-2">
@@ -147,4 +152,4 @@ function Home({ params }) {
   );
 }
 
-export default Home;
+export default UserProfile;

@@ -7,7 +7,6 @@ import { useBeforeunload } from "react-beforeunload";
 import { Marker } from "pigeon-maps";
 import { onAuthStateChanged } from "firebase/auth";
 
-
 // Refactored Component Imports
 // Data Structure Imports
 import { ChatRoomSidebar, Member } from "../../components/app/datatypes";

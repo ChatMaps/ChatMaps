@@ -11,7 +11,10 @@ export function ProfileEdit({ profileData, user, onSave }) {
     onSave(false);
   };
 
+  // Handles clicking save button
   function save({ data }) {
+
+    // Profile pic handling
     if (data.pfp[0]) {
       // image stuff
       uploadBytes(sRef(storage, `users/${user.uid}/pfp`), data.pfp[0]).then(
