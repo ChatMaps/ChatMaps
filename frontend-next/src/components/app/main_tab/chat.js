@@ -7,7 +7,6 @@ import { database } from "../../../../firebase-config";
 // Chatroom Module for Primary Tab
 export function MainTabChatRoom({ roomObj, user }) {
   var { register, control, reset, handleSubmit } = useForm();
-  const [isLoading, setLoading] = useState(true);
 
   // Message updater
   var chatsArr = [];

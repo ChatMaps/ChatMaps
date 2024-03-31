@@ -1,8 +1,8 @@
 "use client";
 // System Imports
 import { useState, useEffect } from "react";
-import { auth, database, storage } from "../../../../firebase-config";
-import { ref, onValue, get, update } from "firebase/database";
+import { auth, database } from "../../../../firebase-config";
+import { ref, onValue, get } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 
 // Refactored Component Imports

@@ -2,13 +2,9 @@
 // System Imports
 import { useState, useEffect } from "react";
 import { auth, database } from "../../../firebase-config";
-import { ref, onValue, set, remove, get } from "firebase/database";
+import { ref, onValue } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
 import { useGeolocated } from "react-geolocated";
-
-// Refactored Component Imports
-// Data Structure Imports
-import { Member } from "../../components/app/datatypes";
 
 // Header Import
 import { Header } from "../../components/app/header";
@@ -24,7 +20,6 @@ function Home() {
   // It's time to document and change these awful variable names
   // State variables for app page
   const [user, setUser] = useState(null);
-  const [mainTab, setMainTab] = useState("home"); // Primary tab
   const [loadingLoc, setLoadingLoc] = useState(true); // location variable loading, true = loading, false = finished loading
   const [authUser, loading] = useAuthState(auth)
 
@@ -50,7 +45,6 @@ function Home() {
         });
 
   useEffect(() => {
-    console.log(coords)
     if (coords) {
         setLoadingLoc(false);
     }
@@ -69,10 +63,10 @@ function Home() {
             />
             {/* Main Page Section */}
             <div className="mr-2 h-[calc(100%-110px)]">
-              {mainTab == "home" && !loadingLoc && (
+              {!loadingLoc && (
                 <MainTabHome loc={coords} user={user} />
               )}
-              {mainTab == "home" && loadingLoc && (
+              {loadingLoc && (
                 <MainTabHome loc={null} user={user} />
               )}
             </div>

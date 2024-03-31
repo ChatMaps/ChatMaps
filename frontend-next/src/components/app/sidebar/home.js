@@ -3,7 +3,7 @@ import { database } from "../../../../firebase-config";
 import { ref, set, get } from "firebase/database";
 import { useEffect, useState } from "react";
 
-import { ChatRoomSidebar, Marker } from "../datatypes";
+import { ChatRoomSidebar } from "../datatypes";
 // Sidebar on Home Page, with various functionality (create, nearby, my rooms)
 
 // CreateRoom Module for Sidebar Create Tab
@@ -80,7 +80,6 @@ export function Home_Sidebar({
         if (snapshot.exists()) {
           var rooms = snapshot.val()
           for (var room in rooms) {
-            console.log(rooms[room])
             var newRoom = (
               <ChatRoomSidebar
                 roomObj={rooms[room]}
