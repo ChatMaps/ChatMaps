@@ -70,15 +70,17 @@ export function Header({
   user,
 }) {
 
-  var roomName = chatRoomObj.name + "-" + chatRoomObj.timestamp;
-  if (user.rooms != null && roomName in user.rooms) {
-    // its in there
-    var isMyRoom = true;
-  } else {
-    // its not in there
-    var isMyRoom = false;
-  }
+  if (mainTab == "chat") {
+    var roomName = chatRoomObj.name + "-" + chatRoomObj.timestamp;
+    if (user.rooms != null && roomName in user.rooms) {
+      // its in there
+      var isMyRoom = true;
+    } else {
+      // its not in there
+      var isMyRoom = false;
+    }
 
+  }
   return (
     <div className="flex m-2 rounded-lg h-[63px] bg-white shadow-2xl p-1">
       <div className="flex shrink h-[60px]">

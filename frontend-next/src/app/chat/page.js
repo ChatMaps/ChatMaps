@@ -88,7 +88,6 @@ function Home() {
           {/* Sidebar (Right Side of Page) */}
             <Chat_Sidebar
               chatRoomObj={chatRoomObj}
-              chatroomUsersLoading={false}
             />
         </div>
       )}

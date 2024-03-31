@@ -8,6 +8,9 @@ import { ref, set } from "firebase/database";
 function CreateRoom({ loc }) {
   var { register, control, reset, handleSubmit } = useForm();
 
+  
+
+
   function createRoom(data) {
     reset();
     var path =
