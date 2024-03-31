@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { auth, database } from "../../../firebase-config";
 import { ref, onValue, set, remove, get } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
+import { useGeolocated } from "react-geolocated";
 
 // Refactored Component Imports
 // Data Structure Imports
@@ -24,9 +25,7 @@ function Home() {
   // State variables for app page
   const [user, setUser] = useState(null);
   const [mainTab, setMainTab] = useState("home"); // Primary tab
-  const [location, setLocation] = useState(null); // location variable [lat,long]
   const [loadingLoc, setLoadingLoc] = useState(true); // location variable loading, true = loading, false = finished loading
-
   const [authUser, loading] = useAuthState(auth)
 
   useEffect(() => {
@@ -42,15 +41,20 @@ function Home() {
     }
   }, [authUser])
 
+  const { coords } =
+        useGeolocated({
+            positionOptions: {
+                enableHighAccuracy: false,
+            },
+            userDecisionTimeout: 5000,
+        });
+
   useEffect(() => {
-    if ("geolocation" in navigator && user) {
-      // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
-      navigator.geolocation.getCurrentPosition(({ coords }) => {
-        setLocation(coords);
+    console.log(coords)
+    if (coords) {
         setLoadingLoc(false);
-      })
     }
-  })
+  }, [coords])
 
   return (
     <div>
@@ -66,7 +70,7 @@ function Home() {
             {/* Main Page Section */}
             <div className="mr-2 h-[calc(100%-110px)]">
               {mainTab == "home" && !loadingLoc && (
-                <MainTabHome loc={location} user={user} />
+                <MainTabHome loc={coords} user={user} />
               )}
               {mainTab == "home" && loadingLoc && (
                 <MainTabHome loc={null} user={user} />
@@ -76,7 +80,8 @@ function Home() {
           {/* Sidebar (Right Side of Page) */}
             <Home_Sidebar
               user={user}
-              location={location}
+              location={coords}
+              loadingLoc={loadingLoc}
             />
         </div>
       )}

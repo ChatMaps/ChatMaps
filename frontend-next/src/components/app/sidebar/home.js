@@ -1,15 +1,14 @@
 import { Form, useForm } from "react-hook-form";
 import { database } from "../../../../firebase-config";
-import { ref, set } from "firebase/database";
+import { ref, set, get } from "firebase/database";
+import { useEffect, useState } from "react";
 
+import { ChatRoomSidebar, Marker } from "../datatypes";
 // Sidebar on Home Page, with various functionality (create, nearby, my rooms)
 
 // CreateRoom Module for Sidebar Create Tab
 function CreateRoom({ loc }) {
   var { register, control, reset, handleSubmit } = useForm();
-
-  
-
 
   function createRoom(data) {
     reset();
@@ -52,15 +51,51 @@ function CreateRoom({ loc }) {
 }
 
 export function Home_Sidebar({
-  tab,
-  nearby,
-  loadingNearby,
-  setTab,
-  isRoomLoading,
-  myRooms,
-  loadingLoc,
+  user,
   location,
+  loadingLoc
 }) {
+  const [tab, setTab] = useState("rooms");
+  const [nearbyArr, setNearbyArr] = useState([])
+  const [nearbyArrReady, setNearbyArrReady] = useState(false)
+
+  // Add myRooms to Sidebar
+  var myRoomArr = [];
+  for (var room in user.rooms) {
+    var newRoom = (
+      <ChatRoomSidebar
+        roomObj={user.rooms[room]}
+        key={user.rooms[room].timestamp}
+      />
+    );
+    myRoomArr.push(newRoom);
+  }
+
+  useEffect(() => {
+    var nearbyArr = []
+    if (location) {
+      var path = String(location.latitude.toFixed(2)).replace(".", "") + "/" + String(location.longitude.toFixed(2)).replace(".", "");
+      get(ref(database, `/rooms/${path}`)).then((snapshot) => {
+        // Add nearby to Sidebar
+        if (snapshot.exists()) {
+          var rooms = snapshot.val()
+          for (var room in rooms) {
+            console.log(rooms[room])
+            var newRoom = (
+              <ChatRoomSidebar
+                roomObj={rooms[room]}
+                key={rooms[room].timestamp}
+              />
+            );
+            nearbyArr.push(newRoom);
+          }
+          }
+          setNearbyArr(nearbyArr)
+          setNearbyArrReady(true)
+      })
+    }
+  }, [location])
+
   return (
     <div className="h-dvh">
       <div className="bg-white shadow-2xl rounded-lg m-2 h-[98%]">
@@ -107,24 +142,23 @@ export function Home_Sidebar({
         {tab == "nearby" && (
           <div className="overflow-y-auto h-[90%]">
             <div>
-              {!nearby && !loadingNearby && (
+              {!nearbyArr && !loadingLoc && (
                 <div>
                   No Nearby Rooms
                   <br />
                   Create One?
                 </div>
               )}
-              {loadingNearby && <div>Loading...</div>}
-              {nearby}
+              {loadingLoc && <div>Loading...</div>}
+              {nearbyArrReady && nearbyArr}
             </div>
           </div>
         )}
         {tab == "rooms" && (
           <div className="overflow-y-auto h-[90%]">
             <div>
-              {isRoomLoading && <div>Loading</div>}
-              {!myRooms && !isRoomLoading && <div>No User Saved Rooms</div>}
-              {myRooms}
+              {!myRoomArr && <div>No User Saved Rooms</div>}
+              {myRoomArr}
             </div>
           </div>
         )}
