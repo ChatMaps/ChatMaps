@@ -16,6 +16,8 @@
     "react": "^18.2.0",
     "react-beforeunload": "^2.6.0",
     "react-dom": "^18.2.0",
+    "react-firebase-hooks": "^5.1.1",
+    "react-geolocated": "^4.1.2",
     "react-hook-form": "^7.50.1"
   },
   "devDependencies": {

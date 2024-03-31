@@ -9,13 +9,11 @@ function Home() {
   const [isLoadingLoc, setLoadingLoc] = useState(true);
   const [roomCount, setRoomCount] = useState(null);
   const [isAuthenticated, setAuth] = useState(false);
-  const [userID, setUserID] = useState(null);
 
   // Authentication
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUserID(user.uid);
         setAuth(true);
       } else {
         setAuth(false);

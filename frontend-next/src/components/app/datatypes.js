@@ -102,14 +102,10 @@ export function Member({ memberObj }) {
 }
 
 // Chat Room Object for myRooms and Nearby in sidebar
-export function ChatRoomSidebar({ roomObj, click }) {
-  // TODO: Gross fix but it works
-  function clicker() {
-    click(roomObj);
-  }
+export function ChatRoomSidebar({ roomObj }) {
   return (
     <div
-      onClick={clicker}
+      onClick={() => location.href = "/chat?room=" + roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp}
       className="border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer"
     >
       <div className="col-span-2">

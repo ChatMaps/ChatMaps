@@ -20,7 +20,7 @@ export function ProfileRoom({ room }) {
         </div>
         <a
           href={
-            "/app?room=" + room.path + "/" + room.name + "-" + room.timestamp
+            "/chat?room=" + room.path + "/" + room.name + "-" + room.timestamp
           }
           className="absolute z-2 top-[190px] w-[108px] p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full flex items-center"
         >

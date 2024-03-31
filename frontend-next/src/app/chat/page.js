@@ -2,27 +2,27 @@
 // System Imports
 import { useState, useEffect } from "react";
 import { auth, database } from "../../../firebase-config";
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, set } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
-import { useGeolocated } from "react-geolocated";
 
 // Header Import
 import { Header } from "../../components/app/header";
 
 // Main Tab Imports
-import { MainTabHome } from "../../components/app/main_tab/home";
+import { MainTabChatRoom } from "../../components/app/main_tab/chat";
 
 // Sidebar Imports
-import { Home_Sidebar } from "../../components/app/sidebar/home";
+import { Chat_Sidebar } from "../../components/app/sidebar/chat";
 
 // Contains most everything for the app homepage
 function Home() {
   // It's time to document and change these awful variable names
   // State variables for app page
   const [user, setUser] = useState(null);
-  const [loadingLoc, setLoadingLoc] = useState(true); // location variable loading, true = loading, false = finished loading
+  const [chatRoomObj, setChatRoomObj] = useState(null); // Current chatroom object
+  const [doneLoading, setDoneLoading] = useState(false)
   const [authUser, loading] = useAuthState(auth)
-
+  
   useEffect(() => {
     if (authUser) {
         onValue(ref(database, `users/${authUser.uid}`), (userData) => {
@@ -36,46 +36,58 @@ function Home() {
     }
   }, [authUser])
 
-  const { coords } =
-        useGeolocated({
-            positionOptions: {
-                enableHighAccuracy: false,
-            },
-            userDecisionTimeout: 5000,
-        });
 
   useEffect(() => {
-    if (coords) {
-        setLoadingLoc(false);
+    if (user) {
+        const searchParams = new URLSearchParams(document.location.search);
+        var path = searchParams.get("room")
+
+        // Send entered message
+        var payload = {
+            body: "entered",
+            user: user.username,
+            isSystem: true,
+            timestamp: new Date().getTime(),
+            uid: user.uid,
+        };
+        set(
+            ref(
+            database,
+            `/rooms/${path}/chats/${new Date().getTime()}-${user.username}`
+            ),
+            payload
+        );
+
+        onValue(ref(database, `/rooms/${path}`), (roomData) => {
+            roomData = roomData.val();
+            setChatRoomObj(roomData)
+            if (!doneLoading) {
+                setDoneLoading(true)
+            }
+        })
     }
-  }, [coords])
+  }, [user]);
 
   return (
     <div>
-      {user && (
+      {(authUser && doneLoading) && (
         <div className="grid grid-cols-4 auto-cols-max overflow-hidden">
           {/* Left Side of Page */}
           <div className="col-span-3 h-dvh">
             {/* Header */}
             <Header
-              mainTab={"home"}
+              mainTab={"chat"}
+              chatRoomObj={chatRoomObj}
               user={user}
             />
             {/* Main Page Section */}
             <div className="mr-2 h-[calc(100%-110px)]">
-              {!loadingLoc && (
-                <MainTabHome loc={coords} user={user} />
-              )}
-              {loadingLoc && (
-                <MainTabHome loc={null} user={user} />
-              )}
+                <MainTabChatRoom roomObj={chatRoomObj} user={user} />
             </div>
           </div>
           {/* Sidebar (Right Side of Page) */}
-            <Home_Sidebar
-              user={user}
-              location={coords}
-              loadingLoc={loadingLoc}
+            <Chat_Sidebar
+              chatRoomObj={chatRoomObj}
             />
         </div>
       )}
