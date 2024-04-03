@@ -42,7 +42,7 @@ export function Chat({ chatObj }) {
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div>
         <span style={{ color: userColors[generateColor(chatObj.user)] }}>
-          <Link href={chatObj.uid && "/user/" + chatObj.uid}
+          <Link href={`/user/${chatObj.uid}`}
           className="hover:font-bold cursor-pointer"
           target="_blank">
             {chatObj.user}
@@ -73,7 +73,7 @@ export function SystemMessage({ chatObj }) {
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div className="text-[#d1d1d1]">
         <span style={{ color: userColors[generateColor(chatObj.user)] }}>
-          <Link href={chatObj.uid && "/user/" + chatObj.uid}
+          <Link href={`/user/${chatObj.uid}`}
           className="hover:font-bold cursor-pointer"
           target="_blank">
             {chatObj.user}
@@ -103,7 +103,7 @@ export function Member({ memberObj }) {
 export function ChatRoomSidebar({ roomObj }) {
   return (
     <div className="border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer">
-      <Link href={"/chat?room=" + roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp} prefetch={false}>
+      <Link href={`/chat?room=${roomObj.path}/${roomObj.name}-${roomObj.timestamp}`}>
         <div className="col-span-2">
           <div className="font-bold">{roomObj.name}</div>
           <div className="italic">{roomObj.description}</div>

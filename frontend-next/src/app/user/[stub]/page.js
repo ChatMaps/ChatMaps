@@ -120,12 +120,12 @@ function UserProfile({ params }) {
                           }}
                           className="w-[120px] p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full text-center"
                         >
-                          Edit Profile{" "}
+                          Edit Profile
                         </a>
                       )}
                       {!isOwner && (
                         <a className="w-[120px] p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full text-center">
-                          Add Friend{" "}
+                          Add Friend
                         </a>
                       )}
                     </div>

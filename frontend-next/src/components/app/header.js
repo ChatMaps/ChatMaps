@@ -27,7 +27,6 @@ function closeChatRoom(roomObj, user) {
     payload
   );
   remove(ref(database, `/rooms/${path}/users/online/${user.uid}`));
-  location.href = "/app";
 }
 
 // Adds room to myRooms
@@ -112,14 +111,15 @@ export function Header({
           </a>
         )}
         {mainTab == "chat" && (
-          <a
+          <Link
             onClick={() => {
               closeChatRoom(chatRoomObj, user);
             }}
+            href="/app"
             className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
           >
             Close Chat
-          </a>
+          </Link>
         )}
 
         <Popover className="relative">
