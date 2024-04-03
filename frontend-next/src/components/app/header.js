@@ -4,6 +4,7 @@ import { signOut } from "firebase/auth";
 import { Popover } from "@headlessui/react";
 import Link from "next/link"
 
+import { NotificationPanel } from "./notifications/notifications";
 
 function logout() {
   signOut(auth);
@@ -122,6 +123,10 @@ export function Header({
           </Link>
         )}
 
+        {/* Notifications Panel */}
+        <NotificationPanel user={user}/>
+
+        {/*"Profile Dropdown TODO: MOVE TO PROFILE IMPORT - req user, take logout function with"*/}
         <Popover className="relative">
           <Popover.Button as="div">
             <div className="mr-5 h-[44px] p-[2px] pr-[15px] cursor-pointer bg-cyan-500 text-white font-bold rounded-full shadow-2xl flex">
@@ -152,8 +157,6 @@ export function Header({
                 Sign Out
               </Link>
             </div>
-
-            <img src="/solutions.jpg" alt="" />
           </Popover.Panel>
         </Popover>
       </div>
