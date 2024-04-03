@@ -1,5 +1,4 @@
 import { Popover } from "@headlessui/react";
-import Link from "next/link"
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
 import CloseIcon from '@mui/icons-material/Close';
@@ -46,7 +45,6 @@ function removeNotification(ruser, dataID) {
 * @param {String} ruser - Receiving user UID
 * @returns {void}
 */
-
 function createNotification(title, byline, action, suser, ruser) {
     var timestamp = new Date().getTime();
     var payload = {
