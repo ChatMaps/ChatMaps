@@ -2,6 +2,8 @@ import { Form, useForm } from "react-hook-form";
 import { database } from "../../../../firebase-config";
 import { ref, set, get } from "firebase/database";
 import { useEffect, useState } from "react";
+import { Tab } from '@headlessui/react'
+
 
 import { ChatRoomSidebar } from "../datatypes";
 // Sidebar on Home Page, with various functionality (create, nearby, my rooms)
@@ -50,12 +52,16 @@ function CreateRoom({ loc }) {
   );
 }
 
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ')
+}
+
 export function Home_Sidebar({
   user,
   location,
   loadingLoc
 }) {
-  const [tab, setTab] = useState("rooms");
+  const [tab, setTab] = useState("nearby");
   const [nearbyArr, setNearbyArr] = useState([])
   const [nearbyArrReady, setNearbyArrReady] = useState(false)
 
@@ -98,71 +104,60 @@ export function Home_Sidebar({
   return (
     <div className="h-dvh">
       <div className="bg-white shadow-2xl rounded-lg m-2 h-[98%]">
-        <div className="p-2">
-          <div className="p-1 rounded-lg grid grid-cols-3 bg-white">
-            <div
-              className={
-                tab == "nearby"
-                  ? "select-none p-1 cursor-pointer rounded-lg hover:bg-[#C0C0C0] bg-[#D3D3D3]"
-                  : "select-none p-1 cursor-pointer rounded-lg hover:bg-[#C0C0C0]"
-              }
-              onClick={() => {
-                setTab("nearby");
-              }}
-            >
-              Nearby
-            </div>
-            <div
-              className={
-                tab == "rooms"
-                  ? "select-none p-1 cursor-pointer rounded-lg hover:bg-[#C0C0C0] bg-[#D3D3D3]"
-                  : "select-none p-1 cursor-pointer rounded-lg hover:bg-[#C0C0C0]"
-              }
-              onClick={() => {
-                setTab("rooms");
-              }}
-            >
-              My Rooms
-            </div>
-            <div
-              className={
-                tab == "create"
-                  ? "select-none p-1 cursor-pointer rounded-lg hover:bg-[#C0C0C0] bg-[#D3D3D3]"
-                  : "select-none p-1 cursor-pointer rounded-lg hover:bg-[#C0C0C0]"
-              }
-              onClick={() => {
-                setTab("create");
-              }}
-            >
-              Create
-            </div>
-          </div>
-        </div>
-        {tab == "nearby" && (
-          <div className="overflow-y-auto h-[90%]">
-            <div>
-              {!nearbyArr && !loadingLoc && (
+        <Tab.Group>
+          <Tab.List className="bg-[#D3D3D3] rounded-lg mt-5">
+            <Tab className={({ selected }) =>
+                classNames(
+                  'w-[31%]',
+                  selected
+                    ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                )} defaultIndex={1}>Nearby</Tab>
+            <Tab className={({ selected }) =>
+                classNames(
+                  'w-[31%]',
+                  selected
+                    ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                )}>My Rooms</Tab>
+            <Tab className={({ selected }) =>
+                classNames(
+                  'w-[31%]',
+                  selected
+                    ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                )}>Create</Tab>
+          </Tab.List>
+          <Tab.Panels>
+            <Tab.Panel>
+              <div className="overflow-y-auto h-[90%]">
                 <div>
-                  No Nearby Rooms
-                  <br />
-                  Create One?
+                  {!nearbyArr && !loadingLoc && (
+                    <div>
+                      No Nearby Rooms
+                      <br />
+                      Create One?
+                    </div>
+                  )}
+                  {loadingLoc && <div>Loading...</div>}
+                  {nearbyArrReady && nearbyArr}
                 </div>
-              )}
+              </div>
+            </Tab.Panel>
+            <Tab.Panel>
+            <div className="overflow-y-auto h-[90%]">
+              <div>
+                  {!myRoomArr && <div>No User Saved Rooms</div>}
+                  {myRoomArr}
+              </div>
+            </div>
+            </Tab.Panel>
+            <Tab.Panel>
+              {!loadingLoc && <CreateRoom loc={location} />}
               {loadingLoc && <div>Loading...</div>}
-              {nearbyArrReady && nearbyArr}
-            </div>
-          </div>
-        )}
-        {tab == "rooms" && (
-          <div className="overflow-y-auto h-[90%]">
-            <div>
-              {!myRoomArr && <div>No User Saved Rooms</div>}
-              {myRoomArr}
-            </div>
-          </div>
-        )}
-        {tab == "create" && !loadingLoc && <CreateRoom loc={location} />}
-        {tab == "create" && loadingLoc && <div>Loading...</div>}
+            </Tab.Panel>
+          </Tab.Panels>
+        </Tab.Group>
       </div>
     </div>
   );

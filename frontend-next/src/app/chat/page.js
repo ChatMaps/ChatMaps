@@ -9,7 +9,7 @@ import { useAuthState } from "react-firebase-hooks/auth"
 import { Header } from "../../components/app/header";
 
 // Main Tab Imports
-import { MainTabChatRoom } from "../../components/app/main_tab/chat";
+import { MainTabChatRoom } from "../../components/app/page/chat";
 
 // Sidebar Imports
 import { Chat_Sidebar } from "../../components/app/sidebar/chat";
