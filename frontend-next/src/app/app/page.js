@@ -5,7 +5,6 @@ import { auth, database } from "../../../firebase-config";
 import { ref, onValue } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
 import { useGeolocated } from "react-geolocated";
-import Link from "next/link"
 
 // Header Import
 import { Header } from "../../components/app/header";
