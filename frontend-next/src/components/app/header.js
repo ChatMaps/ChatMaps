@@ -2,6 +2,7 @@ import { auth, database } from "../../../firebase-config";
 import { ref, set, remove } from "firebase/database";
 import { signOut } from "firebase/auth";
 import { Popover } from "@headlessui/react";
+import Link from "next/link"
 
 
 function logout() {
@@ -83,9 +84,9 @@ export function Header({
   return (
     <div className="flex m-2 rounded-lg h-[63px] bg-white shadow-2xl p-1">
       <div className="flex shrink h-[60px]">
-        <a href="/app">
+        <Link href="/app">
           <img src="/logos/logo_transparent_inverse.png" className="h-[60px]" />
-        </a>
+        </Link>
       </div>
       <div className="grow grid grid-rows-1 grid-flow-col auto-cols-max justify-end gap-2 h-[60px] p-2">
         {mainTab == "chat" && isMyRoom == false && (
@@ -137,19 +138,19 @@ export function Header({
 
           <Popover.Panel className="absolute z-10 bg-white mt-[4px] rounded-xl ml-3 shadow-2xl">
             <div className="grid grid-cols-1">
-              <a
+              <Link
                 className="rounded-xl p-4 hover:bg-[#C0C0C0]"
                 href={"/user/" + user.uid}
               >
                 View Profile
-              </a>
-              <a
+              </Link>
+              <Link
                 className="rounded-xl p-4 hover:bg-[#C0C0C0]"
                 onClick={logout}
                 href="/"
               >
                 Sign Out
-              </a>
+              </Link>
             </div>
 
             <img src="/solutions.jpg" alt="" />
