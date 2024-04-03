@@ -1,5 +1,6 @@
 "use client";
 import { useForm, Form } from "react-hook-form";
+import Link from "next/link"
 import { useRouter } from "next/navigation";
 import "../globals.css";
 
@@ -46,9 +47,9 @@ function Login() {
     <div>
       <div className="grid h-screen place-items-center">
         <div>
-          <a href="/">
+          <Link href="/">
             <img src="logos/logo_transparent_inverse.png" />
-          </a>
+          </Link>
           <span className="text-[36px]">Chat with friends!</span>
           <div>
             <h3 className="text-[24px] mt-[25px] mb-2">Login</h3>
@@ -109,7 +110,7 @@ function Login() {
                 Log In
               </button>
               <br />
-              Need an account? <a href="/register">Sign Up</a>
+              Need an account? <Link href="/register">Sign Up</Link>
               <br />
             </Form>
           </div>

@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 // Colors for Messages
 const userColors = [
   "#ff80ed",
@@ -40,13 +42,11 @@ export function Chat({ chatObj }) {
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div>
         <span style={{ color: userColors[generateColor(chatObj.user)] }}>
-          <a
-            href={chatObj.uid && "/user/" + chatObj.uid}
-            className="hover:font-bold cursor-pointer"
-            target="_blank"
-          >
+          <Link href={`/user/${chatObj.uid}`}
+          className="hover:font-bold cursor-pointer"
+          target="_blank">
             {chatObj.user}
-          </a>
+          </Link>
         </span>
         : {chatObj.body}
       </div>
@@ -73,13 +73,11 @@ export function SystemMessage({ chatObj }) {
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div className="text-[#d1d1d1]">
         <span style={{ color: userColors[generateColor(chatObj.user)] }}>
-          <a
-            href={chatObj.uid && "/user/" + chatObj.uid}
-            className="hover:font-bold cursor-pointer"
-            target="_blank"
-          >
+          <Link href={`/user/${chatObj.uid}`}
+          className="hover:font-bold cursor-pointer"
+          target="_blank">
             {chatObj.user}
-          </a>
+          </Link>
         </span>{" "}
         has {chatObj.body} the room.
       </div>
@@ -93,25 +91,24 @@ export function SystemMessage({ chatObj }) {
 // Member for Active/Room members in sidebar
 export function Member({ memberObj }) {
   return (
-    <a href={"/user/" + memberObj.uid} target="_blank">
+    <Link href={"/user/" + memberObj.uid} target="_blank">
       <div className="cursor-pointer g-[aliceblue] rounded-lg m-3 shadow-xl p-2">
         {memberObj.username}
       </div>
-    </a>
+    </Link>
   );
 }
 
 // Chat Room Object for myRooms and Nearby in sidebar
 export function ChatRoomSidebar({ roomObj }) {
   return (
-    <div
-      onClick={() => location.href = "/chat?room=" + roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp}
-      className="border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer"
-    >
-      <div className="col-span-2">
-        <div className="font-bold">{roomObj.name}</div>
-        <div className="italic">{roomObj.description}</div>
-      </div>
+    <div className="border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer">
+      <Link href={`/chat?room=${roomObj.path}/${roomObj.name}-${roomObj.timestamp}`}>
+        <div className="col-span-2">
+          <div className="font-bold">{roomObj.name}</div>
+          <div className="italic">{roomObj.description}</div>
+        </div>
+      </Link>
     </div>
   );
 }

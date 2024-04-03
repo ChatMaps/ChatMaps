@@ -1,4 +1,5 @@
 import { Geo } from "../map/geo";
+import Link from "next/link"
 import { dateOptions } from "../datatypes";
 
 // Display of Rooms on user profile
@@ -18,14 +19,14 @@ export function ProfileRoom({ room }) {
         <div>
           Created on {new Date(room.timestamp).toLocaleString(dateOptions)}
         </div>
-        <a
+        <Link
           href={
             "/chat?room=" + room.path + "/" + room.name + "-" + room.timestamp
           }
           className="absolute z-2 top-[190px] w-[108px] p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full flex items-center"
         >
           Open Room
-        </a>
+        </Link>
       </div>
     </div>
   );

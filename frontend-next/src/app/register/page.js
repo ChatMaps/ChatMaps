@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useForm, Form } from "react-hook-form";
 import "../globals.css";
+import Link from "next/link"
 import { useState } from "react";
 
 import {
@@ -61,9 +62,9 @@ function Register() {
     <div>
       <div className="grid h-screen place-items-center">
         <div>
-          <a href="/">
+          <Link href="/">
             <img src="logos/logo_transparent_inverse.png" />
-          </a>
+          </Link>
           <span className="text-[36px]">Chat with friends!</span>
           <div>
             <h3 className="text-[24px] mt-[15px]">Register</h3>
@@ -110,7 +111,7 @@ function Register() {
                 Register
               </button>
               <br />
-              Have an account? <a href="/login">Log In</a>
+              Have an account? <Link href="/login">Login</Link>
             </Form>
           </div>
         </div>
