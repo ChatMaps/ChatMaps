@@ -15,13 +15,15 @@ import { Interest } from "../../../components/app/profile/Interest";
 // Header Import
 import { Header } from "../../../components/app/header";
 
-// User Profile Page
+/**
+ * User Profile Page
+ * @param {URLSearchParams} params - URL Parameters 
+ * @returns {Object} - User Profile Page
+ */
 function UserProfile({ params }) {
-  // It's time to document and change these awful variable names
-  // State variables for app page
-  const [profileData, setProfileData] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
+  const [profileData, setProfileData] = useState(null); // Profile Data
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Determines if user is authenticated
+  const [user, setUser] = useState(null); // User Data
   const [userInterestArray, setUserInterestArray] = useState(null); // Array of user's interests
   const [userRoomsArray, setUserRoomsArray] = useState(null); // Array of user's rooms
   const [isOwner, setIsOwner] = useState(false); // Determines if user is owner of profile

@@ -1,11 +1,19 @@
 "use client";
+// System Imports
 import "../globals.css";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+
+// Firebase Imports
 import { ref, set } from "firebase/database";
 import { auth, database } from "../../../firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
 
+/**
+ * Creates user data in Firebase DB
+ * @param {JSON} data - User data to be stored in Firebase DB ( from form ) 
+ * @return {Boolean} - True if user data is stored, False if user data is not stored
+ */
 function createUser(data) {
   onAuthStateChanged(auth, (user) => {
     if (user.uid) {
@@ -20,6 +28,10 @@ function createUser(data) {
   });
 }
 
+/**
+ * Onboarding Page
+ * @returns {Object} - Onboarding Page
+ */
 function Onboarding() {
   var router = useRouter();
   var { register, handleSubmit } = useForm();

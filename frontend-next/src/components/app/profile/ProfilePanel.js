@@ -1,13 +1,24 @@
+// System Imports
 import { Popover } from "@headlessui/react";
-import { auth } from "../../../../firebase-config";
-import { signOut } from "firebase/auth";
 import Link from "next/link"
 
+// Firebase Imports
+import { auth } from "../../../../firebase-config";
+import { signOut } from "firebase/auth";
 
+/**
+ * Logs out from Firebase Authentication
+ * @returns {void}
+ */
 function logout() {
   signOut(auth);
 }
 
+/**
+ * Profile Panel Component
+ * @prop {JSON} user - User Object
+ * @returns {Object} - Profile Panel Component
+ */
 export function ProfilePanel({user}) {
     return (
       <Popover className="relative">

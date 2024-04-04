@@ -1,8 +1,14 @@
 import { Map, Marker, ZoomControl } from "pigeon-maps";
 
-// Map module for main page and chat room sidebar (and eventually user profile)
-// Constructs Map and Markers
-// TODO: Need to get rest of marker handling here or in marker file.
+/**
+ * Geo Component for Wrapping Map
+ * @constructor
+ * @prop {JSON} loc - Location Object {latitude, longitude}
+ * @prop {Number} zoom - Zoom Level
+ * @prop {Boolean} locMarker - Show Location Marker
+ * @prop {Markers[]} markers - Array of Markers
+ * @returns {Map} - Geo Component (As Map)
+ */
 export function Geo({ loc, zoom, locMarker, markers }) {
   if (loc) {
     return (

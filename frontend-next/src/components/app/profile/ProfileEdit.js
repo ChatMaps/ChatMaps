@@ -1,9 +1,19 @@
+// System Imports
 import { useForm, Form } from "react-hook-form";
-import { database, storage } from "../../../../firebase-config";
-import { ref as sRef, getDownloadURL } from "firebase/storage";
-import { ref, update } from "firebase/database";
-import { uploadBytes } from "firebase/storage";
 
+// Firebase Imports
+import { database, storage } from "../../../../firebase-config";
+import { ref as sRef, getDownloadURL,uploadBytes } from "firebase/storage";
+import { ref, update } from "firebase/database";
+
+
+/**
+ * Profile Edit Component
+ * @prop {JSON} profileData - Profile Data
+ * @prop {JSON} user - User Object
+ * @prop {Function} onSave - Save Function
+ * @returns {Object} - Profile Edit Component
+ */
 export function ProfileEdit({ profileData, user, onSave }) {
   var { register, control } = useForm();
 
@@ -11,9 +21,11 @@ export function ProfileEdit({ profileData, user, onSave }) {
     onSave(false);
   };
 
-  // Handles clicking save button
+  /**
+   * Handles clicking save button
+   * @prop {JSON} data - Data to save
+   */
   function save({ data }) {
-
     // Profile pic handling
     if (data.pfp[0]) {
       // image stuff

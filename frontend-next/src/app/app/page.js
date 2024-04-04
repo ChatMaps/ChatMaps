@@ -1,29 +1,31 @@
 "use client";
 // System Imports
 import { useState, useEffect } from "react";
+
+// Dependencies
+import { useGeolocated } from "react-geolocated";
+
+// Firebase Imports
 import { auth, database } from "../../../firebase-config";
 import { ref, onValue } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
-import { useGeolocated } from "react-geolocated";
 
-
-// Header Import
+// Component Imports
 import { Header } from "../../components/app/header";
+import { HomePage } from "../../components/app/page/home";
+import { Sidebar } from "../../components/app/sidebar/home";
 
-// Main Tab Imports
-import { MainTabHome } from "../../components/app/page/home";
-
-// Sidebar Imports
-import { Home_Sidebar } from "../../components/app/sidebar/home";
-
-// Contains most everything for the app homepage
+/**
+* Contains most everything for the app homepage
+* @returns {Object} Home Page
+*/
 function Home() {
-  // It's time to document and change these awful variable names
   // State variables for app page
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null); // user data
   const [loadingLoc, setLoadingLoc] = useState(true); // location variable loading, true = loading, false = finished loading
-  const [authUser, loading] = useAuthState(auth)
+  const [authUser] = useAuthState(auth) // auth user object (used to obtain other user object)
 
+  // Authentication Verification / Redirection if Profile Data not Filled out
   useEffect(() => {
     if (authUser) {
         onValue(ref(database, `users/${authUser.uid}`), (userData) => {
@@ -37,14 +39,15 @@ function Home() {
     }
   }, [authUser])
 
-  const { coords } =
-        useGeolocated({
-            positionOptions: {
-                enableHighAccuracy: false,
-            },
-            userDecisionTimeout: 5000,
-        });
+  // Gets current location
+  const { coords } = useGeolocated({
+    positionOptions: {
+        enableHighAccuracy: false,
+    },
+    userDecisionTimeout: 5000,
+  });
 
+  // If theres a location, go ahead and show location based stuff
   useEffect(() => {
     if (coords) {
         setLoadingLoc(false);
@@ -65,15 +68,15 @@ function Home() {
             {/* Main Page Section */}
             <div className="mr-2 h-[calc(100%-110px)]">
               {!loadingLoc && (
-                <MainTabHome loc={coords} user={user} />
+                <HomePage loc={coords} user={user} />
               )}
               {loadingLoc && (
-                <MainTabHome loc={null} user={user} />
+                <HomePage loc={null} user={user} />
               )}
             </div>
           </div>
           {/* Sidebar (Right Side of Page) */}
-            <Home_Sidebar
+            <Sidebar
               user={user}
               location={coords}
               loadingLoc={loadingLoc}

@@ -1,8 +1,15 @@
+// System Imports
 import { Geo } from "../map/geo";
 import Link from "next/link"
+
+// Component Imports
 import { dateOptions } from "../datatypes";
 
-// Display of Rooms on user profile
+/**
+ * Profile Room Component
+ * @prop {JSON} room - Room Object
+ * @returns {Object} - Profile Room Component
+ */
 export function ProfileRoom({ room }) {
   return (
     <div className="rounded-lg p-2 shadow-xl bg-white h-[250px] w-[325px]">

@@ -1,18 +1,21 @@
 "use client";
+// System Imports
+import "../globals.css";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Form } from "react-hook-form";
-import "../globals.css";
 import Link from "next/link"
-import { useState } from "react";
 
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  setPersistence,
-  indexedDBLocalPersistence,
-} from "firebase/auth";
+// Firebase Imports
+import {createUserWithEmailAndPassword,signInWithEmailAndPassword,setPersistence,indexedDBLocalPersistence,} from "firebase/auth";
 import { auth } from "../../../firebase-config";
 
+/**
+ * Signs up user in Firebase Authentication
+ * @param {JSON} data - User signup data (data.email, data.password)
+ * @returns {Boolean} - True if user is signed up, False if user is not signed up
+ * @async
+ */
 async function Signup(data) {
   var userCredential = await createUserWithEmailAndPassword(
     auth,
@@ -22,7 +25,7 @@ async function Signup(data) {
   if (userCredential.user) {
     setPersistence(auth, indexedDBLocalPersistence).then(() => {
       signInWithEmailAndPassword(auth, data.email, data.password).then(
-        (res) => {
+        () => {
           return true;
         }
       );
@@ -31,7 +34,10 @@ async function Signup(data) {
     return false;
   }
 }
-
+/**
+ * Register Page
+ * @returns {Object} - Registration Page
+ */
 function Register() {
   var router = useRouter();
   var {
@@ -46,6 +52,10 @@ function Register() {
     return data.password === data.passwordCheck;
   };
 
+  /**
+   * Form onSubmit Handler
+   * @params {JSON} data - Form data
+   */
   function onSubmit({ data }) {
     if (passwordMatch(data)) {
       setPasswordMismatch(false);

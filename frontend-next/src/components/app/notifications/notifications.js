@@ -1,15 +1,19 @@
+// System Imports
 import { Popover } from "@headlessui/react";
+
+// Icon Imports
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
 import CloseIcon from '@mui/icons-material/Close';
 
+// Firebase Imports
 import { database } from "../../../../firebase-config";
 import { ref, set, remove } from "firebase/database";
 
 /**
  * Notification Object
  * @constructor
- * @param {user.notification} data - Notification data 
+ * @prop {user.notification} data - Notification data 
  * @returns {Notification} - Notification Component
  */
 function Notification({data}) {
@@ -60,7 +64,7 @@ function createNotification(title, byline, action, suser, ruser) {
 /**
  * Notification Panel
  * @constructor
- * @param {user} user - User object (from Firebase)
+ * @prop {user} user - User object (from Firebase)
  * @returns {NotificationPanel} - Notification Panel Component
  */
 export function NotificationPanel({user}) {

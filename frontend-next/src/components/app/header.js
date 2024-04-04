@@ -1,11 +1,20 @@
-import { database } from "../../../firebase-config";
-import { ref, set, remove } from "firebase/database";
+// System Imports
 import Link from "next/link"
 
+// Firebase Imports
+import { database } from "../../../firebase-config";
+import { ref, set, remove } from "firebase/database";
+
+// Component Imports
 import { NotificationPanel } from "./notifications/notifications";
 import { ProfilePanel } from "./profile/ProfilePanel"
 
-// Closes chat room
+/**
+ * Closes Open Chat Room
+ * @param {JSON} roomObj - Room Object
+ * @param {JSON} user - User Object
+ * @returns {void}
+ */
 function closeChatRoom(roomObj, user) {
   var path = roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;
   var payload = {
@@ -25,7 +34,12 @@ function closeChatRoom(roomObj, user) {
   remove(ref(database, `/rooms/${path}/users/online/${user.uid}`));
 }
 
-// Adds room to myRooms
+/**
+ * Adds Chat Room to My Rooms
+ * @param {JSON} chatRoomObj - Chat Room Object
+ * @param {JSON} user - User Object
+ * @returns {void}
+ */
 function addToMyRooms(chatRoomObj, user) {
   set(
     ref(
@@ -46,7 +60,12 @@ function addToMyRooms(chatRoomObj, user) {
   set(ref(database, `/rooms/${path}/users/all/${user.uid}`), user);
 }
 
-// Deletes saved room from myRooms
+/**
+ * Removes Chat Room from My Rooms
+ * @param {JSON} chatRoomObj - Chat Room Object
+ * @param {JSON} user - User Object
+ * @returns {void}
+ */
 function removeFromMyRooms(chatRoomObj, user) {
   var path =
     chatRoomObj.path + "/" + chatRoomObj.name + "-" + chatRoomObj.timestamp;
@@ -59,12 +78,14 @@ function removeFromMyRooms(chatRoomObj, user) {
   remove(ref(database, `/rooms/${path}/users/all/${user.uid}`));
 }
 
-export function Header({
-  mainTab,
-  chatRoomObj,
-  user,
-}) {
-
+/**
+ * Header Component
+ * @prop {String} mainTab - Main Tab
+ * @prop {JSON} chatRoomObj - Chat Room Object
+ * @prop {JSON} user - User Object
+ */
+export function Header({mainTab,chatRoomObj,user,}) {
+  
   if (mainTab == "chat") {
     var roomName = chatRoomObj.name + "-" + chatRoomObj.timestamp;
     if (user.rooms != null && roomName in user.rooms) {

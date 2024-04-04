@@ -1,28 +1,27 @@
 "use client";
+// System Imports
+import "../globals.css";
 import { useForm, Form } from "react-hook-form";
 import Link from "next/link"
 import { useRouter } from "next/navigation";
-import "../globals.css";
 
-// Firebase imports
+// Firebase Imports
 import { auth } from "../../../firebase-config";
-import {
-  setPersistence,
-  signInWithEmailAndPassword,
-  indexedDBLocalPersistence,
-} from "firebase/auth";
+import {setPersistence,signInWithEmailAndPassword,indexedDBLocalPersistence } from "firebase/auth";
 
+/**
+ * Login Page
+ * @returns {Object} Login Page 
+*/
 function Login() {
   var router = useRouter();
-  //var { register, handleSubmit } = useForm();
-  var {
-    register,
-    control,
-    setError,
-    handleSubmit,
-    formState: { errors, isSubmitting, isSubmitted },
-  } = useForm();
+  var {register,control,setError,handleSubmit,formState: { errors, isSubmitting, isSubmitted },} = useForm();
 
+  /**
+   * Logs into Firebase authentication
+   * @param {JSON} data - User Login Data (data.email, data.password) 
+   * @returns {void}
+   */
   function authenticate(data) {
     setPersistence(auth, indexedDBLocalPersistence).then(() => {
       signInWithEmailAndPassword(auth, data.email, data.password).then(

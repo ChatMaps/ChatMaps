@@ -6,10 +6,14 @@ import { ref, get } from "firebase/database";
 import { useGeolocated } from "react-geolocated";
 import { onAuthStateChanged } from "firebase/auth";
 
+/**
+ * Home Page
+ * @returns {Object} - Home Page
+ */
 function Home() {
-  const [isLoadingLoc, setLoadingLoc] = useState(true);
-  const [roomCount, setRoomCount] = useState(null);
-  const [isAuthenticated, setAuth] = useState(false);
+  const [isLoadingLoc, setLoadingLoc] = useState(true); // is location loading?
+  const [roomCount, setRoomCount] = useState(null); // local room count
+  const [isAuthenticated, setAuth] = useState(false); // is user authenticated?
 
   // Authentication
   useEffect(() => {
@@ -22,6 +26,7 @@ function Home() {
     });
   }, []);
 
+  // Grab Location
   const { coords } = useGeolocated({
     positionOptions: {
         enableHighAccuracy: false,
@@ -29,6 +34,7 @@ function Home() {
     userDecisionTimeout: 5000,
   });
 
+  // Update room count on location fix
   useEffect(() => {
     if (coords) {
       var path =

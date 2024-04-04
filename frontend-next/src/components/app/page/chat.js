@@ -1,11 +1,20 @@
-import { Chat, SystemMessage } from "../datatypes";
-import { useState } from "react";
+// Dependency Imports
 import { Form, useForm } from "react-hook-form";
+
+// Firebase Imports
 import { ref, set } from "firebase/database";
 import { database } from "../../../../firebase-config";
 
-// Chatroom Module for Primary Tab
-export function MainTabChatRoom({ roomObj, user }) {
+// Component Imports
+import { Chat, SystemMessage } from "../datatypes";
+
+/**
+ * Chat Room Component
+ * @prop {JSON} roomObj - Room Object
+ * @prop {JSON} user - User Object
+ * @returns {Object} - Chat Room Component
+ */
+export function ChatRoom({ roomObj, user }) {
   var { register, control, reset, handleSubmit } = useForm();
 
   // Message updater
@@ -30,6 +39,11 @@ export function MainTabChatRoom({ roomObj, user }) {
   }
   var chats = chatsArr.reverse();
 
+  /**
+   * Send Message in Chatroom
+   * @param {JSON} data - Message data to send (from form)
+   * @returns {void}
+   */
   function sendMessage(data) {
     reset();
     var payload = {
