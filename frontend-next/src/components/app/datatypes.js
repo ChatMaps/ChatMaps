@@ -26,6 +26,11 @@ let dateOptions = {
   minute: "2-digit",
 };
 
+/**
+ * Generates Color based on string hash
+ * @param {String} user_str - Username / String for hashing
+ * @returns {String} - Color Hex Code Index in userColors
+ */
 const generateColor = (user_str) => {
   // hashes username for consistent colors, maybe all functionality to pick color later
   let hash = 0;
@@ -36,7 +41,12 @@ const generateColor = (user_str) => {
   return index;
 };
 
-// Chat Message
+
+/**
+ * Chat Message Object
+ * @props {JSON} chatObj - Chat Object
+ * @returns {Object} - Chat Message Component
+ */
 export function Chat({ chatObj }) {
   return (
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
@@ -57,18 +67,13 @@ export function Chat({ chatObj }) {
   );
 }
 
-// System Chat Message
-export function SystemMessage({ chatObj }) {
-  const generateColor = (user_str) => {
-    // hashes username for consistent colors, maybe all functionality to pick color later
-    let hash = 0;
-    for (let i = 0; i < user_str.length; i++) {
-      hash = user_str.charCodeAt(i) + (hash * 32 - hash);
-    }
-    const index = Math.abs(hash) % userColors.length;
-    return index;
-  };
 
+/**
+ * System Chat Message Object
+ * @prop {JSON} chatObj - Chat Object
+ * @returns {Object} - System Chat Message Component
+ */
+export function SystemMessage({ chatObj }) {
   return (
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div className="text-[#d1d1d1]">
@@ -88,7 +93,11 @@ export function SystemMessage({ chatObj }) {
   );
 }
 
-// Member for Active/Room members in sidebar
+/**
+ * Member Object for Sidebar
+ * @prop {JSON} memberObj - Member Object
+ * @returns {Object} - Member Component
+ */
 export function Member({ memberObj }) {
   return (
     <Link href={"/user/" + memberObj.uid} target="_blank">
@@ -99,7 +108,11 @@ export function Member({ memberObj }) {
   );
 }
 
-// Chat Room Object for myRooms and Nearby in sidebar
+/**
+ * Chat Room Object for Sidebar
+ * @prop {JSON} roomObj - Room Object
+ * @returns {Object} - Chat Room Component
+ */
 export function ChatRoomSidebar({ roomObj }) {
   return (
     <div className="border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer">

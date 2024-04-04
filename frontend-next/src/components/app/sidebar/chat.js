@@ -1,11 +1,14 @@
+// Component Imports
 import { Geo } from "../map/geo";
-
 import { Member } from "../datatypes"
 
 // Sidebar when in a Chatrooms
-export function Chat_Sidebar({
-  chatRoomObj,
-}) {
+/**
+ * Sidebar while in Chatroom
+ * @prop {JSON} chatRoomObj - Chatroom Object
+ * @returns {Object} - Sidebar Component
+ */
+export function Sidebar({chatRoomObj}) {
   // Active users list
   if (
     chatRoomObj.hasOwnProperty("users") &&

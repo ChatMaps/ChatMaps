@@ -1,28 +1,29 @@
 "use client";
 // System Imports
 import { useState, useEffect } from "react";
+
+// Firebase Imports
 import { auth, database } from "../../../firebase-config";
 import { ref, onValue, set } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
 
-// Header Import
+// Component Imports
 import { Header } from "../../components/app/header";
+import { ChatRoom } from "../../components/app/page/chat";
+import { Sidebar } from "../../components/app/sidebar/chat";
 
-// Main Tab Imports
-import { MainTabChatRoom } from "../../components/app/page/chat";
-
-// Sidebar Imports
-import { Chat_Sidebar } from "../../components/app/sidebar/chat";
-
-// Contains most everything for the app homepage
-function Home() {
-  // It's time to document and change these awful variable names
-  // State variables for app page
-  const [user, setUser] = useState(null);
+/**
+ * Chat Page
+ * @returns {Object} Chat Page
+ */
+function Chat() {
+  // State variables for chat page
+  const [user, setUser] = useState(null); // user data
   const [chatRoomObj, setChatRoomObj] = useState(null); // Current chatroom object
-  const [doneLoading, setDoneLoading] = useState(false)
-  const [authUser, loading] = useAuthState(auth)
+  const [doneLoading, setDoneLoading] = useState(false) // is the page done loading or not
+  const [authUser] = useAuthState(auth) // auth user object (used to obtain other user object)
   
+  // Authentication Verification / Redirection if Profile Data not Filled out
   useEffect(() => {
     if (authUser) {
         onValue(ref(database, `users/${authUser.uid}`), (userData) => {
@@ -36,7 +37,7 @@ function Home() {
     }
   }, [authUser])
 
-
+  // Users URL params to load proper chatroom, then logs the user into that room
   useEffect(() => {
     if (user) {
         const searchParams = new URLSearchParams(document.location.search);
@@ -82,11 +83,11 @@ function Home() {
             />
             {/* Main Page Section */}
             <div className="mr-2 h-[calc(100%-110px)]">
-                <MainTabChatRoom roomObj={chatRoomObj} user={user} />
+                <ChatRoom roomObj={chatRoomObj} user={user} />
             </div>
           </div>
           {/* Sidebar (Right Side of Page) */}
-            <Chat_Sidebar
+            <Sidebar
               chatRoomObj={chatRoomObj}
             />
         </div>
@@ -95,4 +96,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Chat;

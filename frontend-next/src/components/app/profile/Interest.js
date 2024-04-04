@@ -1,5 +1,8 @@
-// Interests for Profile
-// Making this its own file since we could do a bit more with this in the future
+/**
+ * Interest for Profile
+ * @prop {String} interest - Interest item
+ * @returns {Object} - Interest Component
+ */
 export function Interest({ interest }) {
   return (
     <div>

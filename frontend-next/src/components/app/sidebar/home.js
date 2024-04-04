@@ -1,17 +1,31 @@
+// System Imports
 import { Form, useForm } from "react-hook-form";
-import { database } from "../../../../firebase-config";
-import { ref, set, get } from "firebase/database";
 import { useEffect, useState } from "react";
+
+// Dependency Imports
 import { Tab } from '@headlessui/react'
 
+// Firebase Imports
+import { database } from "../../../../firebase-config";
+import { ref, set, get } from "firebase/database";
 
+// Component Imports
 import { ChatRoomSidebar } from "../datatypes";
-// Sidebar on Home Page, with various functionality (create, nearby, my rooms)
 
-// CreateRoom Module for Sidebar Create Tab
+
+/**
+ * Create Room Component for /app Sidebar
+ * @prop {JSON} loc - Location Object (latitude, longitude)
+ * @returns {Object} - Create Room Component
+ */
 function CreateRoom({ loc }) {
   var { register, control, reset, handleSubmit } = useForm();
 
+  /**
+   * Creates Room in Firebase DB
+   * @prop {JSON} data - Room Data
+   * @returns {void}
+   */
   function createRoom(data) {
     reset();
     var path =
@@ -52,15 +66,23 @@ function CreateRoom({ loc }) {
   );
 }
 
+/**
+ * Joins class names together for Tailwind CSS
+ * @param  {...String} classes - Class names
+ * @returns {String} - Class names (joined)
+ */
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export function Home_Sidebar({
-  user,
-  location,
-  loadingLoc
-}) {
+/**
+ * App Page Sidebar Component
+ * @prop {JSON} user - User Object
+ * @prop {JSON} location - Location Object (latitude, longitude)
+ * @prop {Boolean} loadingLoc - Loading Location State
+ * @returns {Object} - App Page Sidebar Component
+ */
+export function Sidebar({user,location,loadingLoc}) {
   const [tab, setTab] = useState("nearby");
   const [nearbyArr, setNearbyArr] = useState([])
   const [nearbyArrReady, setNearbyArrReady] = useState(false)
