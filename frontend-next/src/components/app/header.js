@@ -86,7 +86,8 @@ export function Header({mainTab,chatRoomObj,user,}) {
     <div className="flex m-2 rounded-lg h-[63px] bg-white shadow-2xl p-1">
       <div className="flex shrink h-[60px]">
         <Link href="/app">
-          <img src="/logos/logo_transparent_inverse.png" className="h-[60px]" />
+          <img src="/logos/logo_transparent_inverse.png" className="h-[60px] max-md:hidden" />
+          <img src="/logos/icon.png" className="h-[50px] mt-[5px] mb-[5px] md:hidden" />
         </Link>
       </div>
       <div className="grow grid grid-rows-1 grid-flow-col auto-cols-max justify-end gap-2 h-[60px] p-2">

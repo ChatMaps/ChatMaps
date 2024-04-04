@@ -91,14 +91,14 @@ function UserProfile({ params }) {
   return (
     <div>
       {isAuthenticated && (
-        <div className="overflow-hidden">
+        <div className="md:overflow-hidden">
           {/* Left Side of Page */}
-          <div className="h-dvh overflow-hidden">
+          <div className="h-dvh md:overflow-hidden">
             {/* Header */}
             <Header user={user} />
             {/* Main Page Section */}
-            <div className="grid grid-cols-3 mr-2 h-[calc(100%-110px)] pl-5 pr-5 pt-2">
-              <div className="cols-span-1 bg-white shadow-2xl rounded-xl pt-5">
+            <div className="md:grid md:grid-cols-3 mr-2 h-[calc(100%-110px)] pl-5 pr-5 pt-2 max-md:mb-10">
+              <div className="cols-span-1 bg-white shadow-2xl rounded-xl pt-5 max-md:pb-5">
                 {!isEditing && (
                   <div>
                     <img
@@ -142,7 +142,7 @@ function UserProfile({ params }) {
                 )}
               </div>
               <div className="col-span-2">
-                <div className="grid grid-cols-3 gap-y-1 pl-5 gap-1 h-[100%] w-[100%]">
+                <div className="grid md:grid-cols-3 max-md:grid-cols-1 max-md:mt-5 md:pl-5 justify-items-center gap-y-5 gap-1 h-[100%] w-[100%]">
                   {userRoomsArray}
                 </div>
               </div>
