@@ -9,6 +9,9 @@ import { ref, set, remove } from "firebase/database";
 import { NotificationPanel } from "./notifications/notifications";
 import { ProfilePanel } from "./profile/ProfilePanel"
 
+// Icons
+import MenuIcon from '@mui/icons-material/Menu';
+
 /**
  * Closes Chat
  * @param {JSON} chatRoomObj - Chat Room Object
@@ -69,7 +72,7 @@ function removeFromMyRooms(chatRoomObj, user) {
  * @prop {JSON} chatRoomObj - Chat Room Object
  * @prop {JSON} user - User Object
  */
-export function Header({mainTab,chatRoomObj,user,}) {
+export function Header({mainTab,chatRoomObj,user,sidebarControl}) {
   
   if (mainTab == "chat") {
     var roomName = chatRoomObj.name + "-" + chatRoomObj.timestamp;
@@ -128,6 +131,14 @@ export function Header({mainTab,chatRoomObj,user,}) {
 
         {/*Profile Dropdown */}
         <ProfilePanel user={user}/>
+
+        {/* Sidebar Control (for small screens) */}
+        <div
+            className="md:hidden p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
+            onClick={() => {sidebarControl()}}
+          >
+            <MenuIcon/>
+          </div>
       </div>
     </div>
   );
