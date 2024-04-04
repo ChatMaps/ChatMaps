@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-
+import Link from "next/link"
 import { auth, database } from "../../firebase-config";
 import { ref, get } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
@@ -53,24 +53,24 @@ function Home() {
           <div className="m-5">
             {!isAuthenticated && (
               <div>
-                <a href="/login">
+                <Link href="/login">
                   <button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
                     Login
                   </button>
-                </a>
-                <a href="/register">
+                </Link>
+                <Link href="/register">
                   <button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
-                    Sign Up
+                    Register
                   </button>
-                </a>
+                </Link>
               </div>
             )}
             {isAuthenticated && (
-              <a href="/app">
-                <button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
-                  Continue to App
-                </button>
-              </a>
+              <Link href="/app">
+              <button className="bg-cyan-500 text-white font-bold py-2 px-4 rounded-full">
+                Continue to App
+              </button>
+            </Link>
             )}
             {!isLoadingLoc && roomCount == 1 && (
               <div className="text-[24px] pt-10">
