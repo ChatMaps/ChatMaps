@@ -83,7 +83,6 @@ function classNames(...classes) {
  * @returns {Object} - App Page Sidebar Component
  */
 export function Sidebar({user,location,loadingLoc}) {
-  const [tab, setTab] = useState("nearby");
   const [nearbyArr, setNearbyArr] = useState([])
   const [nearbyArrReady, setNearbyArrReady] = useState(false)
 
@@ -116,6 +115,8 @@ export function Sidebar({user,location,loadingLoc}) {
             );
             nearbyArr.push(newRoom);
           }
+          } else {
+            nearbyArr.push(<div className="pt-5">No Nearby Rooms<br />Create One?</div>)
           }
           setNearbyArr(nearbyArr)
           setNearbyArrReady(true)
@@ -154,13 +155,6 @@ export function Sidebar({user,location,loadingLoc}) {
             <Tab.Panel>
               <div className="overflow-y-auto h-[90%]">
                 <div>
-                  {!nearbyArr && !loadingLoc && (
-                    <div>
-                      No Nearby Rooms
-                      <br />
-                      Create One?
-                    </div>
-                  )}
                   {loadingLoc && <div>Loading...</div>}
                   {nearbyArrReady && nearbyArr}
                 </div>
