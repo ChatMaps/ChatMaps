@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 
 // Firebase Imports
 import { auth, database } from "../../../firebase-config";
-import { ref, onValue, set } from "firebase/database";
+import { ref, onValue, set, onDisconnect, serverTimestamp  } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
 
 // Component Imports
@@ -43,7 +43,7 @@ function Chat() {
         const searchParams = new URLSearchParams(document.location.search);
         var path = searchParams.get("room")
 
-        // Send entered message
+        /*// Send entered message
         var payload = {
             body: "entered",
             user: user.username,
@@ -57,7 +57,23 @@ function Chat() {
             `/rooms/${path}/chats/${new Date().getTime()}-${user.username}`
             ),
             payload
-        );
+        );*/
+
+        // Add user to online for room
+        set(ref(database, `/rooms/${path}/users/online/${user.uid}`), user)
+
+        // Removes user from room on disconnect (reload, window close, internet lost)
+        onDisconnect(ref(database, `/rooms/${path}/users/online/${user.uid}`)).remove()
+
+        // Sends leaving message on disconnect (Timestamp function used due to new onDisconnect stuff)
+        /*someRef = ref(database, `/rooms/${path}/chats/${new Date().getTime()}-${user.username}`)
+        onDisconnect(someRef).set({
+          body: "left",
+          user: user.username,
+          isSystem: true,
+          timestamp: serverTimestamp(),
+          uid: user.uid,
+        })*/
 
         onValue(ref(database, `/rooms/${path}`), (roomData) => {
             roomData = roomData.val();
