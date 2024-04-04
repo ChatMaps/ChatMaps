@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link"
 import { auth, database } from "../../firebase-config";
 import { ref, get } from "firebase/database";
+import { useGeolocated } from "react-geolocated";
 import { onAuthStateChanged } from "firebase/auth";
 
 function Home() {
@@ -21,29 +22,34 @@ function Home() {
     });
   }, []);
 
+  const { coords } = useGeolocated({
+    positionOptions: {
+        enableHighAccuracy: false,
+    },
+    userDecisionTimeout: 5000,
+  });
+
   useEffect(() => {
-    if ("geolocation" in navigator) {
-      // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
-      navigator.geolocation.getCurrentPosition(({ coords }) => {
-        var path =
-          String(coords.latitude.toFixed(2)).replace(".", "") +
-          "/" +
-          String(coords.longitude.toFixed(2)).replace(".", "");
-        get(ref(database, `/rooms/${path}`)).then((snapshot) => {
-          if (snapshot.exists()) {
-            var count = 0;
-            for (var room in snapshot.val()) {
-              count += 1;
-            }
-            setRoomCount(count);
-          } else {
-            setRoomCount(0);
+    if (coords) {
+      var path =
+            String(coords.latitude.toFixed(2)).replace(".", "") +
+            "/" +
+            String(coords.longitude.toFixed(2)).replace(".", "");
+      get(ref(database, `/rooms/${path}`)).then((snapshot) => {
+        if (snapshot.exists()) {
+          var count = 0;
+          for (var room in snapshot.val()) {
+            count += 1;
           }
-          setLoadingLoc(false);
-        });
+          setRoomCount(count);
+        } else {
+          setRoomCount(0);
+        }
+        setLoadingLoc(false);
       });
     }
-  });
+  }, [coords])
+
   return (
     <div>
       <div className="grid h-screen place-items-center">

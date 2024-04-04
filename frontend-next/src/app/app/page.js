@@ -6,11 +6,12 @@ import { ref, onValue } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
 import { useGeolocated } from "react-geolocated";
 
+
 // Header Import
 import { Header } from "../../components/app/header";
 
 // Main Tab Imports
-import { MainTabHome } from "../../components/app/main_tab/home";
+import { MainTabHome } from "../../components/app/page/home";
 
 // Sidebar Imports
 import { Home_Sidebar } from "../../components/app/sidebar/home";
