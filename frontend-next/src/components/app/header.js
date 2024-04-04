@@ -10,28 +10,13 @@ import { NotificationPanel } from "./notifications/notifications";
 import { ProfilePanel } from "./profile/ProfilePanel"
 
 /**
- * Closes Open Chat Room
- * @param {JSON} roomObj - Room Object
+ * Closes Chat
+ * @param {JSON} chatRoomObj - Chat Room Object
  * @param {JSON} user - User Object
  * @returns {void}
  */
-function closeChatRoom(roomObj, user) {
-  var path = roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;
-  var payload = {
-    body: "left",
-    user: user.username,
-    isSystem: true,
-    timestamp: new Date().getTime(),
-    uid: user.uid,
-  };
-  set(
-    ref(
-      database,
-      `/rooms/${path}/chats/${new Date().getTime()}-${user.username}`
-    ),
-    payload
-  );
-  remove(ref(database, `/rooms/${path}/users/online/${user.uid}`));
+function closeChat(chatRoomObj, user) {
+  remove(ref(database, `/rooms/${chatRoomObj.path}/${chatRoomObj.name}-${chatRoomObj.timestamp}/users/online/${user.uid}`))
 }
 
 /**
@@ -129,11 +114,9 @@ export function Header({mainTab,chatRoomObj,user,}) {
         )}
         {mainTab == "chat" && (
           <Link
-            onClick={() => {
-              closeChatRoom(chatRoomObj, user);
-            }}
             href="/app"
             className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
+            onClick={() => {closeChat(chatRoomObj,user)}}
           >
             Close Chat
           </Link>
