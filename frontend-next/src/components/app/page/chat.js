@@ -74,17 +74,11 @@ export function ChatRoom({ roomObj, user }) {
         <Form
           onSubmit={handleSubmit(sendMessage)}
           control={control}
-          className="w-[100%] p-[0px]"
         >
-          <input
-            type="text"
-            {...register("message")}
-            placeholder="Enter message"
-            className="w-[83%] border-[0px] mt-[8px] mb-[8px]"
-          />
-          <button className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 w-[8%]">
-            Send
-          </button>
+          <div className="width-[100%] grid grid-cols-6">
+            <input type="text" {...register("message")} placeholder="Enter message" className="col-span-5 border-[0px] mt-[8px] mb-[8px]" />
+            <button className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 w-[60px]">Send</button>
+          </div>
         </Form>
       </div>
     </div>

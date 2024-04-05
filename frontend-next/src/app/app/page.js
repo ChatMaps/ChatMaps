@@ -15,7 +15,6 @@ import { useAuthState } from "react-firebase-hooks/auth"
 import { Header } from "../../components/app/header";
 import { HomePage } from "../../components/app/page/home";
 import { Sidebar } from "../../components/app/sidebar/home";
-
 import {useWindowSize} from "../../components/app/datatypes";
 
 /**
@@ -33,7 +32,6 @@ function Home() {
   useEffect(() => {
     if (windowSize.width < 767) {
       setDrawerOpen(false)
-      console.log(windowSize, drawerOpen)
     } else {
       setDrawerOpen(true)
     }

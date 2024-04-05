@@ -11,6 +11,9 @@ import { ProfilePanel } from "./profile/ProfilePanel"
 
 // Icons
 import MenuIcon from '@mui/icons-material/Menu';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import CloseIcon from '@mui/icons-material/Close';
 
 /**
  * Closes Chat
@@ -89,8 +92,8 @@ export function Header({mainTab,chatRoomObj,user,sidebarControl}) {
     <div className="flex m-2 rounded-lg h-[63px] bg-white shadow-2xl p-1">
       <div className="flex shrink h-[60px]">
         <Link href="/app">
-          <img src="/logos/logo_transparent_inverse.png" className="h-[60px] max-md:hidden" />
-          <img src="/logos/icon.png" className="h-[50px] mt-[5px] mb-[5px] md:hidden" />
+          <img src="/logos/logo_transparent_inverse.png" className="h-[60px] max-xl:hidden" />
+          <img src="/logos/icon.png" className="h-[50px] mt-[5px] mb-[5px] xl:hidden" />
         </Link>
       </div>
       <div className="grow grid grid-rows-1 grid-flow-col auto-cols-max justify-end gap-2 h-[60px] p-2">
@@ -100,9 +103,9 @@ export function Header({mainTab,chatRoomObj,user,sidebarControl}) {
               addToMyRooms(chatRoomObj, user);
               
             }}
-            className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
+            className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-2 flex items-center"
           >
-            Add to &quot;My Rooms&quot;
+            <AddIcon/>
           </a>
         )}
         {mainTab == "chat" && isMyRoom == true && (
@@ -111,18 +114,18 @@ export function Header({mainTab,chatRoomObj,user,sidebarControl}) {
               removeFromMyRooms(chatRoomObj, user);
               
             }}
-            className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
+            className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-2 flex items-center"
           >
-            Remove from &quot;My Rooms&quot;
+            <RemoveIcon/>
           </a>
         )}
         {mainTab == "chat" && (
           <Link
             href="/app"
-            className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
+            className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-2 flex items-center"
             onClick={() => {closeChat(chatRoomObj,user)}}
           >
-            Close Chat
+            <CloseIcon/>
           </Link>
         )}
 
