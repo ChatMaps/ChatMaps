@@ -78,7 +78,7 @@ export function Chat({ chatObj }) {
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div>
         <span style={{ color: userColors[generateColor(chatObj.user)] }}>
-          <Link href={`/user/${chatObj.uid}`}
+          <Link href={`/user&uid=${chatObj.uid}`}
           className="hover:font-bold cursor-pointer"
           target="_blank">
             {chatObj.user}
@@ -104,7 +104,7 @@ export function SystemMessage({ chatObj }) {
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div className="text-[#d1d1d1]">
         <span style={{ color: userColors[generateColor(chatObj.user)] }}>
-          <Link href={`/user/${chatObj.uid}`}
+          <Link href={`/user&uid=${chatObj.uid}`}
           className="hover:font-bold cursor-pointer"
           target="_blank">
             {chatObj.user}
@@ -126,7 +126,7 @@ export function SystemMessage({ chatObj }) {
  */
 export function Member({ memberObj }) {
   return (
-    <Link href={"/user/" + memberObj.uid} target="_blank">
+    <Link href={"/user&uid=" + memberObj.uid} target="_blank">
       <div className="cursor-pointer g-[aliceblue] rounded-lg m-3 shadow-xl p-2">
         {memberObj.username}
       </div>

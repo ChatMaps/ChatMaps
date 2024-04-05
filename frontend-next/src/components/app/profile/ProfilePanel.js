@@ -39,7 +39,7 @@ export function ProfilePanel({user}) {
           <div className="grid grid-cols-1">
             <Link
               className="rounded-xl p-4 hover:bg-[#C0C0C0]"
-              href={"/user/" + user.uid}
+              href={"/user?uid=" + user.uid}
             >
               View Profile
             </Link>

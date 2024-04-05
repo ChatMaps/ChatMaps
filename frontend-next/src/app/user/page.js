@@ -1,26 +1,25 @@
 "use client";
 // System Imports
 import { useState, useEffect } from "react";
-import { auth, database } from "../../../../firebase-config";
+import { auth, database } from "../../../firebase-config";
 import { ref, onValue, get } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 
 // Refactored Component Imports
 
 // Data Structure Imports
-import { ProfileRoom } from "../../../components/app/profile/ProfileRoom";
-import { ProfileEdit } from "../../../components/app/profile/ProfileEdit";
-import { Interest } from "../../../components/app/profile/Interest";
+import { ProfileRoom } from "../../components/app/profile/ProfileRoom";
+import { ProfileEdit } from "../../components/app/profile/ProfileEdit";
+import { Interest } from "../../components/app/profile/Interest";
 
 // Header Import
-import { Header } from "../../../components/app/header";
+import { Header } from "../../components/app/header";
 
 /**
  * User Profile Page
- * @param {URLSearchParams} params - URL Parameters 
  * @returns {Object} - User Profile Page
  */
-function UserProfile({ params }) {
+function UserProfile() {
   const [profileData, setProfileData] = useState(null); // Profile Data
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Determines if user is authenticated
   const [user, setUser] = useState(null); // User Data
@@ -36,12 +35,15 @@ function UserProfile({ params }) {
 
   // Authentication
   useEffect(() => {
+  
     onAuthStateChanged(auth, (user) => {
+      const searchParams = new URLSearchParams(document.location.search);
+      var userUID = searchParams.get("uid")
       if (user) {
         get(ref(database, `users/${user.uid}`)).then((userData) => {
           userData = userData.val();
           if (userData) {
-            if (userData.uid == params.stub) {
+            if (userData.uid == userUID) {
               setIsOwner(true);
             }
             setUser(userData);
@@ -59,7 +61,9 @@ function UserProfile({ params }) {
 
   // Grabs profile user data
   useEffect(() => {
-    onValue(ref(database, "/users/" + params.stub), (snapshot) => {
+    const searchParams = new URLSearchParams(document.location.search);
+    var userUID = searchParams.get("uid")
+    onValue(ref(database, "/users/" + userUID), (snapshot) => {
       setProfileData(snapshot.val());
 
       // Populates array with user's interests
