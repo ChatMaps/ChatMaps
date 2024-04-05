@@ -90,11 +90,11 @@ function Home() {
           </div>
           {/* Sidebar (Right Side of Page) */}
           <Drawer open={drawerOpen} anchor={"right"} variant={windowSize.width > 767? "persistent": "temporary"} onClose={() => {setDrawerOpen(false)}} sx={{
-          width: 400,
+          width: windowSize.width > 767? 400: "80%",
           marginTop: 10,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: 400,
+            width: windowSize.width > 767? 400: "80%",
             borderLeft: 0,
           },
           }}>
