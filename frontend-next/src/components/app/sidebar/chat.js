@@ -33,7 +33,7 @@ export function Sidebar({chatRoomObj}) {
     var chatroomUsers = allUsers
   }
   return (
-    <div className="h-dvh">
+    <div className="overflow-hidden h-dvh">
       <div className="m-2 h-[98%] grid grid-cols-1">
         <div className="bg-white rounded-lg m-2 shadow-2xl relative">
           <div className="w-[100%] h-[100%] opacity-50 absolute rounded-lg z-10">

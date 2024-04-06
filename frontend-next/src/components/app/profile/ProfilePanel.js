@@ -23,7 +23,7 @@ export function ProfilePanel({user}) {
     return (
       <Popover className="relative">
         <Popover.Button as="div">
-          <div className="mr-5 h-[44px] p-[2px] pr-[15px] cursor-pointer bg-cyan-500 text-white font-bold rounded-full shadow-2xl flex">
+          <div className="h-[44px] p-[2px] pr-[15px] cursor-pointer bg-cyan-500 text-white font-bold rounded-full shadow-2xl flex">
             <div className="flex items-center pl-1">{user.firstName}</div>
             <div className="ml-3 rounded-lg">
               <img
@@ -39,7 +39,7 @@ export function ProfilePanel({user}) {
           <div className="grid grid-cols-1">
             <Link
               className="rounded-xl p-4 hover:bg-[#C0C0C0]"
-              href={"/user/" + user.uid}
+              href={"/user?uid=" + user.uid}
             >
               View Profile
             </Link>

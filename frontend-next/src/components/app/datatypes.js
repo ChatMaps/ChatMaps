@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { useEffect, useState } from "react";
 
 // Colors for Messages
 const userColors = [
@@ -27,6 +28,31 @@ let dateOptions = {
 };
 
 /**
+ * Grabs Window Size
+ * @returns {Object} - Window Size Object (width, height)
+ */
+export function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: undefined,
+    height: undefined,
+  });
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  return windowSize;
+}
+
+
+/**
  * Generates Color based on string hash
  * @param {String} user_str - Username / String for hashing
  * @returns {String} - Color Hex Code Index in userColors
@@ -52,7 +78,7 @@ export function Chat({ chatObj }) {
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div>
         <span style={{ color: userColors[generateColor(chatObj.user)] }}>
-          <Link href={`/user/${chatObj.uid}`}
+          <Link href={`/user?uid=${chatObj.uid}`}
           className="hover:font-bold cursor-pointer"
           target="_blank">
             {chatObj.user}
@@ -78,7 +104,7 @@ export function SystemMessage({ chatObj }) {
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div className="text-[#d1d1d1]">
         <span style={{ color: userColors[generateColor(chatObj.user)] }}>
-          <Link href={`/user/${chatObj.uid}`}
+          <Link href={`/user?uid=${chatObj.uid}`}
           className="hover:font-bold cursor-pointer"
           target="_blank">
             {chatObj.user}
@@ -100,7 +126,7 @@ export function SystemMessage({ chatObj }) {
  */
 export function Member({ memberObj }) {
   return (
-    <Link href={"/user/" + memberObj.uid} target="_blank">
+    <Link href={"/user?uid=" + memberObj.uid} target="_blank">
       <div className="cursor-pointer g-[aliceblue] rounded-lg m-3 shadow-xl p-2">
         {memberObj.username}
       </div>
