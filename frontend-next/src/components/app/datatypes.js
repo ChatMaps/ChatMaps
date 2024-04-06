@@ -1,6 +1,9 @@
 import Link from "next/link"
 import { useEffect, useState } from "react";
 
+// Icons
+import PersonIcon from '@mui/icons-material/Person';
+
 // Colors for Messages
 const userColors = [
   "#ff80ed",
@@ -160,12 +163,34 @@ export function Member({ memberObj }) {
  * @returns {Object} - Chat Room Component
  */
 export function ChatRoomSidebar({ roomObj }) {
+  if ("users" in roomObj) {
+    if ("online" in roomObj.users) {
+      var roomOnline = Object.keys(roomObj.users.online).length
+    } else {
+      var roomOnline = 0
+    }
+    if ("all" in roomObj.users) {
+      var roomTotal = Object.keys(roomObj.users.all).length
+    } else {
+      var roomTotal = 0
+    }
+  } else {
+    var roomOnline = 0
+    var roomTotal = 0
+  }
+  console.log(roomObj)
   return (
     <div className="border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer">
       <Link href={`/chat?room=${roomObj.path}/${roomObj.name}-${roomObj.timestamp}`}>
-        <div className="col-span-2">
-          <div className="font-bold">{roomObj.name}</div>
-          <div className="italic">{roomObj.description}</div>
+        <div className="grid grid-cols-3">
+          <div>
+            <PersonIcon/>
+            <div>{roomOnline} / {roomTotal}</div>
+          </div>
+          <div className="col-span-2">
+            <div className="font-bold">{roomObj.name}</div>
+            <div className="italic">{roomObj.description}</div>
+          </div>
         </div>
       </Link>
     </div>
