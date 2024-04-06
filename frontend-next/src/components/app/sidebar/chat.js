@@ -43,8 +43,8 @@ export function Sidebar({chatRoomObj}) {
                 longitude: parseFloat(chatRoomObj.longitude.toFixed(2)),
               }}
               zoom={12}
-              movable={false}
-              marker={false}
+              moveable={false}
+              markers={false}
             />
           </div>
           <div className="z-10 top-0 left-0 w-[100%] h-[100%] absolute text-left pl-3 pt-2">
