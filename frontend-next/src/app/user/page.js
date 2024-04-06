@@ -35,7 +35,6 @@ function UserProfile() {
 
   // Authentication
   useEffect(() => {
-  
     onAuthStateChanged(auth, (user) => {
       const searchParams = new URLSearchParams(document.location.search);
       var userUID = searchParams.get("uid")

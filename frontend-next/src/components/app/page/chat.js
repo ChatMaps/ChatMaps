@@ -8,6 +8,9 @@ import { database } from "../../../../firebase-config";
 // Component Imports
 import { Chat, SystemMessage } from "../datatypes";
 
+// Icons
+import SendIcon from '@mui/icons-material/Send';
+
 /**
  * Chat Room Component
  * @prop {JSON} roomObj - Room Object
@@ -75,9 +78,9 @@ export function ChatRoom({ roomObj, user }) {
           onSubmit={handleSubmit(sendMessage)}
           control={control}
         >
-          <div className="width-[100%] grid grid-cols-6">
-            <input type="text" {...register("message")} placeholder="Enter message" className="col-span-5 border-[0px] mt-[8px] mb-[8px]" />
-            <button className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 w-[60px]">Send</button>
+          <div className="width-[100%] grid grid-cols-6 pr-5 pt-1">
+            <input type="text" {...register("message")} placeholder="Enter message..." className="col-span-5 border-[0px]" />
+            <button className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 w-[100%]"><SendIcon/></button>
           </div>
         </Form>
       </div>
