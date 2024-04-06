@@ -5,7 +5,7 @@ import { Geo } from "../map/geo";
  * @prop {JSON} user - User Object
  * @returns {Object} - Welcome Message Component
  */
- function WelcomeMessage({ user }) {
+function WelcomeMessage({ user }) {
   return (
     <div className="bg-white rounded-lg m-2 mt-4 text-left p-2 pl-5">
       <div>
@@ -23,7 +23,7 @@ import { Geo } from "../map/geo";
  * @prop {JSON} user - User Object
  * @returns {Object} - Home Page Component
  */
-export function HomePage({ loc, markers, user }) {
+export function HomePage({ loc, user }) {
   return (
     <>
       <WelcomeMessage user={user} />
@@ -31,9 +31,9 @@ export function HomePage({ loc, markers, user }) {
         <Geo
           loc={loc}
           zoom={14}
-          movable={true}
-          locMarker={true}
-          markers={markers}
+          moveable={true}
+          markers={true}
+          user={user}
         />
       </div>
     </>

@@ -17,7 +17,8 @@ export function ProfileRoom({ room }) {
         <Geo
           loc={{ latitude: room.latitude, longitude: room.longitude }}
           zoom={12}
-          locMarker={false}
+          moveable={false}
+          markers={false}
         />
       </div>
       <div className="relative z-2 top-[-235px] text-left p-2">
