@@ -146,7 +146,7 @@ function UserProfile() {
                 )}
               </div>
               <div className="col-span-2">
-                <div className="grid md:grid-cols-3 max-md:grid-cols-1 max-md:mt-5 md:pl-5 justify-items-center gap-y-5 gap-1 h-[100%] w-[100%]">
+                <div className="h-dvh pb-20 overflow-auto grid md:grid-cols-3 max-md:grid-cols-1 max-md:mt-5 md:pl-5 justify-items-center gap-y-5 gap-1 w-[100%]">
                   {userRoomsArray}
                 </div>
               </div>

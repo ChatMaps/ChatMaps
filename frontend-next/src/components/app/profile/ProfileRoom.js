@@ -12,7 +12,7 @@ import { dateOptions } from "../datatypes";
  */
 export function ProfileRoom({ room }) {
   return (
-    <div className="rounded-lg p-2 shadow-xl bg-white h-[250px] w-[325px]">
+    <div className="rounded-lg p-2 shadow-xl bg-white h-[250px] w-[100%]">
       <div className="relative z-1 h-[235px] opacity-50">
         <Geo
           loc={{ latitude: room.latitude, longitude: room.longitude }}
