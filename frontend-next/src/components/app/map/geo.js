@@ -3,7 +3,6 @@ import { database } from "../../../../firebase-config";
 import { ref, get } from "firebase/database";
 import { useState, useEffect } from "react";
 
-
 // ONLY nearby markers
 function NearbyRoomMarkers({ loc, user }) {
   const [markerArr, setMarkerArr] = useState([]);
@@ -16,10 +15,12 @@ function NearbyRoomMarkers({ loc, user }) {
     "/";
 
   // Sorry for the href but <Link> doesn't work here
-  const handleMarkerClick = (name) => {
-    window.location.href = "/chat?room=" + path + name;
+  const handleRoomMarkerClick = (roomObj) => {
+    window.location.href =
+      "/chat?room=" + path + roomObj.name + "-" + roomObj.timestamp;
   };
 
+  // Mostly copied Nick's code from before
   useEffect(() => {
     if (loc && user) {
       get(ref(database, `/rooms/${path}`)).then((snapshot) => {
@@ -28,13 +29,15 @@ function NearbyRoomMarkers({ loc, user }) {
 
           const newMarkers = Object.values(rooms).map((roomObj, index) => {
             const markerKey = roomObj.path + "-" + index;
+            console.log("RoomObj", roomObj);
 
             return (
+              // Want to change this to be something other than markers (or something extra)
               <Marker
                 key={markerKey}
                 anchor={[roomObj.latitude, roomObj.longitude]}
                 color="blue"
-                onClick={() => handleMarkerClick(roomObj.name)}
+                onClick={() => handleRoomMarkerClick(roomObj)}
               ></Marker>
             );
           });
@@ -52,21 +55,31 @@ function NearbyRoomMarkers({ loc, user }) {
  * @constructor
  * @prop {JSON} loc - Location Object {latitude, longitude}
  * @prop {Number} zoom - Zoom Level
- * @prop {Boolean} locMarker - Show Location Marker
+ * @prop {Boolean} moveable - Moveable Map
+ * @prop {Boolean} markers - Enable Markers
  * @returns {Map} - Geo Component (As Map)
  */
 export function Geo({ loc, zoom, moveable, markers, user }) {
+  const handleUserMarkerClick = () => {
+    window.location.href = "/user?uid=" + user.uid;
+  }
+
   if (!loc) {
     return <div>Getting Location...</div>;
   } else {
     return (
       <>
-        <Map center={[loc.latitude, loc.longitude]} defaultZoom={zoom}>
+        <Map
+          center={[loc.latitude, loc.longitude]}
+          defaultZoom={zoom}
+          mouseEvents={moveable}
+          touchEvents={moveable}
+        >
           {zoom && <ZoomControl />}
+          {markers && NearbyRoomMarkers({ loc, user })}
           {user && ( // Shows the user marker
-            <Marker anchor={[loc.latitude, loc.longitude]} color="red" />
+            <Marker anchor={[loc.latitude, loc.longitude]} color="red" onClick={handleUserMarkerClick} />
           )}
-          {NearbyRoomMarkers({ loc, user })}
         </Map>
       </>
     );
