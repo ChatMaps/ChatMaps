@@ -28,6 +28,26 @@ let dateOptions = {
 };
 
 /**
+ * Rich Message Formatting
+ * @param {String} message - Message to Format
+ * @returns {String} - Formatted Message (IN HTML)
+ */
+function RMF(message) {
+  var URLREGEX = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g;
+  var URLmatch = message.match(URLREGEX);
+  if (URLmatch) {
+    for (var i = 0; i < URLmatch.length; i++) {
+      var link = (<span>
+        {message.split(URLmatch[i])[0]}
+        <Link href={"https://"+URLmatch[i]} target="_blank" className="hover:underline">{URLmatch[i]}</Link>
+        {message.split(URLmatch[i])[1]}
+      </span>)
+      message = link
+    }
+  }
+  return message
+}
+/**
  * Grabs Window Size
  * @returns {Object} - Window Size Object (width, height)
  */
@@ -51,7 +71,6 @@ export function useWindowSize() {
   return windowSize;
 }
 
-
 /**
  * Generates Color based on string hash
  * @param {String} user_str - Username / String for hashing
@@ -74,6 +93,7 @@ const generateColor = (user_str) => {
  * @returns {Object} - Chat Message Component
  */
 export function Chat({ chatObj }) {
+  var message = RMF(chatObj.body)
   return (
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div>
@@ -83,7 +103,7 @@ export function Chat({ chatObj }) {
             {chatObj.user}
           </Link>
         </span>
-        : {chatObj.body}
+        : {message}
       </div>
       <div className="text-right text-[#d1d1d1]">
         {new Date(chatObj.timestamp).toLocaleString(dateOptions)}
