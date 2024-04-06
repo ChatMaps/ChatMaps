@@ -86,7 +86,7 @@ export function NotificationPanel({user}) {
             </div>
           </Popover.Button>
 
-          <Popover.Panel className="absolute z-10 bg-white mt-[4px] rounded-xl ml-3 shadow-2xl w-64 right-[0px]">
+          <Popover.Panel className="absolute z-10 bg-white mt-[4px] rounded-xl ml-3 shadow-2xl w-64 md:right-[0px] max-md:right-[-300%]">
             <div className="grid grid-cols-1">
               {isNotifications && notificationsMap}
               {!isNotifications && 

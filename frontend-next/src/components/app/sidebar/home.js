@@ -85,7 +85,6 @@ function classNames(...classes) {
 export function Sidebar({user,location,loadingLoc}) {
   const [nearbyArr, setNearbyArr] = useState([])
   const [nearbyArrReady, setNearbyArrReady] = useState(false)
-
   // Add myRooms to Sidebar
   var myRoomArr = [];
   for (var room in user.rooms) {
@@ -125,27 +124,27 @@ export function Sidebar({user,location,loadingLoc}) {
   }, [location])
 
   return (
-    <div className="h-dvh">
-      <div className="bg-white shadow-2xl rounded-lg m-2 h-[98%]">
+    <div className="h-dvh bg-[aliceblue] pt-2 pb-2 pl-2 pr-1">
+      <div className="bg-white rounded-lg h-[98%] mb-[10px] mt-[-18px] mr-2">
         <Tab.Group>
           <Tab.List className="bg-[#D3D3D3] rounded-lg mt-5">
             <Tab className={({ selected }) =>
                 classNames(
-                  'w-[31%]',
+                  'w-[30%]',
                   selected
                     ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
                     : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
                 )} defaultIndex={1}>Nearby</Tab>
             <Tab className={({ selected }) =>
                 classNames(
-                  'w-[31%]',
+                  'w-[30%]',
                   selected
                     ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
                     : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
                 )}>My Rooms</Tab>
             <Tab className={({ selected }) =>
                 classNames(
-                  'w-[31%]',
+                  'w-[30%]',
                   selected
                     ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
                     : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'

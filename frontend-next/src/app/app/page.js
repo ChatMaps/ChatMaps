@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 
 // Dependencies
 import { useGeolocated } from "react-geolocated";
+import Drawer from '@mui/material/Drawer';
 
 // Firebase Imports
 import { auth, database } from "../../../firebase-config";
@@ -14,6 +15,7 @@ import { useAuthState } from "react-firebase-hooks/auth"
 import { Header } from "../../components/app/header";
 import { HomePage } from "../../components/app/page/home";
 import { Sidebar } from "../../components/app/sidebar/home";
+import {useWindowSize} from "../../components/app/datatypes";
 
 /**
 * Contains most everything for the app homepage
@@ -24,6 +26,16 @@ function Home() {
   const [user, setUser] = useState(null); // user data
   const [loadingLoc, setLoadingLoc] = useState(true); // location variable loading, true = loading, false = finished loading
   const [authUser] = useAuthState(auth) // auth user object (used to obtain other user object)
+  const [drawerOpen, setDrawerOpen] = useState(true); // drawer open state
+
+  var windowSize = useWindowSize()
+  useEffect(() => {
+    if (windowSize.width < 767) {
+      setDrawerOpen(false)
+    } else {
+      setDrawerOpen(true)
+    }
+  }, [windowSize])
 
   // Authentication Verification / Redirection if Profile Data not Filled out
   useEffect(() => {
@@ -55,15 +67,16 @@ function Home() {
   }, [coords])
 
   return (
-    <div>
+    <div className="overflow-hidden h-dvh">
       {user && (
-        <div className="grid grid-cols-4 auto-cols-max overflow-hidden">
+        <div className="overflow-hidden h-dvh">
           {/* Left Side of Page */}
-          <div className="col-span-3 h-dvh">
+          <div className="overflow-hidden h-dvh md:mr-[405px]">
             {/* Header */}
             <Header
               mainTab={"home"}
               user={user}
+              sidebarControl={() => {setDrawerOpen(!drawerOpen)}}
             />
             {/* Main Page Section */}
             <div className="mr-2 h-[calc(100%-110px)]">
@@ -76,11 +89,19 @@ function Home() {
             </div>
           </div>
           {/* Sidebar (Right Side of Page) */}
-            <Sidebar
-              user={user}
-              location={coords}
-              loadingLoc={loadingLoc}
-            />
+          <Drawer open={drawerOpen} anchor={"right"} variant={windowSize.width > 767? "persistent": "temporary"} onClose={() => {setDrawerOpen(false)}} sx={{
+          width: windowSize.width > 767? 400: "80%",
+          marginTop: 10,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: windowSize.width > 767? 400: "80%",
+            borderLeft: 0,
+          },
+          }}>
+            <div className="shadow-2xl">
+              <Sidebar user={user} location={coords} loadingLoc={loadingLoc}/>
+            </div>
+          </Drawer>
         </div>
       )}
     </div>

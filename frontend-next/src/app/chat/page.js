@@ -1,16 +1,19 @@
 "use client";
 // System Imports
+import Drawer from '@mui/material/Drawer';
 import { useState, useEffect } from "react";
 
 // Firebase Imports
 import { auth, database } from "../../../firebase-config";
-import { ref, onValue, set, onDisconnect, serverTimestamp  } from "firebase/database";
+import { ref, onValue, set, onDisconnect  } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
 
 // Component Imports
 import { Header } from "../../components/app/header";
 import { ChatRoom } from "../../components/app/page/chat";
 import { Sidebar } from "../../components/app/sidebar/chat";
+import {useWindowSize} from "../../components/app/datatypes";
+
 
 /**
  * Chat Page
@@ -22,6 +25,16 @@ function Chat() {
   const [chatRoomObj, setChatRoomObj] = useState(null); // Current chatroom object
   const [doneLoading, setDoneLoading] = useState(false) // is the page done loading or not
   const [authUser] = useAuthState(auth) // auth user object (used to obtain other user object)
+  const [drawerOpen, setDrawerOpen] = useState(true); // drawer open state
+
+  var windowSize = useWindowSize()
+  useEffect(() => {
+    if (windowSize.width < 767) {
+      setDrawerOpen(false)
+    } else {
+      setDrawerOpen(true)
+    }
+  }, [windowSize])
   
   // Authentication Verification / Redirection if Profile Data not Filled out
   useEffect(() => {
@@ -88,14 +101,15 @@ function Chat() {
   return (
     <div>
       {(authUser && doneLoading) && (
-        <div className="grid grid-cols-4 auto-cols-max overflow-hidden">
+        <div className="overflow-hidden h-dvh">
           {/* Left Side of Page */}
-          <div className="col-span-3 h-dvh">
+          <div className="overflow-hidden h-dvh md:mr-[400px]">
             {/* Header */}
             <Header
               mainTab={"chat"}
               chatRoomObj={chatRoomObj}
               user={user}
+              sidebarControl={() => {setDrawerOpen(!drawerOpen)}}
             />
             {/* Main Page Section */}
             <div className="mr-2 h-[calc(100%-110px)]">
@@ -103,9 +117,19 @@ function Chat() {
             </div>
           </div>
           {/* Sidebar (Right Side of Page) */}
-            <Sidebar
-              chatRoomObj={chatRoomObj}
-            />
+            <Drawer open={drawerOpen} anchor={"right"} variant={windowSize.width > 767? "persistent": "temporary"} onClose={() => {setDrawerOpen(false)}} sx={{
+          width: windowSize.width > 767? 400: "80%",
+          marginTop: 10,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: windowSize.width > 767? 400: "80%",
+            borderLeft: 0,
+          },
+          }}>
+            <div className="shadow-2xl">
+              <Sidebar chatRoomObj={chatRoomObj}/>
+            </div>
+          </Drawer>
         </div>
       )}
     </div>
