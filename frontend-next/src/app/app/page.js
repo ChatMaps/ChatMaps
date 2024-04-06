@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 
 // Dependencies
-import { useGeolocated } from "react-geolocated";
 import Drawer from '@mui/material/Drawer';
 
 // Firebase Imports
@@ -17,6 +16,9 @@ import { HomePage } from "../../components/app/page/home";
 import { Sidebar } from "../../components/app/sidebar/home";
 import {useWindowSize} from "../../components/app/datatypes";
 
+// Capacitor Import
+import { Geolocation } from '@capacitor/geolocation';
+
 /**
 * Contains most everything for the app homepage
 * @returns {Object} Home Page
@@ -27,6 +29,7 @@ function Home() {
   const [loadingLoc, setLoadingLoc] = useState(true); // location variable loading, true = loading, false = finished loading
   const [authUser] = useAuthState(auth) // auth user object (used to obtain other user object)
   const [drawerOpen, setDrawerOpen] = useState(true); // drawer open state
+  const [coords, setCoords] = useState(null)
 
   var windowSize = useWindowSize()
   useEffect(() => {
@@ -51,20 +54,12 @@ function Home() {
     }
   }, [authUser])
 
-  // Gets current location
-  const { coords } = useGeolocated({
-    positionOptions: {
-        enableHighAccuracy: false,
-    },
-    userDecisionTimeout: 5000,
-  });
-
-  // If theres a location, go ahead and show location based stuff
   useEffect(() => {
-    if (coords) {
-        setLoadingLoc(false);
-    }
-  }, [coords])
+    Geolocation.getCurrentPosition().then((position) => {
+      setCoords(position.coords);
+      setLoadingLoc(false);
+    });
+  }, [])
 
   return (
     <div className="overflow-hidden h-dvh">

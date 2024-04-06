@@ -11,6 +11,7 @@
   "dependencies": {
     "@capacitor/android": "^5.7.4",
     "@capacitor/core": "^5.7.4",
+    "@capacitor/geolocation": "^5.0.7",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@headlessui/react": "^1.7.18",
@@ -23,7 +24,6 @@
     "react-beforeunload": "^2.6.0",
     "react-dom": "^18.2.0",
     "react-firebase-hooks": "^5.1.1",
-    "react-geolocated": "^4.1.2",
     "react-hook-form": "^7.50.1"
   },
   "devDependencies": {

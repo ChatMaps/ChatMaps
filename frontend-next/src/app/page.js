@@ -3,8 +3,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link"
 import { auth, database } from "../../firebase-config";
 import { ref, get } from "firebase/database";
-import { useGeolocated } from "react-geolocated";
 import { onAuthStateChanged } from "firebase/auth";
+
+// Capacitor Import
+import { Geolocation } from '@capacitor/geolocation';
 
 /**
  * Home Page
@@ -14,6 +16,7 @@ function Home() {
   const [isLoadingLoc, setLoadingLoc] = useState(true); // is location loading?
   const [roomCount, setRoomCount] = useState(null); // local room count
   const [isAuthenticated, setAuth] = useState(false); // is user authenticated?
+  const [coords, setCoords] = useState(null)
 
   // Authentication
   useEffect(() => {
@@ -26,13 +29,12 @@ function Home() {
     });
   }, []);
 
-  // Grab Location
-  const { coords } = useGeolocated({
-    positionOptions: {
-        enableHighAccuracy: false,
-    },
-    userDecisionTimeout: 5000,
-  });
+  useEffect(() => {
+    Geolocation.getCurrentPosition().then((position) => {
+      setCoords(position.coords);
+      setLoadingLoc(false);
+    });
+  }, [])
 
   // Update room count on location fix
   useEffect(() => {
