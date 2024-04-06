@@ -47,7 +47,7 @@ function RMF(message) {
   }
   return message
 }
-
+/**
  * Grabs Window Size
  * @returns {Object} - Window Size Object (width, height)
  */
