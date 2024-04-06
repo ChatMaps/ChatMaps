@@ -20,7 +20,7 @@ function Home() {
 
   // Authentication
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         setAuth(true);
       } else {
