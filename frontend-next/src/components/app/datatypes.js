@@ -178,7 +178,6 @@ export function ChatRoomSidebar({ roomObj }) {
     var roomOnline = 0
     var roomTotal = 0
   }
-  console.log(roomObj)
   return (
     <div className="border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer">
       <Link href={`/chat?room=${roomObj.path}/${roomObj.name}-${roomObj.timestamp}`}>

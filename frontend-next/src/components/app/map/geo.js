@@ -29,8 +29,6 @@ function NearbyRoomMarkers({ loc, user }) {
 
           const newMarkers = Object.values(rooms).map((roomObj, index) => {
             const markerKey = roomObj.path + "-" + index;
-            console.log("RoomObj", roomObj);
-
             return (
               // Want to change this to be something other than markers (or something extra)
               <Marker
