@@ -88,13 +88,15 @@ export function Sidebar({user,location,loadingLoc}) {
   // Add myRooms to Sidebar
   var myRoomArr = [];
   for (var room in user.rooms) {
-    var newRoom = (
-      <ChatRoomSidebar
-        roomObj={user.rooms[room]}
-        key={user.rooms[room].timestamp}
-      />
-    );
-    myRoomArr.push(newRoom);
+    get(ref(database, `/rooms/${user.rooms[room].path}/${user.rooms[room].name}-${user.rooms[room].timestamp}`)).then((snapshot) => {
+      var newRoom = (
+        <ChatRoomSidebar
+          roomObj={snapshot.val()}
+          key={snapshot.val().timestamp}
+        />
+      );
+      myRoomArr.push(newRoom);
+    })
   }
 
   useEffect(() => {
