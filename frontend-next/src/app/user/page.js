@@ -95,12 +95,13 @@ function UserProfile() {
 
   useEffect(() => {
     if (user && profileData) {
-      console.log(user.uid in profileData.friends.requests)
       if ("friends" in user) {
         profileData.uid in user.friends.friends ? setFriends(true) : setFriends(false);
       }
       if ("friends" in profileData) {
-        user.uid in profileData.friends.requests ? setPending(true) : setPending(false);
+        if ("requests" in profileData.friends)  {
+          user.uid in profileData.friends.requests ? setPending(true) : setPending(false);
+        }
       }
     }
   }, [user, profileData]);
