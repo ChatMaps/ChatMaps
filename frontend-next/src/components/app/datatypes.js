@@ -161,6 +161,8 @@ export function Member({ memberObj }) {
  * @returns {Object} - Chat Room Component
  */
 export function ChatRoomSidebar({ roomObj }) {
+  const [isRoomHovered, setIsRoomHovered] = useState(false);
+
   if ("users" in roomObj) {
     if ("online" in roomObj.users) {
       var roomOnline = Object.keys(roomObj.users.online).length
@@ -176,12 +178,31 @@ export function ChatRoomSidebar({ roomObj }) {
     var roomOnline = 0
     var roomTotal = 0
   }
+  const handleMouseEnter = () => {
+    setIsRoomHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsRoomHovered(false);
+  };
+
   return (
     <div className="border-[black] border-1 shadow-lg p-2 m-2 rounded-lg cursor-pointer">
       <Link href={`/chat?room=${roomObj.path}/${roomObj.name}-${roomObj.timestamp}`}>
         <div className="grid grid-cols-3">
-          <div>
+          <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <PersonIcon/>
+            {isRoomHovered && roomObj.users && (
+              <div 
+                className="fixed bg-white p-2 shadow-md"
+              >
+                <ul>
+                  {Object.values(roomObj.users.all).map((user, index) => ( // I hate making lists like this
+                    <li key={index}>{user.username}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <div>{roomOnline} / {roomTotal}</div>
           </div>
           <div className="col-span-2">
