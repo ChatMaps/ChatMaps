@@ -6,24 +6,26 @@ import ChatIcon from '@mui/icons-material/Chat';
 
 
 export function openDM(user, uid) {
-    get(ref(database, `dms/`)).then((snapshot) => {
-        var dmsList = snapshot.val();
-        for (var dmRoom in dmsList) {
-            if (user.uid in dmsList[dmRoom].UIDs && uid in dmsList[dmRoom].UIDs) {
-                window.location.href = `/dm?dm=${dmRoom}`
-            }
+    var uid1 = user.uid < uid? user.uid : uid
+    var uid2 = user.uid > uid? user.uid : uid
+    get(ref(database, `dms/${uid1}-${uid2}`)).then((snapshot) => {
+        if (snapshot.exists()) {
+            window.location.href = `/dm?dm=${uid1}-${uid2}`
+        } else {
+            createDM(user, uid)
+            window.location.href = `/dm?dm=${uid1}-${uid2}`
         }
-        createDM(user, uid)
-        window.location.href = `/dm?dm=${user.uid}-${uid}`
     });
 }
 
 
 export function createDM(user, uid) {
-    set(ref(database, `dms/${user.uid}-${uid}`), {
+    var uid1 = user.uid < uid? user.uid : uid
+    var uid2 = user.uid > uid? user.uid : uid
+    set(ref(database, `dms/${uid1}-${uid2}`), {
         initUID: user.uid,
         targetUID: uid,
-        room: user.uid + "-" + uid,
+        room: uid1 + '-' + uid2,
         UIDs: [user.uid, uid]
     })
 }

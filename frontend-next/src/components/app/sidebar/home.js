@@ -162,11 +162,13 @@ export function Sidebar({user,location,loadingLoc}) {
       for(var dmRoom in dmsList) {
         if (user.uid == dmsList[dmRoom].UIDs[0]) {
           get(ref(database, `/users/${dmsList[dmRoom].UIDs[1]}`)).then((snapshot) => {
-            dmArr.push(<DM user={user} friendObj={snapshot.val()} key={dmRoom}/>);
+            var friendObj = snapshot.val()
+            dmArr.push(<DM user={user} friendObj={friendObj} key={dmRoom}/>);
           })
         } else if (user.uid == dmsList[dmRoom].UIDs[1]) {
-          get(ref(database, `/users/${dmsList[dmRoom].UIDs[1]}`)).then((snapshot) => {
-            dmArr.push(<DM user={user} friendObj={snapshot.val()} key={dmRoom}/>);
+          get(ref(database, `/users/${dmsList[dmRoom].UIDs[0]}`)).then((snapshot) => {
+            var friendObj = snapshot.val()
+            dmArr.push(<DM user={user} friendObj={friendObj} key={dmRoom}/>);
           })
         }  
       }

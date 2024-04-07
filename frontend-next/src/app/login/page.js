@@ -31,7 +31,6 @@ function Login() {
           }
         }
       ).catch((error) => {
-        console.log(error)
         if (error = "auth/invalid-credential") {
           const formError = {
             type: "server",
