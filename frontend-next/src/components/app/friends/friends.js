@@ -68,6 +68,9 @@ export function FriendRequest({user, requestingUser}) {
         set(ref(database, `users/${user.uid}/friends/friends/${uid}`), {
             uid: uid
         })
+        set(ref(database, `users/${uid}/friends/friends/${user.uid}`), {
+            uid: user.uid
+        })
         removeRequest(user, uid)
     }
     /**
