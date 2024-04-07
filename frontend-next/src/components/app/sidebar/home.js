@@ -12,6 +12,8 @@ import { ref, set, get } from "firebase/database";
 // Component Imports
 import { ChatRoomSidebar } from "../datatypes";
 
+// Friend Imports (TEMP)
+import { Friend, FriendRequest } from "../friends/friends";
 
 /**
  * Create Room Component for /app Sidebar
@@ -85,6 +87,8 @@ function classNames(...classes) {
 export function Sidebar({user,location,loadingLoc}) {
   const [nearbyArr, setNearbyArr] = useState([])
   const [nearbyArrReady, setNearbyArrReady] = useState(false)
+  const [friends, setFriends] = useState([])
+  const [friendRequests, setFriendRequests] = useState(null)
   // Add myRooms to Sidebar
   var myRoomArr = [];
   for (var room in user.rooms) {
@@ -125,6 +129,27 @@ export function Sidebar({user,location,loadingLoc}) {
     }
   }, [location])
 
+  useEffect(() => {
+    if (user && user.friends) {
+      get(ref(database, "/users/")).then((snapshot) => {
+        var users = snapshot.val();
+        var friends = [];
+        for (var friend in user.friends.friends) {
+          friends.push(<Friend friendObj={users[friend]} key={friend} />);
+        }
+        setFriends(friends);
+    });
+
+    var requestArr = [];
+    for (var request in user.friends.requests) {
+      get(ref(database, `/users/${request}`)).then((snapshot) => {
+        requestArr.push(<FriendRequest requestingUser={snapshot.val()} user={user} key={request} />);
+      });
+    }
+    setFriendRequests(requestArr);
+    }
+  }, [user])
+
   return (
     <div className="h-dvh bg-[aliceblue] pt-2 pb-2 pl-2 pr-1">
       <div className="bg-white rounded-lg h-[98%] mb-[10px] mt-[-18px] mr-2">
@@ -151,6 +176,28 @@ export function Sidebar({user,location,loadingLoc}) {
                     ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
                     : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
                 )}>Create</Tab>
+                <Tab className={({ selected }) =>
+                classNames(
+                  'w-[30%]',
+                  selected
+                    ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                )} defaultIndex={1}>DMs</Tab>
+                <Tab className={({ selected }) =>
+                classNames(
+                  'w-[30%]',
+                  selected
+                    ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                )} defaultIndex={1}>Friends</Tab>
+                <Tab className={({ selected }) =>
+                classNames(
+                  'w-[30%]',
+                  selected
+                    ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                )} defaultIndex={1}>Requests</Tab>
+                
           </Tab.List>
           <Tab.Panels>
             <Tab.Panel>
@@ -172,6 +219,15 @@ export function Sidebar({user,location,loadingLoc}) {
             <Tab.Panel>
               {!loadingLoc && <CreateRoom loc={location} />}
               {loadingLoc && <div>Loading...</div>}
+            </Tab.Panel>
+            <Tab.Panel>
+              DMs
+            </Tab.Panel>
+            <Tab.Panel>
+              {friends}
+            </Tab.Panel>
+            <Tab.Panel>
+              {friendRequests}
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>

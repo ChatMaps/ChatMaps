@@ -15,6 +15,9 @@ import { Interest } from "../../components/app/profile/Interest";
 // Header Import
 import { Header } from "../../components/app/header";
 
+// Friend Import
+import { addFriend } from "../../components/app/friends/friends";
+
 /**
  * User Profile Page
  * @returns {Object} - User Profile Page
@@ -26,6 +29,8 @@ function UserProfile() {
   const [userInterestArray, setUserInterestArray] = useState(null); // Array of user's interests
   const [userRoomsArray, setUserRoomsArray] = useState(null); // Array of user's rooms
   const [isOwner, setIsOwner] = useState(false); // Determines if user is owner of profile
+  const [friends, setFriends] = useState(false); // is user a friend?
+  const [isPending, setPending] = useState(false); // is friend request pending?
 
   // Handles Edit State in Component, shares useState with ProfileEdit
   const [isEditing, setIsEditing] = useState(false);
@@ -91,6 +96,18 @@ function UserProfile() {
     });
   }, []);
 
+  useEffect(() => {
+    if (user && profileData) {
+      console.log(user.uid in profileData.friends.requests)
+      if ("friends" in user) {
+        profileData.uid in user.friends.friends ? setFriends(true) : setFriends(false);
+      }
+      if ("friends" in profileData) {
+        user.uid in profileData.friends.requests ? setPending(true) : setPending(false);
+      }
+    }
+  }, [user, profileData]);
+
   return (
     <div>
       {isAuthenticated && (
@@ -128,11 +145,13 @@ function UserProfile() {
                           Edit Profile
                         </a>
                       )}
-                      {!isOwner && (
-                        <a className="w-[120px] p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full text-center">
-                          Add Friend
-                        </a>
+                      {(!isOwner && !friends) && (
+                        <div>
+                          {(!isPending ) && (<a onClick={() => {addFriend(user, profileData.uid);setPending(true)}} className="w-[120px] p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full text-center">Add Friend</a>)}
+                          {(isPending ) && (<a className="w-[120px] p-2 bg-cyan-500 text-white font-bold rounded-full text-center">Pending</a>)}  
+                        </div>
                       )}
+                      {(!isOwner && friends ) && (<div className="font-bold text-[20px]">Friends</div>)}
                     </div>
                   </div>
                 )}

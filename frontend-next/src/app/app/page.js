@@ -51,8 +51,6 @@ function Home() {
                 window.location.href = "/onboarding";
             }
         });
-    } else {
-      window.location.href = "/login"
     }
   }, [authUser])
 
