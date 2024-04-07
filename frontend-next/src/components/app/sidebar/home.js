@@ -15,6 +15,9 @@ import { ChatRoomSidebar } from "../datatypes";
 // Friend Imports (TEMP)
 import { Friend, FriendRequest } from "../friends/friends";
 
+// DM Imports
+import { DM } from "../friends/dm";
+
 /**
  * Create Room Component for /app Sidebar
  * @prop {JSON} loc - Location Object (latitude, longitude)
@@ -89,6 +92,7 @@ export function Sidebar({user,location,loadingLoc}) {
   const [nearbyArrReady, setNearbyArrReady] = useState(false)
   const [friends, setFriends] = useState([])
   const [friendRequests, setFriendRequests] = useState(null)
+  const [dms, setDMs] = useState(null)
   // Add myRooms to Sidebar
   var myRoomArr = [];
   for (var room in user.rooms) {
@@ -135,7 +139,7 @@ export function Sidebar({user,location,loadingLoc}) {
         var users = snapshot.val();
         var friends = [];
         for (var friend in user.friends.friends) {
-          friends.push(<Friend friendObj={users[friend]} key={friend} />);
+          friends.push(<Friend user={user} friendObj={users[friend]} key={friend} />);
         }
         setFriends(friends);
     });
@@ -147,7 +151,30 @@ export function Sidebar({user,location,loadingLoc}) {
       });
     }
     setFriendRequests(requestArr);
+    } else {
+      setFriends(<div>No Friends</div>);
+      setFriendRequests(<div>No Friend Requests</div>);
     }
+
+    get(ref(database, `/dms`)).then((snapshot) => {
+      var dmsList = snapshot.val();
+      var dmArr = [];
+      for(var dmRoom in dmsList) {
+        if (user.uid == dmsList[dmRoom].UIDs[0]) {
+          get(ref(database, `/users/${dmsList[dmRoom].UIDs[1]}`)).then((snapshot) => {
+            dmArr.push(<DM user={user} friendObj={snapshot.val()} key={dmRoom}/>);
+          })
+        } else if (user.uid == dmsList[dmRoom].UIDs[1]) {
+          get(ref(database, `/users/${dmsList[dmRoom].UIDs[1]}`)).then((snapshot) => {
+            dmArr.push(<DM user={user} friendObj={snapshot.val()} key={dmRoom}/>);
+          })
+        }  
+      }
+      if (dmArr.length == 0) {
+        dmArr.push(<div>No DMs</div>);
+      }
+      setDMs(dmArr);
+    })
   }, [user])
 
   return (
@@ -221,7 +248,7 @@ export function Sidebar({user,location,loadingLoc}) {
               {loadingLoc && <div>Loading...</div>}
             </Tab.Panel>
             <Tab.Panel>
-              DMs
+              {dms}
             </Tab.Panel>
             <Tab.Panel>
               {friends}
