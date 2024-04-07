@@ -119,7 +119,7 @@ export function Header({mainTab,chatRoomObj,user,sidebarControl}) {
             <RemoveIcon/>
           </a>
         )}
-        {mainTab == "chat" && (
+        {(mainTab == "chat" || mainTab == "dm" ) && (
           <Link
             href="/app"
             className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-2 flex items-center"

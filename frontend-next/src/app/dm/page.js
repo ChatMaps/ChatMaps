@@ -10,13 +10,13 @@ import { useAuthState } from "react-firebase-hooks/auth"
 
 // Component Imports
 import { Header } from "../../components/app/header";
-import { ChatRoom } from "../../components/app/page/chat";
-import { Sidebar } from "../../components/app/sidebar/chat";
+import { DMRoom } from "../../components/app/friends/page";
+import { Sidebar } from "../../components/app/sidebar/dm";
 import {useWindowSize} from "../../components/app/datatypes";
 
 
 /**
- * Chat Page
+ * DM Page
  * @returns {Object} Chat Page
  */
 function Chat() {
@@ -54,7 +54,7 @@ function Chat() {
   useEffect(() => {
     if (user) {
         const searchParams = new URLSearchParams(document.location.search);
-        var path = searchParams.get("room")
+        var path = searchParams.get("dm")
 
         /*// Send entered message
         var payload = {
@@ -73,10 +73,10 @@ function Chat() {
         );*/
 
         // Add user to online for room
-        set(ref(database, `/rooms/${path}/users/online/${user.uid}`), user)
+        set(ref(database, `/dms/${path}/users/online/${user.uid}`), user)
 
         // Removes user from room on disconnect (reload, window close, internet lost)
-        onDisconnect(ref(database, `/rooms/${path}/users/online/${user.uid}`)).remove()
+        onDisconnect(ref(database, `/dms/${path}/users/online/${user.uid}`)).remove()
 
         // Sends leaving message on disconnect (Timestamp function used due to new onDisconnect stuff)
         /*someRef = ref(database, `/rooms/${path}/chats/${new Date().getTime()}-${user.username}`)
@@ -88,7 +88,7 @@ function Chat() {
           uid: user.uid,
         })*/
 
-        onValue(ref(database, `/rooms/${path}`), (roomData) => {
+        onValue(ref(database, `/dms/${path}`), (roomData) => {
             roomData = roomData.val();
             setChatRoomObj(roomData)
             if (!doneLoading) {
@@ -106,14 +106,14 @@ function Chat() {
           <div className="overflow-hidden h-dvh md:mr-[400px]">
             {/* Header */}
             <Header
-              mainTab={"chat"}
+              mainTab={"dm"}
               chatRoomObj={chatRoomObj}
               user={user}
               sidebarControl={() => {setDrawerOpen(!drawerOpen)}}
             />
             {/* Main Page Section */}
             <div className="mr-2 h-[calc(100%-110px)]">
-                <ChatRoom roomObj={chatRoomObj} user={user} />
+                <DMRoom roomObj={chatRoomObj} user={user} />
             </div>
           </div>
           {/* Sidebar (Right Side of Page) */}
@@ -127,7 +127,7 @@ function Chat() {
           },
           }}>
             <div className="shadow-2xl">
-              <Sidebar chatRoomObj={chatRoomObj}/>
+              <Sidebar chatRoomObj={chatRoomObj} user={user}/>
             </div>
           </Drawer>
         </div>

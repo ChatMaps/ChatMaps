@@ -12,6 +12,11 @@ import { ref, set, get } from "firebase/database";
 // Component Imports
 import { ChatRoomSidebar } from "../datatypes";
 
+// Friend Imports (TEMP)
+import { Friend, FriendRequest } from "../friends/friends";
+
+// DM Imports
+import { DM } from "../friends/dm";
 
 /**
  * Create Room Component for /app Sidebar
@@ -85,6 +90,9 @@ function classNames(...classes) {
 export function Sidebar({user,location,loadingLoc}) {
   const [nearbyArr, setNearbyArr] = useState([])
   const [nearbyArrReady, setNearbyArrReady] = useState(false)
+  const [friends, setFriends] = useState([])
+  const [friendRequests, setFriendRequests] = useState(null)
+  const [dms, setDMs] = useState(null)
   // Add myRooms to Sidebar
   var myRoomArr = [];
   for (var room in user.rooms) {
@@ -125,6 +133,50 @@ export function Sidebar({user,location,loadingLoc}) {
     }
   }, [location])
 
+  useEffect(() => {
+    if (user && user.friends) {
+      get(ref(database, "/users/")).then((snapshot) => {
+        var users = snapshot.val();
+        var friends = [];
+        for (var friend in user.friends.friends) {
+          friends.push(<Friend user={user} friendObj={users[friend]} key={friend} />);
+        }
+        setFriends(friends);
+    });
+
+    var requestArr = [];
+    for (var request in user.friends.requests) {
+      get(ref(database, `/users/${request}`)).then((snapshot) => {
+        requestArr.push(<FriendRequest requestingUser={snapshot.val()} user={user} key={request} />);
+      });
+    }
+    setFriendRequests(requestArr);
+    } else {
+      setFriends(<div>No Friends</div>);
+      setFriendRequests(<div>No Friend Requests</div>);
+    }
+
+    get(ref(database, `/dms`)).then((snapshot) => {
+      var dmsList = snapshot.val();
+      var dmArr = [];
+      for(var dmRoom in dmsList) {
+        if (user.uid == dmsList[dmRoom].UIDs[0]) {
+          get(ref(database, `/users/${dmsList[dmRoom].UIDs[1]}`)).then((snapshot) => {
+            dmArr.push(<DM user={user} friendObj={snapshot.val()} key={dmRoom}/>);
+          })
+        } else if (user.uid == dmsList[dmRoom].UIDs[1]) {
+          get(ref(database, `/users/${dmsList[dmRoom].UIDs[1]}`)).then((snapshot) => {
+            dmArr.push(<DM user={user} friendObj={snapshot.val()} key={dmRoom}/>);
+          })
+        }  
+      }
+      if (dmArr.length == 0) {
+        dmArr.push(<div>No DMs</div>);
+      }
+      setDMs(dmArr);
+    })
+  }, [user])
+
   return (
     <div className="h-dvh bg-[aliceblue] pt-2 pb-2 pl-2 pr-1">
       <div className="bg-white rounded-lg h-[98%] mb-[10px] mt-[-18px] mr-2">
@@ -151,6 +203,28 @@ export function Sidebar({user,location,loadingLoc}) {
                     ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
                     : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
                 )}>Create</Tab>
+                <Tab className={({ selected }) =>
+                classNames(
+                  'w-[30%]',
+                  selected
+                    ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                )} defaultIndex={1}>DMs</Tab>
+                <Tab className={({ selected }) =>
+                classNames(
+                  'w-[30%]',
+                  selected
+                    ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                )} defaultIndex={1}>Friends</Tab>
+                <Tab className={({ selected }) =>
+                classNames(
+                  'w-[30%]',
+                  selected
+                    ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                )} defaultIndex={1}>Requests</Tab>
+                
           </Tab.List>
           <Tab.Panels>
             <Tab.Panel>
@@ -172,6 +246,15 @@ export function Sidebar({user,location,loadingLoc}) {
             <Tab.Panel>
               {!loadingLoc && <CreateRoom loc={location} />}
               {loadingLoc && <div>Loading...</div>}
+            </Tab.Panel>
+            <Tab.Panel>
+              {dms}
+            </Tab.Panel>
+            <Tab.Panel>
+              {friends}
+            </Tab.Panel>
+            <Tab.Panel>
+              {friendRequests}
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>
