@@ -15,30 +15,44 @@ import {setPersistence,signInWithEmailAndPassword,indexedDBLocalPersistence } fr
 */
 function Login() {
   var router = useRouter();
-  var {register,control,setError,handleSubmit,formState: { errors, isSubmitting, isSubmitted },} = useForm();
+  var {register,control,setError,reset,formState: { errors, isSubmitting, isSubmitted },} = useForm();
 
   /**
    * Logs into Firebase authentication
    * @param {JSON} data - User Login Data (data.email, data.password) 
    * @returns {void}
    */
-  function authenticate(data) {
+  function authenticate({data}) {
     setPersistence(auth, indexedDBLocalPersistence).then(() => {
       signInWithEmailAndPassword(auth, data.email, data.password).then(
         (userCredential) => {
           if (userCredential.user) {
             router.push("/app");
-          } else {
-            const formError = {
-              type: "server",
-              message: "Username or Password Incorrect",
-            };
-            // set same error in both:
-            setError("password", formError);
-            setError("email", formError);
           }
         }
-      );
+      ).catch((error) => {
+        console.log(error)
+        if (error = "auth/invalid-credential") {
+          const formError = {
+            type: "server",
+            message: "Username or Password Incorrect",
+          };
+          // set same error in both:
+          setError("password", formError);
+          setError("email", formError);
+          reset(data,{keepErrors: true})
+        } else {
+          const formError = {
+            type: "server",
+            message: "Server Error, Please try again later.",
+          };
+          // set same error in both:
+          setError("password", formError);
+          setError("email", formError);
+          reset(data,{keepErrors: true})
+        }
+        // ..
+      });
     });
   }
 
@@ -58,7 +72,7 @@ function Login() {
               </div>
             )}
             <Form
-              onSubmit={handleSubmit(authenticate)}
+              onSubmit={authenticate}
               encType={"application/json"}
               control={control}
             >
