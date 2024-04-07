@@ -47,8 +47,6 @@ function Chat() {
                 window.location.href = "/onboarding";
             }
         });
-    } else {
-      window.location.href = "/login"
     }
   }, [authUser])
 

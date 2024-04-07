@@ -56,9 +56,6 @@ function UserProfile() {
             window.location.href = "/onboarding";
           }
         });
-      } else {
-        setIsAuthenticated(false);
-        window.location.href = "/login";
       }
     });
   }, []);
