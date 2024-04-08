@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react";
 import { auth, database } from "../../../firebase-config";
 import { ref, onValue, get } from "firebase/database";
-import { onAuthStateChanged } from "firebase/auth";
+import { useAuthState } from "react-firebase-hooks/auth"
+
 
 // Refactored Component Imports
+
 
 // Data Structure Imports
 import { ProfileRoom } from "../../components/app/profile/ProfileRoom";
@@ -31,6 +33,8 @@ function UserProfile() {
   const [isOwner, setIsOwner] = useState(false); // Determines if user is owner of profile
   const [friends, setFriends] = useState(false); // is user a friend?
   const [isPending, setPending] = useState(false); // is friend request pending?
+  const [authUser, authLoading] = useAuthState(auth) // auth user object (used to obtain other user object)
+
 
   // Handles Edit State in Component, shares useState with ProfileEdit
   const [isEditing, setIsEditing] = useState(false);
@@ -40,25 +44,25 @@ function UserProfile() {
 
   // Authentication
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    if (authUser && authLoading === false) {
       const searchParams = new URLSearchParams(document.location.search);
       var userUID = searchParams.get("uid")
-      if (user) {
-        get(ref(database, `users/${user.uid}`)).then((userData) => {
+      onValue(ref(database, `users/${authUser.uid}`), (userData) => {
           userData = userData.val();
           if (userData) {
             if (userData.uid == userUID) {
               setIsOwner(true);
             }
-            setUser(userData);
             setIsAuthenticated(true);
+            setUser(userData);
           } else {
-            window.location.href = "/onboarding";
+              window.location.href = "/onboarding";
           }
-        });
-      }
-    });
-  }, []);
+      });
+    } else if (authLoading === false) {
+        window.location.href = "/login";
+    }
+  }, [authLoading]);
 
   // Grabs profile user data
   useEffect(() => {

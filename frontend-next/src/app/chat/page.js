@@ -24,7 +24,7 @@ function Chat() {
   const [user, setUser] = useState(null); // user data
   const [chatRoomObj, setChatRoomObj] = useState(null); // Current chatroom object
   const [doneLoading, setDoneLoading] = useState(false) // is the page done loading or not
-  const [authUser] = useAuthState(auth) // auth user object (used to obtain other user object)
+  const [authUser, authLoading] = useAuthState(auth) // auth user object (used to obtain other user object)
   const [drawerOpen, setDrawerOpen] = useState(true); // drawer open state
 
   var windowSize = useWindowSize()
@@ -38,7 +38,7 @@ function Chat() {
   
   // Authentication Verification / Redirection if Profile Data not Filled out
   useEffect(() => {
-    if (authUser) {
+    if (authUser && authLoading === false) {
         onValue(ref(database, `users/${authUser.uid}`), (userData) => {
             userData = userData.val();
             if (userData) {
@@ -47,8 +47,10 @@ function Chat() {
                 window.location.href = "/onboarding";
             }
         });
+    } else if (authLoading === false) {
+        window.location.href = "/login";
     }
-  }, [authUser])
+  }, [authLoading])
 
   // Users URL params to load proper chatroom, then logs the user into that room
   useEffect(() => {
