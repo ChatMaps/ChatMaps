@@ -92,7 +92,7 @@ export function Sidebar({user,location,loadingLoc}) {
   const [nearbyArrReady, setNearbyArrReady] = useState(false)
   const [friends, setFriends] = useState([])
   const [friendRequests, setFriendRequests] = useState(null)
-  const [dms, setDMs] = useState(null)
+  const [dms, setDMs] = useState((<div>No DMs</div>))
   // Add myRooms to Sidebar
   var myRoomArr = [];
   for (var room in user.rooms) {
@@ -164,18 +164,17 @@ export function Sidebar({user,location,loadingLoc}) {
           get(ref(database, `/users/${dmsList[dmRoom].UIDs[1]}`)).then((snapshot) => {
             var friendObj = snapshot.val()
             dmArr.push(<DM user={user} friendObj={friendObj} key={dmRoom}/>);
+            setDMs(dmArr);
           })
         } else if (user.uid == dmsList[dmRoom].UIDs[1]) {
           get(ref(database, `/users/${dmsList[dmRoom].UIDs[0]}`)).then((snapshot) => {
             var friendObj = snapshot.val()
             dmArr.push(<DM user={user} friendObj={friendObj} key={dmRoom}/>);
+            setDMs(dmArr);
           })
         }  
       }
-      if (dmArr.length == 0) {
-        dmArr.push(<div>No DMs</div>);
-      }
-      setDMs(dmArr);
+       
     })
   }, [user])
 
