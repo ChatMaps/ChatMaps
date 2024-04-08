@@ -45,12 +45,11 @@ export function ProfileEdit({ profileData, user, onSave }) {
         }
       );
     } else {
-      for (var key in data) {
-        if (data[key] == "") {
+      for (var key in profileData) {
+        if (data[key] == "" || (key == "pfp" && data[key].length == 0)) {
           data[key] = profileData[key];
         }
       }
-      data.pfp = profileData.pfp;
       handleEditState(false);
       update(ref(database, `users/${user.uid}`), data);
     }

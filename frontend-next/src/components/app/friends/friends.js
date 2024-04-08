@@ -55,7 +55,7 @@ export function Friend({user,friendObj}) {
  * 
  * @prop {JSON} user - User Object 
  * @prop {JSON} requestingUser - User Object of the user requesting to be friends
- * @returns 
+ * @returns {Object} Friend Request Component
  */
 export function FriendRequest({user, requestingUser}) {
     /**

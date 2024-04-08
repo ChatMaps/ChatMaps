@@ -27,7 +27,7 @@ function Home() {
   // State variables for app page
   const [user, setUser] = useState(null); // user data
   const [loadingLoc, setLoadingLoc] = useState(true); // location variable loading, true = loading, false = finished loading
-  const [authUser] = useAuthState(auth) // auth user object (used to obtain other user object)
+  const [authUser, authLoading] = useAuthState(auth) // auth user object (used to obtain other user object)
   const [drawerOpen, setDrawerOpen] = useState(true); // drawer open state
   const [coords, setCoords] = useState(null)
 
@@ -42,7 +42,7 @@ function Home() {
 
   // Authentication Verification / Redirection if Profile Data not Filled out
   useEffect(() => {
-    if (authUser) {
+    if (authUser && authLoading === false) {
         onValue(ref(database, `users/${authUser.uid}`), (userData) => {
             userData = userData.val();
             if (userData) {
@@ -51,8 +51,10 @@ function Home() {
                 window.location.href = "/onboarding";
             }
         });
+    } else if (authLoading === false) {
+        window.location.href = "/login";
     }
-  }, [authUser])
+  }, [authLoading])
 
   useEffect(() => {
     Geolocation.getCurrentPosition().then((position) => {
