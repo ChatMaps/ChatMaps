@@ -108,7 +108,7 @@ function UserProfile() {
 
   return (
     <div>
-      {isAuthenticated && (
+      {(isAuthenticated && profileData) && (
         <div className="md:overflow-hidden">
           {/* Left Side of Page */}
           <div className="h-dvh md:overflow-hidden">
