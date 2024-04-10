@@ -1,11 +1,19 @@
-import { Map, Marker, ZoomControl } from "pigeon-maps";
+import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import { database } from "../../../../firebase-config";
-import { ref, get } from "firebase/database";
+import { ref, get} from "firebase/database";
 import { useState, useEffect } from "react";
+import ChatBubbleTwoToneIcon from '@mui/icons-material/ChatBubbleTwoTone';
+import PersonOutlineTwoToneIcon from '@mui/icons-material/PersonOutlineTwoTone';
+import { red } from '@mui/material/colors';
 
 // ONLY nearby markers
-function NearbyRoomMarkers({ loc, user }) {
+function NearbyRoomMarkers({ loc, user, markers }) {
+  if (!markers || !loc || !user) {
+    return [null, null];
+  }
+
   const [markerArr, setMarkerArr] = useState([]);
+  const [hoveredRoom, setHoveredRoom] = useState(null);
 
   // Room path in DB
   const path =
@@ -18,6 +26,20 @@ function NearbyRoomMarkers({ loc, user }) {
   const handleRoomMarkerClick = (roomObj) => {
     window.location.href =
       "/chat?room=" + path + roomObj.name + "-" + roomObj.timestamp;
+  };
+
+  const handleRoomHover = (roomObj) => {
+    setHoveredRoom(
+      <Overlay offset={[0, 100]}>
+        <div className="fixed bg-cyan-500 p-2 shadow-md rounded-lg">
+          <p className="font-bold text-white">{roomObj.name}</p>
+        </div>
+      </Overlay>
+    );
+  };
+
+  const handleRoomUnhover = (roomObj) => {
+    setHoveredRoom(null);
   };
 
   // Mostly copied Nick's code from before
@@ -34,18 +56,22 @@ function NearbyRoomMarkers({ loc, user }) {
               <Marker
                 key={markerKey}
                 anchor={[roomObj.latitude, roomObj.longitude]}
-                color="blue"
                 onClick={() => handleRoomMarkerClick(roomObj)}
-              ></Marker>
+                onMouseOver={() => handleRoomHover(roomObj)}
+                onMouseOut={() => handleRoomUnhover(roomObj)}
+                style={{pointerEvents:'auto'} /* So stupid */}
+              >
+                <ChatBubbleTwoToneIcon color="primary" fontSize="large"/>
+              </Marker>
             );
-          });
+          }); 
           setMarkerArr(newMarkers);
         }
       });
     }
   }, []);
 
-  return markerArr;
+  return [markerArr, hoveredRoom];
 }
 
 /**
@@ -60,7 +86,12 @@ function NearbyRoomMarkers({ loc, user }) {
 export function Geo({ loc, zoom, moveable, markers, user }) {
   const handleUserMarkerClick = () => {
     window.location.href = "/user?uid=" + user.uid;
-  }
+  };
+
+  // SCUFFED AF
+  var rooms = NearbyRoomMarkers({ loc, user, markers });
+  var room_markers = rooms[0];
+  var room_overlay = rooms[1];
 
   if (!loc) {
     return <div>Getting Location...</div>;
@@ -72,11 +103,22 @@ export function Geo({ loc, zoom, moveable, markers, user }) {
           defaultZoom={zoom}
           mouseEvents={moveable}
           touchEvents={moveable}
+          attribution={false}
         >
+          {
+            room_overlay /* Renders the room name overlay when you mouse over room */
+          }
           {zoom && <ZoomControl />}
-          {markers && NearbyRoomMarkers({ loc, user })}
+          {room_markers /* Renders the actual room markers */}
           {user && ( // Shows the user marker
-            <Marker anchor={[loc.latitude, loc.longitude]} color="red" onClick={handleUserMarkerClick} />
+            <Marker
+              anchor={[loc.latitude, loc.longitude]}
+              color="red"
+              onClick={handleUserMarkerClick}
+              style={{pointerEvents:'auto'} /* So stupid */}
+            >
+              <PersonOutlineTwoToneIcon sx={{ color: red[500] }} fontSize="large"/>
+            </Marker>
           )}
         </Map>
       </>
