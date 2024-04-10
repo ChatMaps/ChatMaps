@@ -1,7 +1,10 @@
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import { database } from "../../../../firebase-config";
-import { ref, get, set } from "firebase/database";
+import { ref, get} from "firebase/database";
 import { useState, useEffect } from "react";
+import ChatBubbleTwoToneIcon from '@mui/icons-material/ChatBubbleTwoTone';
+import PersonOutlineTwoToneIcon from '@mui/icons-material/PersonOutlineTwoTone';
+import { red } from '@mui/material/colors';
 
 // ONLY nearby markers
 function NearbyRoomMarkers({ loc, user, markers }) {
@@ -27,7 +30,7 @@ function NearbyRoomMarkers({ loc, user, markers }) {
 
   const handleRoomHover = (roomObj) => {
     setHoveredRoom(
-      <Overlay >
+      <Overlay offset={[0, 100]}>
         <div className="fixed bg-cyan-500 p-2 shadow-md rounded-lg">
           <p className="font-bold text-white">{roomObj.name}</p>
         </div>
@@ -53,13 +56,15 @@ function NearbyRoomMarkers({ loc, user, markers }) {
               <Marker
                 key={markerKey}
                 anchor={[roomObj.latitude, roomObj.longitude]}
-                color="blue"
                 onClick={() => handleRoomMarkerClick(roomObj)}
                 onMouseOver={() => handleRoomHover(roomObj)}
                 onMouseOut={() => handleRoomUnhover(roomObj)}
-              />
+                style={{pointerEvents:'auto'} /* So stupid */}
+              >
+                <ChatBubbleTwoToneIcon color="primary" fontSize="large"/>
+              </Marker>
             );
-          });
+          }); 
           setMarkerArr(newMarkers);
         }
       });
@@ -110,7 +115,10 @@ export function Geo({ loc, zoom, moveable, markers, user }) {
               anchor={[loc.latitude, loc.longitude]}
               color="red"
               onClick={handleUserMarkerClick}
-            />
+              style={{pointerEvents:'auto'} /* So stupid */}
+            >
+              <PersonOutlineTwoToneIcon sx={{ color: red[500] }} fontSize="large"/>
+            </Marker>
           )}
         </Map>
       </>
