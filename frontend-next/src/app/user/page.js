@@ -125,7 +125,7 @@ function UserProfile() {
                   <div>
                     <img
                       src={profileData.pfp}
-                      width="300px"
+                      style={{maxWidth: "350px", maxHeight: "450px"}} 
                       className="relative mx-auto rounded-2xl overflow-hidden"
                     />
                     <div className="font-bold text-[30px]">

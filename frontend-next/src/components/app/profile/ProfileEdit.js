@@ -62,7 +62,7 @@ export function ProfileEdit({ profileData, user, onSave }) {
           <div>
             <img
               src={profileData.pfp}
-              width="150px"
+              style={{width: "150px", maxHeight: "400px"}}
               className="relative mx-auto rounded-2xl overflow-hidden"
             />
             Current Profile Picture

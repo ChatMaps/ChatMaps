@@ -25,10 +25,10 @@ export function ProfilePanel({user}) {
         <Popover.Button as="div">
           <div className="h-[44px] p-[2px] pr-[15px] cursor-pointer bg-cyan-500 text-white font-bold rounded-full shadow-2xl flex">
             <div className="flex items-center pl-1">{user.firstName}</div>
-            <div className="ml-3 rounded-lg">
+            <div className="ml-3 rounded-lg flex items-center">
               <img
                 src={user.pfp}
-                width="40px"
+                style={{maxWidth: "40px", maxHeight: "40px"}}
                 className="relative mx-auto rounded-xl overflow-hidden"
               />
             </div>
