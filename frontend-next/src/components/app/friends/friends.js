@@ -39,7 +39,7 @@ export function Friend({user,friendObj}) {
                     </div>
                     <div className='col-span-3 cursor-pointer'>
                         <Link href={`/user?uid=${friendObj.uid}`}>
-                            <div className='inline-block mr-5'><img src={friendObj.pfp} className='w-[50px]'/></div>
+                            <div className='inline-block mr-8'><img src={friendObj.pfp} className= 'w-[38px] h-[50px]'/></div>
                             <div className='inline-block relative top-[-6px]'>
                                 <div className="font-bold">{friendObj.firstName} {friendObj.lastName}</div>
                                 <div className="">@{friendObj.username}</div>

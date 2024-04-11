@@ -42,7 +42,7 @@ export function Sidebar({user, chatRoomObj}) {
             <div className="m-2 h-[98%] grid grid-cols-1">
                 <div className="flex place-content-center">
                     <div className="bg-white rounded-lg m-2 shadow-2xl pt-10">
-                        <img src={profileData.pfp} className="w-[80%] relative mx-auto"/>
+                        <img src={profileData.pfp} style={{maxHeight: "800px"}} className="w-[80%] relative mx-auto"/> 
                         <div className="font-bold text-[24px]">{profileData.firstName} {profileData.lastName}</div>
                         @{profileData.username}
                     </div>
