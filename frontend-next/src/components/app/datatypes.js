@@ -42,7 +42,7 @@ function RMF(message) {
   var IMG_END = [".jpg", ".jpeg", ".png", ".gif", ".webp"]
   var URLREGEX = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g;
   var URLmatch = message.match(URLREGEX);
-  var newMessage = []
+  var newMessage = URLmatch ? [] : message
   if (URLmatch) {
     for (var i = 0; i < URLmatch.length; i++) {
       if (IMG_END.includes(URLmatch[i].slice(-4)) || IMG_END.includes(URLmatch[i].slice(-5))) {
@@ -107,9 +107,10 @@ const generateColor = (user_str) => {
  * @returns {Object} - Chat Message Component
  */
 export function Chat({ chatObj }) {
-  var message = RMF(chatObj.body)
-  if (message)
-    message = filter.clean(message)
+  if (chatObj.body) {
+    var message = filter.clean(chatObj.body)
+    message = RMF(message)
+  }
   return (
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div>
