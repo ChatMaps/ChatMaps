@@ -48,23 +48,25 @@ export function ChatRoom({ roomObj, user }) {
    * @returns {void}
    */
   function sendMessage(data) {
-    reset();
-    var payload = {
-      body: data.message,
-      user: user.username,
-      uid: user.uid,
-      isSystem: false,
-      timestamp: new Date().getTime(),
-    };
-    set(
-      ref(
-        database,
-        `/rooms/${
-          roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp
-        }/chats/${new Date().getTime()}-${user.username}`
-      ),
-      payload
-    );
+    if (data.message) {
+      reset();
+      var payload = {
+        body: data.message,
+        user: user.username,
+        uid: user.uid,
+        isSystem: false,
+        timestamp: new Date().getTime(),
+      };
+      set(
+        ref(
+          database,
+          `/rooms/${
+            roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp
+          }/chats/${new Date().getTime()}-${user.username}`
+        ),
+        payload
+      );
+    }
   }
 
   if (!chats) return <div>No Chats</div>;
