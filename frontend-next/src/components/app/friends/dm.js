@@ -44,10 +44,12 @@ export function DM({user,friendObj}) {
                     </div>
                     <div className='col-span-3 cursor-pointer'>
                         <div onClick={() => {openDM(user,friendObj.uid)}}>
-                            <div className='inline-block mr-8'><img src={friendObj.pfp} className='w-[38px] h-[50px]'/></div>
-                            <div className='inline-block relative top-[-6px]'>
-                                <div className="font-bold">{friendObj.firstName} {friendObj.lastName}</div>
-                                <div className="">@{friendObj.username}</div>
+                            <div className='grid grid-cols-2 justify-items-center'>
+                                <div className='mr-8'><img src={friendObj.pfp} className= 'w-[50px] h-[50px]'/></div>
+                                <div className=''>
+                                    <div className="font-bold">{friendObj.lastOnline == true && <CircleIcon className="text-lime-600 mr-1 relative top-[-2px]" fontSize="20px"/>}{friendObj.firstName} {friendObj.lastName}</div>
+                                    <div className="">@{friendObj.username}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
