@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 // Icons
 import PersonIcon from '@mui/icons-material/Person';
+import CircleIcon from '@mui/icons-material/Circle';
 
 // Colors for Messages
 const userColors = [
@@ -149,7 +150,7 @@ export function Member({ memberObj }) {
   return (
     <Link href={"/user?uid=" + memberObj.uid}>
       <div className="cursor-pointer g-[aliceblue] rounded-lg m-3 shadow-xl p-2">
-        {memberObj.username}
+      {memberObj.lastOnline == true && <CircleIcon className="text-lime-600 mr-1 relative top-[-1px]" fontSize="20px"/>}{memberObj.username}
       </div>
     </Link>
   );
