@@ -92,7 +92,9 @@ export function Header({mainTab,chatRoomObj,user,sidebarControl}) {
   // Sets User Online / Offline
   // Stored in header for easy code maintenance and retains user online/offline throughout app
   // Makes user online
-  set(ref(database, `/users/${user.uid}/lastOnline`), true)
+  if (user.invisibleStatus == false) {
+    set(ref(database, `/users/${user.uid}/lastOnline`), true)
+  }
 
   // Makes user offline (with last time online)
   onDisconnect(ref(database, `/users/${user.uid}/lastOnline`)).set(serverTimestamp())
