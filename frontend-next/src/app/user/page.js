@@ -8,7 +8,6 @@ import { useAuthState } from "react-firebase-hooks/auth"
 
 // Refactored Component Imports
 
-
 // Data Structure Imports
 import { ProfileRoom } from "../../components/app/profile/ProfileRoom";
 import { ProfileEdit } from "../../components/app/profile/ProfileEdit";
@@ -19,6 +18,9 @@ import { Header } from "../../components/app/header";
 
 // Friend Import
 import { addFriend } from "../../components/app/friends/friends";
+
+// Icons
+import CircleIcon from '@mui/icons-material/Circle';
 
 /**
  * User Profile Page
@@ -128,8 +130,8 @@ function UserProfile() {
                       style={{maxWidth: "350px", maxHeight: "450px"}} 
                       className="relative mx-auto rounded-2xl overflow-hidden"
                     />
-                    <div className="font-bold text-[30px]">
-                      {profileData.firstName} {profileData.lastName}
+                    <div className="font-bold text-[30px] flex justify-center items-center">
+                      {profileData.lastOnline == true && <CircleIcon className="text-lime-600 mr-3"/>}{profileData.firstName} {profileData.lastName}
                     </div>
                     <div className="text-[20px]">@{profileData.username}</div>
                     <div className="pt-5">{profileData.bio}</div>
