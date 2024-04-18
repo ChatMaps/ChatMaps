@@ -1,5 +1,7 @@
 import Link from "next/link"
 import { useEffect, useState } from "react";
+const Filter = require('bad-words')
+const filter = new Filter();
 
 // Icons
 import PersonIcon from '@mui/icons-material/Person';
@@ -97,6 +99,8 @@ const generateColor = (user_str) => {
  */
 export function Chat({ chatObj }) {
   var message = RMF(chatObj.body)
+  if (message)
+    message = filter.clean(message)
   return (
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div>
