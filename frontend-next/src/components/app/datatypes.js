@@ -53,7 +53,6 @@ function RMF(message) {
         // Its a photo
         newMessage.push((<img src={"https://"+URLmatch[i]} className="max-w-[100%] max-h-[100%]"/>))
       } else {
-        console.log(message)
         newMessage.push((<span className="mr-2">
           {URLmatch.length == 1 && message.split(URLmatch[i])[0]}
           <Link href={"https://"+URLmatch[i]} target="_blank" className="hover:underline">{URLmatch[i]}</Link>
@@ -110,13 +109,12 @@ const generateColor = (user_str) => {
  * @props {JSON} chatObj - Chat Object
  * @returns {Object} - Chat Message Component
  */
-export function Chat({ chatObj, user }) {
+export function Chat({ chatObj, user, path }) {
   function deleteMessage() {
     remove(ref(database, `/rooms/${path}/chats/${chatObj.timestamp}-${chatObj.user}`))
   }
   var messageFilterBypass = [undefined, null, '', ' ', '\'', '\"']
   if (!messageFilterBypass.includes(chatObj.body) && (chatObj.body.length != 1 && !chatObj.body[0].match(/\W/))) {
-    console.log(chatObj.body)
     var message = filter.clean(chatObj.body)
     message = RMF(message)
   } else {
