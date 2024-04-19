@@ -93,19 +93,24 @@ export function Sidebar({user,location,loadingLoc}) {
   const [friends, setFriends] = useState([])
   const [friendRequests, setFriendRequests] = useState(null)
   const [dms, setDMs] = useState((<div>No DMs</div>))
-  // Add myRooms to Sidebar
-  var myRoomArr = [];
-  for (var room in user.rooms) {
-    get(ref(database, `/rooms/${user.rooms[room].path}/${user.rooms[room].name}-${user.rooms[room].timestamp}`)).then((snapshot) => {
-      var newRoom = (
-        <ChatRoomSidebar
-          roomObj={snapshot.val()}
-          key={snapshot.val().timestamp}
-        />
-      );
-      myRoomArr.push(newRoom);
-    })
-  }
+  const [myRoomArr, setMyRoomArr] = useState([])
+
+  useEffect(() => {
+    var myRoomArr = [];
+    // Add myRooms to Sidebar
+    for (var room in user.rooms) {
+      get(ref(database, `/rooms/${user.rooms[room].path}/${user.rooms[room].name}-${user.rooms[room].timestamp}`)).then((snapshot) => {
+        var newRoom = (
+          <ChatRoomSidebar
+            roomObj={snapshot.val()}
+            key={snapshot.val().timestamp}
+          />
+        );
+        myRoomArr.push(newRoom);
+      })
+    }
+    setMyRoomArr(myRoomArr)
+  }, [])
 
   useEffect(() => {
     var nearbyArr = []
