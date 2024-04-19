@@ -109,7 +109,7 @@ const generateColor = (user_str) => {
  * @props {JSON} chatObj - Chat Object
  * @returns {Object} - Chat Message Component
  */
-export function Chat({ chatObj, user }) {
+export function Chat({ chatObj, user, path }) {
   function deleteMessage() {
     remove(ref(database, `/rooms/${path}/chats/${chatObj.timestamp}-${chatObj.user}`))
   }
