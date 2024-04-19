@@ -42,7 +42,7 @@ function FriendMarkers(user) {
       });
     }
   }
-
+}
 
 /**
  * Geo Component for Wrapping Map
