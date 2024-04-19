@@ -7,7 +7,7 @@ import Drawer from '@mui/material/Drawer';
 
 // Firebase Imports
 import { auth, database } from "../../../firebase-config";
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, set } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
 
 // Component Imports
@@ -62,6 +62,16 @@ function Home() {
       setLoadingLoc(false);
     });
   }, [])
+
+  // Saves users last loc to profile for friends map
+  useEffect(() => {
+    if (coords && user) {
+      set(ref(database,`users/${user.uid}/location`), {
+        latitude: coords.latitude,
+        longitude: coords.longitude
+      })
+    }
+  }, [coords, user])
 
   return (
     <div className="overflow-hidden h-dvh">
