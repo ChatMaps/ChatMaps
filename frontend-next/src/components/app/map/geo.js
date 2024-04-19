@@ -6,72 +6,64 @@ import ChatBubbleTwoToneIcon from '@mui/icons-material/ChatBubbleTwoTone';
 import PersonOutlineTwoToneIcon from '@mui/icons-material/PersonOutlineTwoTone';
 import { red } from '@mui/material/colors';
 
-// ONLY nearby markers
-function NearbyRoomMarkers({ loc, user, markers }) {
-  if (!markers || !loc || !user) {
-    return [null, null];
+
+function NearbyMarkers(location) {
+  const [newMarkers, setNewMarkers] = useState(null);
+  if (location) {
+    const path = String(location.latitude.toFixed(2)).replace(".", "") +"/" +String(location.longitude.toFixed(2)).replace(".", "") +"/";
+    get(ref(database, `/rooms/${path}`)).then((snapshot) => {
+      const rooms = snapshot.val();
+      var newMarkersArr = Object.values(rooms).map((roomObj, index) => {
+        return (
+          // Want to change this to be something other than markers (or something extra)
+          <Marker
+            key={roomObj.path + "-" + index}
+            anchor={[roomObj.latitude, roomObj.longitude]}
+            onClick={() => (roomObj) => {window.location.href = "/chat?room=" + path + roomObj.name + "-" + roomObj.timestamp;}}
+            style={{pointerEvents:'auto'} /* So stupid */}
+          >
+            <ChatBubbleTwoToneIcon color="secondary" fontSize="large"/>
+          </Marker>
+        );
+      }); 
+      setNewMarkers(newMarkersArr)
+    })
+  }
+  return newMarkers;
+}
+
+function MyRoomsMarkers(user) {
+    var myRoomsMarkers = Object.values(user.rooms).map((roomObj) => {
+    return (<Marker
+      key={roomObj.path + "-" + roomObj.name}
+      anchor={[roomObj.latitude, roomObj.longitude]}
+      onClick={() => (roomObj) => {window.location.href = "/chat?room=" + path + roomObj.name + "-" + roomObj.timestamp;}}
+      style={{pointerEvents:'auto'} /* So stupid */}
+    >
+      <ChatBubbleTwoToneIcon color="primary" fontSize="large"/>
+    </Marker>)
+  })
+  return myRoomsMarkers;
+}
+
+function FriendMarkers(user) {
+
+  var friendMarkers = []
+  for (var friend in user.friends.friends) {
+    get(ref(database, `/users/${friend}`)).then((snapshot) => {
+      var friendData = snapshot.val();
+      if (friendData.location) {
+        friendMarkers.push(<Marker
+          anchor={[friendData.location.latitude, friendData.location.longitude]}
+          onClick={() => (friendData) => {window.location.href = "/user?uid=" + friendData.uid;}}
+          style={{pointerEvents:'auto'} /* So stupid */}>
+            <img src={friendData.pfp} className="w-[50px]"/>
+          </Marker>);
+      }
+    });
   }
 
-  const [markerArr, setMarkerArr] = useState([]);
-  const [hoveredRoom, setHoveredRoom] = useState(null);
-
-  // Room path in DB
-  const path =
-    String(loc.latitude.toFixed(2)).replace(".", "") +
-    "/" +
-    String(loc.longitude.toFixed(2)).replace(".", "") +
-    "/";
-
-  // Sorry for the href but <Link> doesn't work here
-  const handleRoomMarkerClick = (roomObj) => {
-    window.location.href =
-      "/chat?room=" + path + roomObj.name + "-" + roomObj.timestamp;
-  };
-
-  const handleRoomHover = (roomObj) => {
-    setHoveredRoom(
-      <Overlay offset={[0, 100]}>
-        <div className="fixed bg-cyan-500 p-2 shadow-md rounded-lg">
-          <p className="font-bold text-white">{roomObj.name}</p>
-        </div>
-      </Overlay>
-    );
-  };
-
-  const handleRoomUnhover = (roomObj) => {
-    setHoveredRoom(null);
-  };
-
-  // Mostly copied Nick's code from before
-  useEffect(() => {
-    if (loc && user) {
-      get(ref(database, `/rooms/${path}`)).then((snapshot) => {
-        if (snapshot.exists()) {
-          const rooms = snapshot.val();
-
-          const newMarkers = Object.values(rooms).map((roomObj, index) => {
-            const markerKey = roomObj.path + "-" + index;
-            return (
-              // Want to change this to be something other than markers (or something extra)
-              <Marker
-                key={markerKey}
-                anchor={[roomObj.latitude, roomObj.longitude]}
-                onClick={() => handleRoomMarkerClick(roomObj)}
-                onMouseOver={() => handleRoomHover(roomObj)}
-                onMouseOut={() => handleRoomUnhover(roomObj)}
-                style={{pointerEvents:'auto'} /* So stupid */}
-              >
-                <ChatBubbleTwoToneIcon color="primary" fontSize="large"/>
-              </Marker>
-            );
-          }); 
-          setMarkerArr(newMarkers);
-        }
-      });
-    }
-  }, []);
-
-  return [markerArr, hoveredRoom];
+  return friendMarkers;
 }
 
 /**
@@ -89,9 +81,7 @@ export function Geo({ loc, zoom, moveable, markers, user }) {
   };
 
   // SCUFFED AF
-  var rooms = NearbyRoomMarkers({ loc, user, markers });
-  var room_markers = rooms[0];
-  var room_overlay = rooms[1];
+  //var rooms = NearbyRoomMarkers({ loc, user, markers });
 
   if (!loc) {
     return <div>Getting Location...</div>;
@@ -105,11 +95,10 @@ export function Geo({ loc, zoom, moveable, markers, user }) {
           touchEvents={moveable}
           attribution={false}
         >
-          {
-            room_overlay /* Renders the room name overlay when you mouse over room */
-          }
           {zoom && <ZoomControl />}
-          {room_markers /* Renders the actual room markers */}
+          {NearbyMarkers(loc)}
+          {MyRoomsMarkers(user)}
+          {FriendMarkers(user)}
           {user && ( // Shows the user marker
             <Marker
               anchor={[loc.latitude, loc.longitude]}
