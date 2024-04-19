@@ -111,7 +111,7 @@ const generateColor = (user_str) => {
  */
 export function Chat({ chatObj, user, path }) {
   function deleteMessage() {
-    remove(ref(database, `/rooms/${path}/chats/${chatObj.timestamp}-${chatObj.user}`))
+    remove(ref(database, `${path}/chats/${chatObj.timestamp}-${chatObj.user}`))
   }
   var messageFilterBypass = [undefined, null, '', ' ', '\'', '\"']
   if (!messageFilterBypass.includes(chatObj.body) && (chatObj.body.length != 1 && !chatObj.body[0].match(/\W/))) {

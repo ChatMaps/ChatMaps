@@ -36,7 +36,7 @@ export function ChatRoom({ roomObj, user }) {
         <Chat
           chatObj={messages[message]}
           user={user}
-          path={roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp}
+          path={"/rooms/" +roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp}
           key={messages[message].timestamp}
         />
       );
