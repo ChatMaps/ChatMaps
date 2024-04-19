@@ -43,9 +43,18 @@ let dateOptions = {
  * @returns {Boolean} - Image Loaded (True) or Not (False)
  */
 function imageProcessing(url) {
-  var img = new Image();
-  img.src = url;
-  return img.complete;
+  var x = async () => {
+    var img = new Image();
+    img.src = url;
+    img.onload = function() {
+      return true;
+    }
+    img.onerror = function() {
+      return false;
+    }
+  }
+  var res = x()
+  return res
 }
 
 
@@ -62,7 +71,7 @@ function RMF(message) {
     for (var i = 0; i < URLmatch.length; i++) {
       if (imageProcessing("https://"+URLmatch[i])) {
         newMessage.push((<span className="mr-2">
-          {(URLmatch.length == 1) && message.split(URLmatch[i])[0].replace("https://","")}
+          {(URLmatch.length == 1) && message.split(URLmatch[i])[0].replace("https://","").replace("http://","")}
           <img src={"https://"+URLmatch[i]} className="max-w-[100%]"/>
           {(i == URLmatch.length || URLmatch.length == 1) && message.split(URLmatch[i])[1]}
         </span>))

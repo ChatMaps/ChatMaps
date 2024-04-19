@@ -43,8 +43,6 @@ function FriendMarkers(user) {
     }
   }
 
-  return friendMarkers;
-}
 
 /**
  * Geo Component for Wrapping Map

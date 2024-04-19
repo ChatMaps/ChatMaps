@@ -10,7 +10,7 @@ import { database } from "../../../../firebase-config";
 import { ref, set, get } from "firebase/database";
 
 // Component Imports
-import { ChatRoomSidebar } from "../datatypes";
+import { NearbySidebar } from "./nearby";
 
 // Friend Imports (TEMP)
 import { Friend, FriendRequest } from "../friends/friends";
@@ -88,55 +88,10 @@ function classNames(...classes) {
  * @returns {Object} - App Page Sidebar Component
  */
 export function Sidebar({user,location,loadingLoc}) {
-  const [nearbyArr, setNearbyArr] = useState([])
-  const [nearbyArrReady, setNearbyArrReady] = useState(false)
   const [friends, setFriends] = useState([])
   const [friendRequests, setFriendRequests] = useState(null)
   const [dms, setDMs] = useState((<div>No DMs</div>))
   const [myRoomArr, setMyRoomArr] = useState([])
-
-  useEffect(() => {
-    var myRoomArr = [];
-    // Add myRooms to Sidebar
-    for (var room in user.rooms) {
-      get(ref(database, `/rooms/${user.rooms[room].path}/${user.rooms[room].name}-${user.rooms[room].timestamp}`)).then((snapshot) => {
-        var newRoom = (
-          <ChatRoomSidebar
-            roomObj={snapshot.val()}
-            key={snapshot.val().timestamp}
-          />
-        );
-        myRoomArr.push(newRoom);
-      })
-    }
-    setMyRoomArr(myRoomArr)
-  }, [])
-
-  useEffect(() => {
-    var nearbyArr = []
-    if (location) {
-      var path = String(location.latitude.toFixed(2)).replace(".", "") + "/" + String(location.longitude.toFixed(2)).replace(".", "");
-      get(ref(database, `/rooms/${path}`)).then((snapshot) => {
-        // Add nearby to Sidebar
-        if (snapshot.exists()) {
-          var rooms = snapshot.val()
-          for (var room in rooms) {
-            var newRoom = (
-              <ChatRoomSidebar
-                roomObj={rooms[room]}
-                key={rooms[room].timestamp}
-              />
-            );
-            nearbyArr.push(newRoom);
-          }
-          } else {
-            nearbyArr.push(<div className="pt-5">No Nearby Rooms<br />Create One?</div>)
-          }
-          setNearbyArr(nearbyArr)
-          setNearbyArrReady(true)
-      })
-    }
-  }, [location])
 
   useEffect(() => {
     if (user && user.friends) {
@@ -236,8 +191,7 @@ export function Sidebar({user,location,loadingLoc}) {
             <Tab.Panel>
               <div className="overflow-y-auto h-[90%]">
                 <div>
-                  {loadingLoc && <div>Loading...</div>}
-                  {nearbyArrReady && nearbyArr}
+                  <NearbySidebar location={location}/>
                 </div>
               </div>
             </Tab.Panel>
