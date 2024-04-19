@@ -11,6 +11,7 @@ import { ref, set, get } from "firebase/database";
 
 // Component Imports
 import { NearbySidebar } from "./nearby";
+import { ChatRoomSidebar } from "../datatypes";
 
 // Friend Imports (TEMP)
 import { Friend, FriendRequest } from "../friends/friends";
@@ -92,6 +93,23 @@ export function Sidebar({user,location,loadingLoc}) {
   const [friendRequests, setFriendRequests] = useState(null)
   const [dms, setDMs] = useState((<div>No DMs</div>))
   const [myRoomArr, setMyRoomArr] = useState([])
+
+  useEffect(() => {
+    var myRoomArr = [];
+    // Add myRooms to Sidebar
+    for (var room in user.rooms) {
+      get(ref(database, `/rooms/${user.rooms[room].path}/${user.rooms[room].name}-${user.rooms[room].timestamp}`)).then((snapshot) => {
+        var newRoom = (
+          <ChatRoomSidebar
+            roomObj={snapshot.val()}
+            key={snapshot.val().timestamp}
+          />
+        );
+        myRoomArr.push(newRoom);
+      })
+    }
+    setMyRoomArr(myRoomArr)
+  }, [])
 
   useEffect(() => {
     if (user && user.friends) {
