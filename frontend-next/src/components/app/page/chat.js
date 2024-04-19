@@ -50,7 +50,8 @@ export function ChatRoom({ roomObj, user }) {
    * @returns {void}
    */
   function sendMessage(data) {
-    if (data.message) {
+    var messageFilterBypass = [undefined, null, '', ' ', '\'', '\"']
+    if (!messageFilterBypass.includes(data.message)) {
       reset();
       var payload = {
         body: data.message,
