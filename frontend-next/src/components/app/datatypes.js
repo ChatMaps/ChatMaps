@@ -3,8 +3,12 @@ import { useEffect, useState } from "react";
 const Filter = require('bad-words')
 const filter = new Filter();
 
+import {database} from "../../../firebase-config"
+import {remove, ref} from "firebase/database"
+
 // Icons
 import PersonIcon from '@mui/icons-material/Person';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CircleIcon from '@mui/icons-material/Circle';
 
 // Colors for Messages
@@ -107,6 +111,10 @@ const generateColor = (user_str) => {
  * @returns {Object} - Chat Message Component
  */
 export function Chat({ chatObj }) {
+  function deleteMessage() {
+    remove(ref(database, `/rooms/${path}/chats/${chatObj.timestamp}-${chatObj.user}`))
+  }
+  
   if (chatObj.body) {
     var message = filter.clean(chatObj.body)
     message = RMF(message)
@@ -114,13 +122,14 @@ export function Chat({ chatObj }) {
   return (
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div>
-        <span style={{ color: userColors[generateColor(chatObj.user)] }}>
+        {user.uid == chatObj.uid && <DeleteOutlineIcon fontSize="" className="ml-1 mr-1 cursor-pointer" onClick={() => {deleteMessage()}}/>}
+        <span className="mr-[5px]" style={{ color: userColors[generateColor(chatObj.user)] }}>
           <Link href={`/user?uid=${chatObj.uid}`}
           className="hover:font-bold cursor-pointer">
             {chatObj.user}
           </Link>
         </span>
-        : {message}
+        {message}
       </div>
       <div className="text-right text-[#d1d1d1]">
         {new Date(chatObj.timestamp).toLocaleString(dateOptions)}

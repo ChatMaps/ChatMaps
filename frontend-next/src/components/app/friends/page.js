@@ -35,6 +35,8 @@ export function DMRoom({ roomObj, user }) {
       chatsArr.push(
         <Chat
           chatObj={messages[message]}
+          user={user}
+          path={roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp}
           key={messages[message].timestamp}
         />
       );
