@@ -9,6 +9,7 @@ import {remove, ref} from "firebase/database"
 // Icons
 import PersonIcon from '@mui/icons-material/Person';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import CircleIcon from '@mui/icons-material/Circle';
 
 // Colors for Messages
 const userColors = [
@@ -42,19 +43,27 @@ let dateOptions = {
  * @returns {String} - Formatted Message (IN HTML)
  */
 function RMF(message) {
+  var IMG_END = [".jpg", ".jpeg", ".png", ".gif", ".webp"]
   var URLREGEX = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g;
   var URLmatch = message.match(URLREGEX);
+  var newMessage = URLmatch ? [] : message
   if (URLmatch) {
     for (var i = 0; i < URLmatch.length; i++) {
-      var link = (<span>
-        {message.split(URLmatch[i])[0]}
-        <Link href={"https://"+URLmatch[i]} target="_blank" className="hover:underline">{URLmatch[i]}</Link>
-        {message.split(URLmatch[i])[1]}
-      </span>)
-      message = link
+      if (IMG_END.includes(URLmatch[i].slice(-4)) || IMG_END.includes(URLmatch[i].slice(-5))) {
+        // Its a photo
+        newMessage.push((<img src={"https://"+URLmatch[i]} className="max-w-[100%] max-h-[100%]"/>))
+      } else {
+        console.log(message)
+        newMessage.push((<span className="mr-2">
+          {URLmatch.length == 1 && message.split(URLmatch[i])[0]}
+          <Link href={"https://"+URLmatch[i]} target="_blank" className="hover:underline">{URLmatch[i]}</Link>
+          {(i == URLmatch.length || URLmatch.length == 1) && message.split(URLmatch[i])[1]}
+        </span>))
+      }
+      
     }
   }
-  return message
+  return newMessage
 }
 /**
  * Grabs Window Size
@@ -101,15 +110,15 @@ const generateColor = (user_str) => {
  * @props {JSON} chatObj - Chat Object
  * @returns {Object} - Chat Message Component
  */
-export function Chat({ chatObj, user, path }) {
-
+export function Chat({ chatObj }) {
   function deleteMessage() {
     remove(ref(database, `/rooms/${path}/chats/${chatObj.timestamp}-${chatObj.user}`))
   }
-
-  var message = RMF(chatObj.body)
-  if (message)
-    message = filter.clean(message)
+  
+  if (chatObj.body) {
+    var message = filter.clean(chatObj.body)
+    message = RMF(message)
+  }
   return (
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div>
@@ -163,7 +172,7 @@ export function Member({ memberObj }) {
   return (
     <Link href={"/user?uid=" + memberObj.uid}>
       <div className="cursor-pointer g-[aliceblue] rounded-lg m-3 shadow-xl p-2">
-        {memberObj.username}
+      {memberObj.lastOnline == true && <CircleIcon className="text-lime-600 mr-1 relative top-[-1px]" fontSize="20px"/>}{memberObj.username}
       </div>
     </Link>
   );

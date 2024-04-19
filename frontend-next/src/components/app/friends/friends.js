@@ -12,6 +12,7 @@ import { openDM } from './dm';
 // Icons
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import CircleIcon from '@mui/icons-material/Circle';
 
 /**
  * Send a friend request to a user
@@ -39,10 +40,12 @@ export function Friend({user,friendObj}) {
                     </div>
                     <div className='col-span-3 cursor-pointer'>
                         <Link href={`/user?uid=${friendObj.uid}`}>
-                            <div className='inline-block mr-8'><img src={friendObj.pfp} className= 'w-[38px] h-[50px]'/></div>
-                            <div className='inline-block relative top-[-6px]'>
-                                <div className="font-bold">{friendObj.firstName} {friendObj.lastName}</div>
-                                <div className="">@{friendObj.username}</div>
+                            <div className='grid grid-cols-2 justify-items-center'>
+                                <div className='mr-8'><img src={friendObj.pfp} className= 'w-[50px] h-[50px]'/></div>
+                                <div className=''>
+                                    <div className="font-bold">{friendObj.lastOnline == true && <CircleIcon className="text-lime-600 mr-1 relative top-[-2px]" fontSize="20px"/>}{friendObj.firstName} {friendObj.lastName}</div>
+                                    <div className="">@{friendObj.username}</div>
+                                </div>
                             </div>
                         </Link>
                     </div>

@@ -3,7 +3,7 @@ import Link from "next/link"
 
 // Firebase Imports
 import { database } from "../../../firebase-config";
-import { ref, set, remove } from "firebase/database";
+import { ref, set, remove, onDisconnect, serverTimestamp } from "firebase/database";
 
 // Component Imports
 import { NotificationPanel } from "./notifications/notifications";
@@ -88,6 +88,17 @@ export function Header({mainTab,chatRoomObj,user,sidebarControl}) {
     }
 
   }
+
+  // Sets User Online / Offline
+  // Stored in header for easy code maintenance and retains user online/offline throughout app
+  // Makes user online
+  if (user.invisibleStatus == false) {
+    set(ref(database, `/users/${user.uid}/lastOnline`), true)
+  }
+
+  // Makes user offline (with last time online)
+  onDisconnect(ref(database, `/users/${user.uid}/lastOnline`)).set(serverTimestamp())
+
   return (
     <div className="flex m-2 rounded-lg h-[63px] bg-white shadow-2xl p-1">
       <div className="flex shrink h-[60px]">

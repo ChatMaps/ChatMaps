@@ -3,8 +3,9 @@ import { Popover } from "@headlessui/react";
 import Link from "next/link"
 
 // Firebase Imports
-import { auth } from "../../../../firebase-config";
+import { auth, database } from "../../../../firebase-config";
 import { signOut } from "firebase/auth";
+import {update, ref, serverTimestamp} from "firebase/database";
 
 /**
  * Logs out from Firebase Authentication
@@ -43,6 +44,18 @@ export function ProfilePanel({user}) {
             >
               View Profile
             </Link>
+            <div className="rounded-xl p-4 hover:bg-[#C0C0C0] cursor-pointer"
+            onClick={() => {
+              // Toggle Invisible Status
+              update(ref(database, `/users/${user.uid}`), {
+                invisibleStatus: user.invisibleStatus? !user.invisibleStatus: true,
+                lastOnline: user.invisibleStatus? true: serverTimestamp()
+              }
+              );
+            }}
+            >
+              {user.invisibleStatus ? "Go Online" : "Go Invisible"}
+            </div>
             <Link
               className="rounded-xl p-4 hover:bg-[#C0C0C0]"
               onClick={logout}
