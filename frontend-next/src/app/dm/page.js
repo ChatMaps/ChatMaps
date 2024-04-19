@@ -26,6 +26,7 @@ function Chat() {
   const [doneLoading, setDoneLoading] = useState(false) // is the page done loading or not
   const [authUser, authLoading] = useAuthState(auth) // auth user object (used to obtain other user object)
   const [drawerOpen, setDrawerOpen] = useState(true); // drawer open state
+  const [isUserAuthed, setIsUserAuthed] = useState(false); // is the user authenticated or not
 
   var windowSize = useWindowSize()
   useEffect(() => {
@@ -57,7 +58,10 @@ function Chat() {
     if (user) {
         const searchParams = new URLSearchParams(document.location.search);
         var path = searchParams.get("dm")
-
+        if (path.includes(user.uid))
+          setIsUserAuthed(true)
+        else
+          location.href = "/app"
         /*// Send entered message
         var payload = {
             body: "entered",
@@ -102,7 +106,7 @@ function Chat() {
 
   return (
     <div>
-      {(authUser && doneLoading) && (
+      {(authUser && doneLoading && isUserAuthed) && (
         <div className="overflow-hidden h-dvh">
           {/* Left Side of Page */}
           <div className="overflow-hidden h-dvh md:mr-[400px]">
