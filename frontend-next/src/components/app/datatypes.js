@@ -110,14 +110,17 @@ const generateColor = (user_str) => {
  * @props {JSON} chatObj - Chat Object
  * @returns {Object} - Chat Message Component
  */
-export function Chat({ chatObj }) {
+export function Chat({ chatObj, user }) {
   function deleteMessage() {
     remove(ref(database, `/rooms/${path}/chats/${chatObj.timestamp}-${chatObj.user}`))
   }
-  
-  if (chatObj.body) {
+  var messageFilterBypass = [undefined, null, '', ' ', '\'', '\"']
+  if (!messageFilterBypass.includes(chatObj.body) && (chatObj.body.length != 1 && !chatObj.body[0].match(/\W/))) {
+    console.log(chatObj.body)
     var message = filter.clean(chatObj.body)
     message = RMF(message)
+  } else {
+    var message = chatObj.body
   }
   return (
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">

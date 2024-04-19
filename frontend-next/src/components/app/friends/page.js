@@ -50,21 +50,24 @@ export function DMRoom({ roomObj, user }) {
    * @returns {void}
    */
   function sendMessage(data) {
+    var messageFilterBypass = [undefined, null, "", " ", ' ', '\'']
     reset();
-    var payload = {
-      body: data.message,
-      user: user.username,
-      uid: user.uid,
-      isSystem: false,
-      timestamp: new Date().getTime(),
-    };
-    set(
-      ref(
-        database,
-        `/dms/${roomObj.room}/chats/${new Date().getTime()}-${user.username}`
-      ),
-      payload
-    );
+    if (!messageFilterBypass.includes(data.message)) {
+      var payload = {
+        body: data.message,
+        user: user.username,
+        uid: user.uid,
+        isSystem: false,
+        timestamp: new Date().getTime(),
+      };
+      set(
+        ref(
+          database,
+          `/dms/${roomObj.room}/chats/${new Date().getTime()}-${user.username}`
+        ),
+        payload
+      );
+    }
   }
 
   if (!chats) return <div>No Chats</div>;
