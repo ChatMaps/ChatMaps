@@ -3,7 +3,7 @@ import { database } from "../../../../firebase-config"
 import { ref, set, get } from "firebase/database";
 
 import ChatIcon from '@mui/icons-material/Chat';
-
+import CircleIcon from '@mui/icons-material/Circle';
 
 export function openDM(user, uid) {
     var uid1 = user.uid < uid? user.uid : uid
