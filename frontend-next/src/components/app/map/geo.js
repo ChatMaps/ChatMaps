@@ -8,39 +8,8 @@ import { red } from '@mui/material/colors';
 
 // ONLY nearby markers
 function NearbyRoomMarkers({ loc, user, markers }) {
-  if (!markers || !loc || !user) {
-    return [null, null];
-  }
-
   const [markerArr, setMarkerArr] = useState([]);
   const [hoveredRoom, setHoveredRoom] = useState(null);
-
-  // Room path in DB
-  const path =
-    String(loc.latitude.toFixed(2)).replace(".", "") +
-    "/" +
-    String(loc.longitude.toFixed(2)).replace(".", "") +
-    "/";
-
-  // Sorry for the href but <Link> doesn't work here
-  const handleRoomMarkerClick = (roomObj) => {
-    window.location.href =
-      "/chat?room=" + path + roomObj.name + "-" + roomObj.timestamp;
-  };
-
-  const handleRoomHover = (roomObj) => {
-    setHoveredRoom(
-      <Overlay offset={[0, 100]}>
-        <div className="fixed bg-cyan-500 p-2 shadow-md rounded-lg">
-          <p className="font-bold text-white">{roomObj.name}</p>
-        </div>
-      </Overlay>
-    );
-  };
-
-  const handleRoomUnhover = (roomObj) => {
-    setHoveredRoom(null);
-  };
 
   // Mostly copied Nick's code from before
   useEffect(() => {
@@ -70,6 +39,37 @@ function NearbyRoomMarkers({ loc, user, markers }) {
       });
     }
   }, []);
+  
+  if (!markers || !loc || !user) {
+    return [null, null];
+  }
+
+  // Room path in DB
+  const path =
+    String(loc.latitude.toFixed(2)).replace(".", "") +
+    "/" +
+    String(loc.longitude.toFixed(2)).replace(".", "") +
+    "/";
+
+  // Sorry for the href but <Link> doesn't work here
+  const handleRoomMarkerClick = (roomObj) => {
+    window.location.href =
+      "/chat?room=" + path + roomObj.name + "-" + roomObj.timestamp;
+  };
+
+  const handleRoomHover = (roomObj) => {
+    setHoveredRoom(
+      <Overlay offset={[0, 100]}>
+        <div className="fixed bg-cyan-500 p-2 shadow-md rounded-lg">
+          <p className="font-bold text-white">{roomObj.name}</p>
+        </div>
+      </Overlay>
+    );
+  };
+
+  const handleRoomUnhover = (roomObj) => {
+    setHoveredRoom(null);
+  };
 
   return [markerArr, hoveredRoom];
 }
