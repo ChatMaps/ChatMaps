@@ -63,9 +63,7 @@ export function ChatRoom({ roomObj, user }) {
       set(
         ref(
           database,
-          `/rooms/${
-            roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp
-          }/chats/${new Date().getTime()}-${user.username}`
+          `/rooms/${roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp}/chats/${new Date().getTime()}-${user.username}`
         ),
         payload
       );
