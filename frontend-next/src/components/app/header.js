@@ -23,6 +23,7 @@ import CloseIcon from '@mui/icons-material/Close';
  */
 function closeChat(chatRoomObj, user) {
   remove(ref(database, `/rooms/${chatRoomObj.path}/${chatRoomObj.name}-${chatRoomObj.timestamp}/users/online/${user.uid}`))
+
 }
 
 /**

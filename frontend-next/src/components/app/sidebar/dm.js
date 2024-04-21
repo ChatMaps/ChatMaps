@@ -1,23 +1,23 @@
 import { Member } from "../datatypes"
 
 import { database } from "../../../../firebase-config"
-import {ref, get, set} from "firebase/database"
+import {ref, get, onValue} from "firebase/database"
 
 import { useState, useEffect } from "react"
 
 export function Sidebar({user, chatRoomObj}) {
-    const [profileData, setProfileData] = useState(null)
-    // Active users list
-    if (
-      chatRoomObj.hasOwnProperty("users") &&
-      chatRoomObj.users.hasOwnProperty("online")
-    ) {
-      var activeUsers = [];
-      var activeUsersJSON = chatRoomObj.users.online;
+  const [profileData, setProfileData] = useState(null)
+  const [chatroomOnline, setChatroomOnline] = useState(null)
+  
+  var path = chatRoomObj.UIDs[0] < chatRoomObj.UIDs[1] ? chatRoomObj.UIDs[0] + "-" + chatRoomObj.UIDs[1] : chatRoomObj.UIDs[1] + "-" + chatRoomObj.UIDs[0];
+  var activeUsers = []
+  onValue(ref(database, `/dms/${path}/users/online`), (snapshot) => {
+    if (snapshot.exists()) {
+      var activeUsersJSON = snapshot.val();
       for (var activeUser in activeUsersJSON)
-        activeUsers.push(<Member memberObj={activeUsersJSON[activeUser]} />);
-      var chatroomOnline = activeUsers
+        activeUsers.push(<Member memberObj={activeUsersJSON[activeUser]} key={activeUser} />);
     }
+  })
 
     useEffect(() => {
         if (user) {
@@ -49,7 +49,7 @@ export function Sidebar({user, chatRoomObj}) {
                 </div>
                 <div className="bg-white rounded-lg m-2 shadow-2xl">
                 <div>In The Chat</div>
-                {chatroomOnline}
+                {activeUsers}
                 </div>
             </div>
           </div>

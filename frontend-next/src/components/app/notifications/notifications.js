@@ -17,28 +17,38 @@ import { ref, set, remove } from "firebase/database";
  * @returns {Notification} - Notification Component
  */
 function Notification({data}) {
+    /**
+     * Removes Notification
+     * @returns {void}
+     */
+    function removeNotification() {
+        remove(ref(database, `/users/${data.ruser}/notifications/${data.suser}-${data.action}`))
+    }
+
+    /**
+     * Determines Action
+     */
+    function onClick() {
+        if (data.action === "dm") {
+            var order = data.suser > data.ruser ? data.ruser + "-" + data.suser : data.suser + "-" + data.ruser;
+            window.location.href = "/dm?dm=" + order;
+            removeNotification()
+        }
+    }
+
     return (
-        <div className="hover:bg-[#C0C0C0] rounded-lg">
+        <div className="hover:bg-[#C0C0C0] rounded-lg cursor-pointer" >
             <div className="float-right top-0 cursor-pointer p-2 text-[24px] text-slate-500">
-                <div onClick={() => {removeNotification(data.id)}}><CloseIcon/></div>
+                <div onClick={() => {removeNotification()}}><CloseIcon/></div>
             </div>
-            <div className="p-3 text-left">
-                {data.title}<br/>
+            <div className="p-3 text-left" onClick={() => {onClick()}}>
+                <span className="font-bold">{data.title}</span><br/>
                 {data.byline}<br/>
             </div>
         </div>
     )
 }
 
-/**
- * Removes Notification
- * @param {String} ruser - Receiving user UID (User Whose Notifications are being removed)
- * @param {String} dataID - Notification ID
- * @returns {void}
- */
-function removeNotification(ruser, dataID) {
-    remove(ref(database, `/user/${ruser}/notifications/${dataID}`))
-}
 
 /**
 * Creates New Notification
@@ -49,16 +59,18 @@ function removeNotification(ruser, dataID) {
 * @param {String} ruser - Receiving user UID
 * @returns {void}
 */
-function createNotification(title, byline, action, suser, ruser) {
+export function createNotification(title, byline, action, suser, ruser) {
     var timestamp = new Date().getTime();
     var payload = {
         title: title,
         byline: byline,
         action: action,
         suser: suser,
-        ruser: ruser
+        ruser: ruser,
+        id: suser + "-" + action,
+        timestamp: timestamp
     };
-    set(ref(database, `/user/${ruser}/notifications/${timestamp}-${suser}`), payload);
+    set(ref(database, `/users/${ruser}/notifications/${suser}-${action}`), payload);
 }
 
 /**
@@ -69,14 +81,13 @@ function createNotification(title, byline, action, suser, ruser) {
  */
 export function NotificationPanel({user}) {
     var notificationsMap = []
-    if (user.notification) {
-        for (var notificationPackage in user.notification) {
-            notificationsMap.push(<Notification data={user.notification[notificationPackage]}/>)
+        if (user.notifications) {
+            for (var notificationPackage in user.notifications) {
+                notificationsMap.push(<Notification data={user.notifications[notificationPackage]}/>)
+            }
+        } else {
+            notificationsMap = null
         }
-        var isNotifications = true
-    } else {
-        var isNotifications = false
-    }
 
     return (
         <Popover className="relative">
@@ -88,8 +99,8 @@ export function NotificationPanel({user}) {
 
           <Popover.Panel className="absolute z-10 bg-white mt-[4px] rounded-xl ml-3 shadow-2xl w-64 md:right-[0px] max-md:right-[-300%]">
             <div className="grid grid-cols-1">
-              {isNotifications && notificationsMap}
-              {!isNotifications && 
+              {notificationsMap}
+              {!notificationsMap && 
                 <div className="h-[64px] flex flex-col justify-center items-center">
                     <NotificationsPausedIcon/> All caught up!
                 </div>
