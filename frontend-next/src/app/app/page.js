@@ -46,7 +46,7 @@ function Home() {
         onValue(ref(database, `users/${authUser.uid}`), (userData) => {
             userData = userData.val();
             if (userData) {
-                setUser(userData);
+                setUser({...userData});
             } else {
                 window.location.href = "/onboarding";
             }

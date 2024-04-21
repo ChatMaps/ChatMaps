@@ -94,25 +94,6 @@ function Chat() {
         get(ref(database, `/rooms/${path}`)).then((roomData) => {
             roomData = roomData.val();
             setChatRoomObj(roomData)
-            onChildAdded(ref(database, `/rooms/${path}/chats`), (newChat) => {
-              var newChatRoomObj = chatRoomObj
-              if (newChatRoomObj) {
-                if (!newChatRoomObj.chats) {
-                  newChatRoomObj.chats = {}
-                }
-                newChatRoomObj.chats[newChat.key] = newChat.val()
-                setChatRoomObj({...newChatRoomObj})
-              }
-
-            });
-            onChildRemoved(ref(database, `/rooms/${path}/chats`), (removed) => {
-              if (chatRoomObj) {
-                var newChatRoomObj = chatRoomObj
-                var deleted = removed.val()
-                delete newChatRoomObj.chats[`${deleted.timestamp}-${deleted.user}`]
-                setChatRoomObj({...newChatRoomObj})
-              }
-            });
             if (!doneLoading) {
                 setDoneLoading(true)
             }
