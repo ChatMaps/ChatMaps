@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 
 // Firebase Imports
 import { auth, database } from "../../../firebase-config";
-import { ref, onValue, set, onDisconnect, get, onChildAdded, onChildRemoved } from "firebase/database";
+import { ref, onValue, set, onDisconnect, get, onChildAdded, onChildRemoved} from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
 
 // Component Imports
@@ -98,25 +98,6 @@ function Chat() {
         get(ref(database, `/dms/${path}`)).then((roomData) => {
           roomData = roomData.val();
           setChatRoomObj(roomData)
-          onChildAdded(ref(database, `/dms/${path}/chats`), (newDM) => {
-            var newDMRoomObj = chatRoomObj
-            if (newDMRoomObj) {
-              if (!newDMRoomObj.chats) {
-                newDMRoomObj.chats = {}
-              }
-              newDMRoomObj.chats[newDM.key] = newDM.val()
-              setChatRoomObj({...newDMRoomObj})
-            }
-
-          });
-          onChildRemoved(ref(database, `/dms/${path}/chats`), (removed) => {
-            if (chatRoomObj) {
-              var newDMRoomObj = chatRoomObj
-              var deleted = removed.val()
-              delete newDMRoomObj.chats[`${deleted.timestamp}-${deleted.user}`]
-              setChatRoomObj({...newDMRoomObj})
-            }
-          });
           if (!doneLoading) {
               setDoneLoading(true)
           }

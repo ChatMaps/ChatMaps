@@ -2,7 +2,7 @@
 import { Form, useForm } from "react-hook-form";
 
 // Firebase Imports
-import { ref, set } from "firebase/database";
+import { ref, set, onChildAdded, onChildRemoved } from "firebase/database";
 import { database } from "../../../../firebase-config";
 
 // Component Imports
@@ -10,6 +10,7 @@ import { Chat, SystemMessage } from "../datatypes";
 
 // Icons
 import SendIcon from '@mui/icons-material/Send';
+import { useState,useEffect } from "react";
 
 /**
  * Chat Room Component
@@ -18,32 +19,60 @@ import SendIcon from '@mui/icons-material/Send';
  * @returns {Object} - Chat Room Component
  */
 export function ChatRoom({ roomObj, user }) {
+  const [chatRoomObj, setChatRoomObj] = useState(roomObj);
+  const [chats, setChats] = useState(null);
   var { register, control, reset, handleSubmit } = useForm();
+             
+  // Listeners for Chats
+  useEffect(() => {
+    var path = chatRoomObj.path + "/" + chatRoomObj.name + "-" + chatRoomObj.timestamp;
+    onChildAdded(ref(database, `/rooms/${path}/chats`), (newChat) => {
+      var newChatRoomObj = chatRoomObj
+      if (newChatRoomObj) {
+        if (!newChatRoomObj.chats) {
+          newChatRoomObj.chats = {}
+        }
+        newChatRoomObj.chats[newChat.key] = newChat.val()
+        setChatRoomObj({...newChatRoomObj})
+      }
 
-  // Message updater
-  var chatsArr = [];
-  var messages = roomObj.chats;
-  for (var message in messages) {
-    if (messages[message].isSystem) {
-      chatsArr.push(
-        <SystemMessage
-          chatObj={messages[message]}
-          key={messages[message].timestamp}
-        />
-      );
-    } else {
-      chatsArr.push(
-        <Chat
-          chatObj={messages[message]}
-          user={user}
-          path={"/rooms/" +roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp}
-          key={messages[message].timestamp}
-        />
-      );
+    });
+    onChildRemoved(ref(database, `/rooms/${path}/chats`), (removed) => {
+      if (chatRoomObj) {
+        var newChatRoomObj = chatRoomObj
+        var deleted = removed.val()
+        delete newChatRoomObj.chats[`${deleted.timestamp}-${deleted.user}`]
+        setChatRoomObj({...newChatRoomObj})
+      }
+    });
+  }, [])
+
+  useEffect(() => {
+    // Message updater
+    var chatsArr = [];
+    var messages = chatRoomObj.chats;
+    for (var message in messages) {
+      if (messages[message].isSystem) {
+        chatsArr.push(
+          <SystemMessage
+            chatObj={messages[message]}
+            key={messages[message].timestamp}
+          />
+        );
+      } else {
+        chatsArr.push(
+          <Chat
+            chatObj={messages[message]}
+            user={user}
+            path={"/rooms/" + chatRoomObj.path + "/" + chatRoomObj.name + "-" + chatRoomObj.timestamp}
+            key={messages[message].timestamp}
+          />
+        );
+      }
     }
-  }
-  var chats = chatsArr.reverse();
-
+    setChats(chatsArr.reverse())
+  }, [chatRoomObj])
+  
   /**
    * Send Message in Chatroom
    * @param {JSON} data - Message data to send (from form)
@@ -63,7 +92,7 @@ export function ChatRoom({ roomObj, user }) {
       set(
         ref(
           database,
-          `/rooms/${roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp}/chats/${new Date().getTime()}-${user.username}`
+          `/rooms/${chatRoomObj.path + "/" + chatRoomObj.name + "-" + chatRoomObj.timestamp}/chats/${new Date().getTime()}-${user.username}`
         ),
         payload
       );
