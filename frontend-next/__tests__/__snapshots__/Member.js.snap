@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Member Renders Correctly 1`] = `
+<a
+  href="/user?uid=123456"
+  onClick={[Function]}
+  onMouseEnter={[Function]}
+  onTouchStart={[Function]}
+>
+  <div
+    className="cursor-pointer g-[aliceblue] rounded-lg m-3 shadow-xl p-2"
+  >
+    <svg
+      aria-hidden={true}
+      className="MuiSvgIcon-root MuiSvgIcon-fontSize20px text-lime-600 mr-1 relative top-[-1px] css-821wyw-MuiSvgIcon-root"
+      data-testid="CircleIcon"
+      focusable="false"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2"
+      />
+    </svg>
+    TestUser
+  </div>
+</a>
+`;
