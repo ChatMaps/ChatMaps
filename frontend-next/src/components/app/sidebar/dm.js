@@ -11,7 +11,7 @@ export function Sidebar({user, chatRoomObj}) {
   
   var path = chatRoomObj.UIDs[0] < chatRoomObj.UIDs[1] ? chatRoomObj.UIDs[0] + "-" + chatRoomObj.UIDs[1] : chatRoomObj.UIDs[1] + "-" + chatRoomObj.UIDs[0];
   var activeUsers = []
-  onValue(ref(database, `/dms/${path}/users/online`), (snapshot) => {
+  get(ref(database, `/dms/${path}/users/online`)).then((snapshot) => {
     if (snapshot.exists()) {
       var activeUsersJSON = snapshot.val();
       for (var activeUser in activeUsersJSON)

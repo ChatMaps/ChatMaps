@@ -49,7 +49,7 @@ function UserProfile() {
     if (authUser && authLoading === false) {
       const searchParams = new URLSearchParams(document.location.search);
       var userUID = searchParams.get("uid")
-      onValue(ref(database, `users/${authUser.uid}`), (userData) => {
+      get(ref(database, `users/${authUser.uid}`)).then((userData) => {
           userData = userData.val();
           if (userData) {
             if (userData.uid == userUID) {
@@ -70,7 +70,7 @@ function UserProfile() {
   useEffect(() => {
     const searchParams = new URLSearchParams(document.location.search);
     var userUID = searchParams.get("uid")
-    onValue(ref(database, "/users/" + userUID), (snapshot) => {
+    get(ref(database, "/users/" + userUID)).then((snapshot) => {
       setProfileData(snapshot.val());
 
       // Populates array with user's interests
