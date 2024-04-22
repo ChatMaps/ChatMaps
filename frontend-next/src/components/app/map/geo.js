@@ -93,22 +93,6 @@ export function Geo({ loc, zoom, moveable, user }) {
       })
     }
 
-    // Load Friend Markers
-    if (user.friends && user.friends.friends) {
-      var friendMarkers = FriendMarkers(user);
-      friendMarkers = Object.values(friendMarkers).map((friendData) => {
-        return (<Marker
-          key={friendData.path + "-" + friendData.name}
-          anchor={[friendData.latitude, friendData.longitude]}
-          onClick={() => {window.location.href = "/chat?room=" + friendData.path + "/" + friendData.name + "-" + friendData.timestamp;}}
-          style={{pointerEvents:'auto'} /* So stupid */}
-          onMouseOver={() => {setHoverText(friendData.username);setHovering(true);setHoverAnchor([friendData.location.latitude, friendData.location.longitude])}}
-          onMouseOut={() => {setHovering(false)}}
-        >
-          <img src={friendData.pfp} className="w-[50px]"/>
-        </Marker>)
-      })
-    }
   }
 
 
@@ -127,7 +111,6 @@ export function Geo({ loc, zoom, moveable, user }) {
           {zoom && <ZoomControl />}
           {moveable && nearbyMarkers}
           {moveable && myRoomsMarkers}
-          {moveable && friendMarkers}
 
           { /* Overlay */}
           {hovering && (
