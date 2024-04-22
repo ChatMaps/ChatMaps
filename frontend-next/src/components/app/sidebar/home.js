@@ -89,26 +89,28 @@ function classNames(...classes) {
  * @returns {Object} - App Page Sidebar Component
  */
 export function Sidebar({user,location,loadingLoc}) {
-  const [friends, setFriends] = useState([])
+  const [friends, setFriends] = useState(null)
   const [friendRequests, setFriendRequests] = useState(null)
   const [dms, setDMs] = useState((<div>No DMs</div>))
-  const [myRoomArr, setMyRoomArr] = useState([])
+  const [myRoomArr, setMyRoomArr] = useState(null)
 
   useEffect(() => {
-    var myRoomArr = [];
-    // Add myRooms to Sidebar
-    for (var room in user.rooms) {
-      get(ref(database, `/rooms/${user.rooms[room].path}/${user.rooms[room].name}-${user.rooms[room].timestamp}`)).then((snapshot) => {
-        var newRoom = (
-          <ChatRoomSidebar
-            roomObj={snapshot.val()}
-            key={snapshot.val().timestamp}
-          />
-        );
-        myRoomArr.push(newRoom);
-      })
+    if (user && myRoomArr == null) {
+      var myRoomArr = [];
+      // Add myRooms to Sidebar
+      for (var room in user.rooms) {
+        get(ref(database, `/rooms/${user.rooms[room].path}/${user.rooms[room].name}-${user.rooms[room].timestamp}`)).then((snapshot) => {
+          var newRoom = (
+            <ChatRoomSidebar
+              roomObj={snapshot.val()}
+              key={snapshot.val().timestamp}
+            />
+          );
+          myRoomArr.push(newRoom);
+        })
+      }
+      setMyRoomArr(myRoomArr)
     }
-    setMyRoomArr(myRoomArr)
   }, [])
 
   useEffect(() => {
@@ -154,7 +156,7 @@ export function Sidebar({user,location,loadingLoc}) {
       }
        
     })
-  }, [user])
+  }, [])
 
   return (
     <div className="h-dvh bg-[aliceblue] pt-2 pb-2 pl-2 pr-1">

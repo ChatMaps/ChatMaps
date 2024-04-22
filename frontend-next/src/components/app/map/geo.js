@@ -77,24 +77,30 @@ export function Geo({ loc, zoom, moveable, user }) {
   
 
     // Load Nearby Markers
-    var nearbyMarkers = NearbyMarkers(loc);
-    if (nearbyMarkers) {
-      var nearbyMarkers = Object.values(nearbyMarkers).map((roomObj) => {
-        return (<Marker
-          key={roomObj.path + "-" + roomObj.name}
-          anchor={[roomObj.latitude, roomObj.longitude]}
-          onClick={() => {window.location.href = "/chat?room=" + roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;}}
-          style={{pointerEvents:'auto'} /* So stupid */}
-          onMouseOver={() => {setHoverText(roomObj.name);setHovering(true);setHoverAnchor([roomObj.latitude, roomObj.longitude])}}
-          onMouseOut={() => {setHovering(false)}}
-        >
-          <ChatBubbleTwoToneIcon color="secondary" fontSize="large"/>
-        </Marker>)
+    var nearbyMarkers = null;
+    if (location) {
+      const path = String(loc.latitude.toFixed(2)).replace(".", "") +"/" +String(loc.longitude.toFixed(2)).replace(".", "") +"/";
+      get(ref(database, `/rooms/${path}`)).then((snapshot) => {
+        if (snapshot.exists()) {
+          nearbyMarkers = snapshot.val();
+          if (nearbyMarkers) {
+            var nearbyMarkers = Object.values(nearbyMarkers).map((roomObj) => {
+              return (<Marker
+                key={roomObj.path + "-" + roomObj.name}
+                anchor={[roomObj.latitude, roomObj.longitude]}
+                onClick={() => {window.location.href = "/chat?room=" + roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;}}
+                style={{pointerEvents:'auto'} /* So stupid */}
+                onMouseOver={() => {setHoverText(roomObj.name);setHovering(true);setHoverAnchor([roomObj.latitude, roomObj.longitude])}}
+                onMouseOut={() => {setHovering(false)}}
+              >
+                <ChatBubbleTwoToneIcon color="secondary" fontSize="large"/>
+              </Marker>)
+            })
+          }
+        }
       })
     }
-
   }
-
 
   if (!loc) {
     return <div>Getting Location...</div>;

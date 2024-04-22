@@ -40,7 +40,7 @@ function Chat() {
   // Authentication Verification / Redirection if Profile Data not Filled out
   useEffect(() => {
     if (authUser && authLoading === false) {
-      onValue(ref(database, `users/${authUser.uid}`), (userData) => {
+      get(ref(database, `users/${authUser.uid}`)).then((userData) => {
           userData = userData.val();
           if (userData) {
               setUser(userData);
