@@ -59,19 +59,21 @@ export function Geo({ loc, zoom, moveable, user }) {
   const [hoverAnchor, setHoverAnchor] = useState([null,null]);
   
   if (moveable) {
-    // Load My Rooms Markers
-    var myRoomsMarkers = Object.values(user.rooms).map((roomObj) => {
-      return (<Marker
-        key={roomObj.path + "-" + roomObj.name}
-        anchor={[roomObj.latitude, roomObj.longitude]}
-        onClick={() => {window.location.href = "/chat?room=" + roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;}}
-        style={{pointerEvents:'auto'} /* So stupid */}
-        onMouseOver={() => {setHoverText(roomObj.name);setHovering(true);setHoverAnchor([roomObj.latitude, roomObj.longitude])}}
-        onMouseOut={() => {setHovering(false)}}
-      >
-        <ChatBubbleTwoToneIcon color="primary" fontSize="large"/>
-      </Marker>)
-    })
+    if (user.rooms) {
+      // Load My Rooms Markers
+      var myRoomsMarkers = Object.values(user.rooms).map((roomObj) => {
+        return (<Marker
+          key={roomObj.path + "-" + roomObj.name}
+          anchor={[roomObj.latitude, roomObj.longitude]}
+          onClick={() => {window.location.href = "/chat?room=" + roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;}}
+          style={{pointerEvents:'auto'} /* So stupid */}
+          onMouseOver={() => {setHoverText(roomObj.name);setHovering(true);setHoverAnchor([roomObj.latitude, roomObj.longitude])}}
+          onMouseOut={() => {setHovering(false)}}
+        >
+          <ChatBubbleTwoToneIcon color="primary" fontSize="large"/>
+        </Marker>)
+      })
+    }
   
 
     // Load Nearby Markers
@@ -92,20 +94,21 @@ export function Geo({ loc, zoom, moveable, user }) {
     }
 
     // Load Friend Markers
-    
-    var friendMarkers = FriendMarkers(user);
-    friendMarkers = Object.values(user.rooms).map((friendData) => {
-      return (<Marker
-        key={friendData.path + "-" + friendData.name}
-        anchor={[friendData.latitude, friendData.longitude]}
-        onClick={() => {window.location.href = "/chat?room=" + friendData.path + "/" + friendData.name + "-" + friendData.timestamp;}}
-        style={{pointerEvents:'auto'} /* So stupid */}
-        onMouseOver={() => {setHoverText(friendData.username);setHovering(true);setHoverAnchor([friendData.location.latitude, friendData.location.longitude])}}
-        onMouseOut={() => {setHovering(false)}}
-      >
-        <img src={friendData.pfp} className="w-[50px]"/>
-      </Marker>)
-    })
+    if (user.friends && user.friends.friends) {
+      var friendMarkers = FriendMarkers(user);
+      friendMarkers = Object.values(friendMarkers).map((friendData) => {
+        return (<Marker
+          key={friendData.path + "-" + friendData.name}
+          anchor={[friendData.latitude, friendData.longitude]}
+          onClick={() => {window.location.href = "/chat?room=" + friendData.path + "/" + friendData.name + "-" + friendData.timestamp;}}
+          style={{pointerEvents:'auto'} /* So stupid */}
+          onMouseOver={() => {setHoverText(friendData.username);setHovering(true);setHoverAnchor([friendData.location.latitude, friendData.location.longitude])}}
+          onMouseOut={() => {setHovering(false)}}
+        >
+          <img src={friendData.pfp} className="w-[50px]"/>
+        </Marker>)
+      })
+    }
   }
 
 
