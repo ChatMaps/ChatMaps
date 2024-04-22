@@ -11,6 +11,8 @@ import PersonIcon from '@mui/icons-material/Person';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CircleIcon from '@mui/icons-material/Circle';
 
+import { useTts, TextToSpeech } from 'tts-react'
+
 // Colors for Messages
 const userColors = [
   "#ff80ed",
@@ -142,6 +144,10 @@ export function Chat({ chatObj, user, path }) {
   } else {
     var message = chatObj.body
   }
+
+  const Speak = ({ children }) => (
+    <>{useTts({ children, autoPlay: true }).ttsChildren}</>
+  )
   return (
     <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
       <div>
@@ -152,7 +158,8 @@ export function Chat({ chatObj, user, path }) {
             {chatObj.user}
           </Link>
         </span>
-        {message}
+        {message.substring(0,4) == "/tts" && (<TextToSpeech autoPlay={true}> {chatObj.user + " said " + message.substring(5,message.length)} </TextToSpeech>)}
+        {message.substring(0,4) != "/tts" && message}
       </div>
       <div className="text-right text-[#d1d1d1]">
         {new Date(chatObj.timestamp).toLocaleString(dateOptions)}
