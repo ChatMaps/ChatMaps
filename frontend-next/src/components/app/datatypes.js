@@ -63,7 +63,7 @@ function imageProcessing(url) {
  * @param {String} message - Message to Format
  * @returns {String} - Formatted Message (IN HTML)
  */
-function RMF(message) {
+export function RMF(message) {
   var URLREGEX = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g;
   var URLmatch = message.match(URLREGEX);
   var newMessage = URLmatch ? [] : message

@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RMF Renders Correctly 1`] = `
+<span
+  className="mr-2"
+>
+  Hello, World! This is a test message. 
+  <img
+    className="max-w-[100%]"
+    src="https://www.google.com"
+  />
+</span>
+`;
