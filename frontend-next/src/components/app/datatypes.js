@@ -13,6 +13,15 @@ import CircleIcon from '@mui/icons-material/Circle';
 
 import { useTts, TextToSpeech } from 'tts-react'
 
+// Chat Commands Dictionary
+const chatCommands = {
+  "/peter": "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExcThtYjMxcWk2NG55YTE3OHdvNWJwcXVrZzV1ZmZkdWJ6cHBremFwdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/13w5HmyiuaZ224/giphy.gif",
+  "/shrug": "¯\\_(ツ)_/¯",
+  "/tableflip": "(╯°□°）╯︵ ┻━┻",
+  "/unflip": "┬─┬ ノ( ゜-゜ノ)",
+  "/snoop": "https://media1.tenor.com/m/cIUjlvgnFRgAAAAd/dog-snoop.gif"
+}
+
 // Colors for Messages
 const userColors = [
   "#ff80ed",
@@ -140,23 +149,24 @@ const generateColor = (user_str) => {
  */
 export function Chat({ chatObj, user, path }) {
   const [message, setMessage] = useState([])
-  const [messageReady, setMessageReady] = useState(false)
   function deleteMessage() {
     remove(ref(database, `${path}/chats/${chatObj.timestamp}-${chatObj.user}`))
   }
   
+  if (chatObj.body in chatCommands) {
+    chatObj.body = chatCommands[chatObj.body]
+  }
 
   useEffect(() => {
+    // Peter Griffin Easter Egg
     var messageFilterBypass = [undefined, null, '', ' ', '\'', '\"']
     if (!messageFilterBypass.includes(chatObj.body) && (chatObj.body.length != 1 && !chatObj.body[0].match(/\W/))) {
       var settingMessage = filter.clean(chatObj.body)
       RMF(settingMessage).then((result) => {
         setMessage(result)
-        setMessageReady(true)
       })
     } else {
       setMessage(chatObj.body)
-      setMessageReady(true)
     }
   }, [])
 
