@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 
 // Firebase Imports
 import { auth, database } from "../../../firebase-config";
-import { ref, onValue, set, onDisconnect, get, onChildAdded, onChildRemoved} from "firebase/database";
+import { ref, onValue, set, onDisconnect} from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
 
 // Component Imports
@@ -40,7 +40,7 @@ function Chat() {
   // Authentication Verification / Redirection if Profile Data not Filled out
   useEffect(() => {
     if (authUser && authLoading === false) {
-      get(ref(database, `users/${authUser.uid}`)).then((userData) => {
+      onValue(ref(database, `users/${authUser.uid}`), (userData) => {
           userData = userData.val();
           if (userData) {
               setUser(userData);
@@ -95,7 +95,7 @@ function Chat() {
         })*/
 
         // Room Object Load
-        get(ref(database, `/dms/${path}`)).then((roomData) => {
+        onValue(ref(database, `/dms/${path}`), (roomData) => {
           roomData = roomData.val();
           setChatRoomObj(roomData)
           if (!doneLoading) {

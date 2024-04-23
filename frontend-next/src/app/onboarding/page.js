@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 
 // Firebase Imports
 import { ref, set } from "firebase/database";
-import { auth, database } from "../../../firebase-config";
+import { auth, database, storage } from "../../../firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
+import { ref as sRef, getDownloadURL } from "firebase/storage";
 
 /**
  * Creates user data in Firebase DB
@@ -19,9 +20,14 @@ function createUser(data) {
     if (user.uid) {
       data.uid = user.uid;
       data.defined = true;
-      data.email = user.email;
-      set(ref(database, `users/${user.uid}`), data);
-      return true;
+      data.invisibleStatus = false;
+      getDownloadURL(sRef(storage, `/default.png`)).then((url) => {
+        data.pfp = url;
+        data.email = user.email;
+        set(ref(database, `users/${user.uid}`), data);
+        return true;
+      })
+
     } else {
       return false;
     }

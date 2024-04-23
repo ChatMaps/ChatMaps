@@ -39,7 +39,7 @@ function Chat() {
   // Authentication Verification / Redirection if Profile Data not Filled out
   useEffect(() => {
     if (authUser && authLoading === false && !user) {
-        get(ref(database, `users/${authUser.uid}`)).then((userData) => {
+        onValue(ref(database, `users/${authUser.uid}`),(userData) => {
             userData = userData.val();
             if (userData) {
                 setUser(userData);
@@ -91,7 +91,7 @@ function Chat() {
         })*/
 
         // Room Object Load
-        get(ref(database, `/rooms/${path}`)).then((roomData) => {
+        onValue(ref(database, `/rooms/${path}`), (roomData) => {
             roomData = roomData.val();
             setChatRoomObj(roomData)
             if (!doneLoading) {
