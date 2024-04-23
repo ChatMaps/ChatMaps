@@ -127,7 +127,7 @@ function UserProfile() {
                   <div>
                     <img
                       src={profileData.pfp}
-                      className="relative mx-auto rounded-2xl overflow-hidden w-[90%]"
+                      className="relative mx-auto rounded-2xl overflow-hidden max-h-[20%] max-w-[70%]"
                     />
                     <div className="font-bold text-[30px] flex justify-center items-center">
                       {profileData.lastOnline == true && <CircleIcon className="text-lime-600 mr-3"/>}{profileData.firstName} {profileData.lastName}

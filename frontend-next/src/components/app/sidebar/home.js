@@ -156,7 +156,7 @@ export function Sidebar({user,location,loadingLoc}) {
       }
        
     })
-  }, [])
+  }, [user.friends])
 
   return (
     <div className="h-dvh bg-[aliceblue] pt-2 pb-2 pl-2 pr-1">

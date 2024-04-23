@@ -6,27 +6,9 @@ import { useRouter } from "next/navigation";
 
 // Firebase Imports
 import { ref, set } from "firebase/database";
-import { auth, database } from "../../../firebase-config";
+import { auth, database, storage } from "../../../firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
-
-/**
- * Creates user data in Firebase DB
- * @param {JSON} data - User data to be stored in Firebase DB ( from form ) 
- * @return {Boolean} - True if user data is stored, False if user data is not stored
- */
-function createUser(data) {
-  onAuthStateChanged(auth, (user) => {
-    if (user.uid) {
-      data.uid = user.uid;
-      data.defined = true;
-      data.email = user.email;
-      set(ref(database, `users/${user.uid}`), data);
-      return true;
-    } else {
-      return false;
-    }
-  });
-}
+import { ref as sRef, getDownloadURL } from "firebase/storage";
 
 /**
  * Onboarding Page
@@ -37,8 +19,24 @@ function Onboarding() {
   var { register, handleSubmit } = useForm();
 
   function Onboard(data) {
-    createUser(data);
-    router.push("/app");
+    onAuthStateChanged(auth, (user) => {
+      if (user.uid) {
+        data.uid = user.uid;
+        data.defined = true;
+        data.invisibleStatus = false;
+        data.bio = " ";
+        data.interests = " , , "
+        getDownloadURL(sRef(storage, `/default.png`)).then((url) => {
+          data.pfp = url;
+          data.email = user.email;
+          set(ref(database, `users/${user.uid}`), data);
+          router.push("/app");
+        })
+
+      } else {
+        return false;
+      }
+    });
   }
   return (
     <div>
