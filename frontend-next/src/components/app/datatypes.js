@@ -158,8 +158,7 @@ export function Chat({ chatObj, user, path }) {
             {chatObj.user}
           </Link>
         </span>
-        {message.substring(0,4) == "/tts" && (<TextToSpeech autoPlay={true}> {chatObj.user + " said " + message.substring(5,message.length)} </TextToSpeech>)}
-        {message.substring(0,4) != "/tts" && message}
+        {(typeof message == 'string' && message.substring(0,4) == "/tts")? (<TextToSpeech autoPlay={true}> {chatObj.user + " said " + message.substring(5,message.length)} </TextToSpeech>): message}
       </div>
       <div className="text-right text-[#d1d1d1]">
         {new Date(chatObj.timestamp).toLocaleString(dateOptions)}
