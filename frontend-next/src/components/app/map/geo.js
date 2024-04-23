@@ -78,7 +78,7 @@ export function Geo({ loc, zoom, moveable, user }) {
 
     // Load Nearby Markers
     var nearbyMarkers = null;
-    if (location) {
+    if (loc) {
       const path = String(loc.latitude.toFixed(2)).replace(".", "") +"/" +String(loc.longitude.toFixed(2)).replace(".", "") +"/";
       get(ref(database, `/rooms/${path}`)).then((snapshot) => {
         if (snapshot.exists()) {
