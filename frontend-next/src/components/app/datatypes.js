@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 const Filter = require('bad-words')
 const filter = new Filter();
 
@@ -45,18 +45,17 @@ let dateOptions = {
  * @returns {Boolean} - Image Loaded (True) or Not (False)
  */
 function imageProcessing(url) {
-  var x = async () => {
+  var x = new Promise((resolve, reject) => {
     var img = new Image();
     img.src = url;
-    img.onload = function() {
-      return true;
+    img.onload = () => {
+      resolve([true, url]);
     }
-    img.onerror = function() {
-      return false;
+    img.onerror = () => {
+      resolve([false, url]);
     }
-  }
-  var res = x()
-  return res
+  })
+  return x
 }
 
 
@@ -65,28 +64,34 @@ function imageProcessing(url) {
  * @param {String} message - Message to Format
  * @returns {String} - Formatted Message (IN HTML)
  */
-export function RMF(message) {
-  var URLREGEX = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g;
-  var URLmatch = message.match(URLREGEX);
-  var newMessage = URLmatch ? [] : message
-  if (URLmatch) {
-    for (var i = 0; i < URLmatch.length; i++) {
-      if (imageProcessing("https://"+URLmatch[i])) {
-        newMessage.push((<span className="mr-2">
-          {(URLmatch.length == 1) && message.split(URLmatch[i])[0].replace("https://","").replace("http://","")}
-          <img src={"https://"+URLmatch[i]} className="max-w-[100%]"/>
-          {(i == URLmatch.length || URLmatch.length == 1) && message.split(URLmatch[i])[1]}
-        </span>))
-      } else {
-        newMessage.push((<span className="mr-2">
-        {URLmatch.length == 1 && message.split(URLmatch[i])[0]}
-        <Link href={"https://"+URLmatch[i]} target="_blank" className="hover:underline">{URLmatch[i]}</Link>
-        {(i == URLmatch.length || URLmatch.length == 1) && message.split(URLmatch[i])[1]}
-      </span>))
+export async function RMF(message) {
+  var x = new Promise(async (resolve) => {
+    var URLREGEX = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g;
+    var URLmatch = message.match(URLREGEX);
+    var newMessage = URLmatch ? [] : message
+    if (URLmatch) {
+      for (var i = 0; i < URLmatch.length; i++) {
+        await imageProcessing("https://"+URLmatch[i]).then((result) => {
+          if (result[0]) {
+            newMessage.push((<span className="mr-2">
+              {(URLmatch.length == 1) && message.split(result[1])[0].replace("https://","").replace("http://","")}
+              <img src={result[1]} className="max-w-[100%]"/>
+              {(i == URLmatch.length || URLmatch.length == 1) && message.split(result[1])[1]}
+            </span>))
+          } else {
+            newMessage.push((<span className="mr-2">
+            {URLmatch.length == 1 && message.split(URLmatch[i])[0]}
+            <Link href={result[1]} target="_blank" className="hover:underline">{URLmatch[i]}</Link>
+            {(i == URLmatch.length || URLmatch.length == 1) && message.split(URLmatch[i])[1]}
+          </span>))
+          }
+        })
       }
     }
-  }
-  return newMessage
+    resolve(newMessage)
+    
+  });
+  return x
 }
 /**
  * Grabs Window Size
@@ -134,35 +139,46 @@ const generateColor = (user_str) => {
  * @returns {Object} - Chat Message Component
  */
 export function Chat({ chatObj, user, path }) {
+  const [message, setMessage] = useState([])
+  const [messageReady, setMessageReady] = useState(false)
   function deleteMessage() {
     remove(ref(database, `${path}/chats/${chatObj.timestamp}-${chatObj.user}`))
   }
-  var messageFilterBypass = [undefined, null, '', ' ', '\'', '\"']
-  if (!messageFilterBypass.includes(chatObj.body) && (chatObj.body.length != 1 && !chatObj.body[0].match(/\W/))) {
-    var message = filter.clean(chatObj.body)
-    message = RMF(message)
-  } else {
-    var message = chatObj.body
-  }
+  
 
-  const Speak = ({ children }) => (
-    <>{useTts({ children, autoPlay: true }).ttsChildren}</>
-  )
+  useEffect(() => {
+    var messageFilterBypass = [undefined, null, '', ' ', '\'', '\"']
+    if (!messageFilterBypass.includes(chatObj.body) && (chatObj.body.length != 1 && !chatObj.body[0].match(/\W/))) {
+      var settingMessage = filter.clean(chatObj.body)
+      RMF(settingMessage).then((result) => {
+        setMessage(result)
+        setMessageReady(true)
+      })
+    } else {
+      setMessage(chatObj.body)
+      setMessageReady(true)
+    }
+  }, [])
+
   return (
-    <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
-      <div>
-        {user.uid == chatObj.uid && <DeleteOutlineIcon fontSize="" className="ml-1 mr-1 cursor-pointer" onClick={() => {deleteMessage()}}/>}
-        <span className="mr-[5px]" style={{ color: userColors[generateColor(chatObj.user)] }}>
-          <Link href={`/user?uid=${chatObj.uid}`}
-          className="hover:font-bold cursor-pointer">
-            {chatObj.user}
-          </Link>
-        </span>
-        {(typeof message == 'string' && message.substring(0,4) == "/tts")? (<TextToSpeech autoPlay={true}> {chatObj.user + " said " + message.substring(5,message.length)} </TextToSpeech>): message}
-      </div>
-      <div className="text-right text-[#d1d1d1]">
-        {new Date(chatObj.timestamp).toLocaleString(dateOptions)}
-      </div>
+    <div>
+      {message && (
+        <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
+          <div>
+            {user.uid == chatObj.uid && <DeleteOutlineIcon fontSize="" className="ml-1 mr-1 cursor-pointer" onClick={() => {deleteMessage()}}/>}
+            <span className="mr-[5px]" style={{ color: userColors[generateColor(chatObj.user)] }}>
+              <Link href={`/user?uid=${chatObj.uid}`}
+              className="hover:font-bold cursor-pointer">
+                {chatObj.user}
+              </Link>
+            </span>
+            {(typeof message == 'string' && message.substring(0,4) == "/tts")? (<TextToSpeech autoPlay={true}> {chatObj.user + " said " + filter.clean(message.substring(5,message.length))} </TextToSpeech>): message}
+          </div>
+          <div className="text-right text-[#d1d1d1]">
+            {new Date(chatObj.timestamp).toLocaleString(dateOptions)}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
