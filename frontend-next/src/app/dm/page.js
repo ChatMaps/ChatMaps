@@ -58,10 +58,11 @@ function Chat() {
     if (user) {
         const searchParams = new URLSearchParams(document.location.search);
         var path = searchParams.get("dm")
-        if (path.includes(user.uid))
+        if (path.includes(user.uid)) {
           setIsUserAuthed(true)
-        else
+        } else {
           location.href = "/app"
+        }
         /*// Send entered message
         var payload = {
             body: "entered",

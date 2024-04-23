@@ -11,30 +11,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import { ref as sRef, getDownloadURL } from "firebase/storage";
 
 /**
- * Creates user data in Firebase DB
- * @param {JSON} data - User data to be stored in Firebase DB ( from form ) 
- * @return {Boolean} - True if user data is stored, False if user data is not stored
- */
-function createUser(data) {
-  onAuthStateChanged(auth, (user) => {
-    if (user.uid) {
-      data.uid = user.uid;
-      data.defined = true;
-      data.invisibleStatus = false;
-      getDownloadURL(sRef(storage, `/default.png`)).then((url) => {
-        data.pfp = url;
-        data.email = user.email;
-        set(ref(database, `users/${user.uid}`), data);
-        return true;
-      })
-
-    } else {
-      return false;
-    }
-  });
-}
-
-/**
  * Onboarding Page
  * @returns {Object} - Onboarding Page
  */
@@ -43,8 +19,24 @@ function Onboarding() {
   var { register, handleSubmit } = useForm();
 
   function Onboard(data) {
-    createUser(data);
-    router.push("/app");
+    onAuthStateChanged(auth, (user) => {
+      if (user.uid) {
+        data.uid = user.uid;
+        data.defined = true;
+        data.invisibleStatus = false;
+        data.bio = " ";
+        data.interests = " , , "
+        getDownloadURL(sRef(storage, `/default.png`)).then((url) => {
+          data.pfp = url;
+          data.email = user.email;
+          set(ref(database, `users/${user.uid}`), data);
+          router.push("/app");
+        })
+
+      } else {
+        return false;
+      }
+    });
   }
   return (
     <div>

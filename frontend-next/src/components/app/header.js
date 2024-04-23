@@ -21,8 +21,12 @@ import CloseIcon from '@mui/icons-material/Close';
  * @param {JSON} user - User Object
  * @returns {void}
  */
-function closeChat(chatRoomObj, user) {
+function closeChat(chatRoomObj, user, mainTab) {
+  if (mainTab == "chat") {
   remove(ref(database, `/rooms/${chatRoomObj.path}/${chatRoomObj.name}-${chatRoomObj.timestamp}/users/online/${user.uid}`))
+  } else {
+  remove(ref(database, `/dms/${chatRoomObj.room}/users/online/${user.uid}`))
+  }
 
 }
 
@@ -125,7 +129,6 @@ export function Header({mainTab,chatRoomObj,user,sidebarControl}) {
           <a
             onClick={() => {
               removeFromMyRooms(chatRoomObj, user);
-              
             }}
             className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-2 flex items-center"
           >
@@ -136,7 +139,7 @@ export function Header({mainTab,chatRoomObj,user,sidebarControl}) {
           <Link
             href="/app"
             className="p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-2 flex items-center"
-            onClick={() => {closeChat(chatRoomObj,user)}}
+            onClick={() => {closeChat(chatRoomObj,user, mainTab)}}
           >
             <CloseIcon/>
           </Link>
