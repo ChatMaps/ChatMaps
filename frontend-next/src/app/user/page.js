@@ -2,7 +2,7 @@
 // System Imports
 import { useState, useEffect } from "react";
 import { auth, database } from "../../../firebase-config";
-import { ref, onValue, get } from "firebase/database";
+import { ref, onValue } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
 
 

@@ -31,7 +31,7 @@ function Login() {
           }
         }
       ).catch((error) => {
-        if (error = "auth/invalid-credential") {
+        if (error == "auth/invalid-credential") {
           const formError = {
             type: "server",
             message: "Username or Password Incorrect",

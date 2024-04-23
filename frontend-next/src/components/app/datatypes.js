@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 const Filter = require('bad-words')
 const filter = new Filter();
 
@@ -11,7 +11,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CircleIcon from '@mui/icons-material/Circle';
 
-import { useTts, TextToSpeech } from 'tts-react'
+import { TextToSpeech } from 'tts-react'
 
 // Chat Commands Dictionary
 const chatCommands = {
@@ -54,7 +54,7 @@ let dateOptions = {
  * @returns {Boolean} - Image Loaded (True) or Not (False)
  */
 function imageProcessing(url) {
-  var x = new Promise((resolve, reject) => {
+  var x = new Promise((resolve) => {
     var img = new Image();
     img.src = url;
     img.onload = () => {

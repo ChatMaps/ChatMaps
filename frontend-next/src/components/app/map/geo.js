@@ -7,44 +7,6 @@ import PersonOutlineTwoToneIcon from '@mui/icons-material/PersonOutlineTwoTone';
 import { red } from '@mui/material/colors';
 
 /**
- * Nearby Markers Grabber
- * @param {JSON} location - Location Object {latitude, longitude}
- * @returns {Array} - Array of Markers {<Marker>}
- */
-function NearbyMarkers(location) {
-  const [newMarkers, setNewMarkers] = useState(null);
-  if (location) {
-    const path = String(location.latitude.toFixed(2)).replace(".", "") +"/" +String(location.longitude.toFixed(2)).replace(".", "") +"/";
-    get(ref(database, `/rooms/${path}`)).then((snapshot) => {
-      if (snapshot.exists()) {
-        const rooms = snapshot.val();
-        setNewMarkers(rooms)
-      }
-    })
-  }
-  return newMarkers;
-}
-
-/**
- * Friend Markers Grabber
- * @param {JSON} user - User Object
- * @returns {Array} - Array of Markers {<Marker>}
- */
-function FriendMarkers(user) {
-  var friendMarkers = []
-  if (user && "friends" in user && "friends" in user.friends) {
-    for (var friend in user.friends.friends) {
-      get(ref(database, `/users/${friend}`)).then((snapshot) => {
-        var friendData = snapshot.val();
-        if (friendData.location) {
-          friendMarkers.push(friendData);
-        }
-      });
-    }
-  }
-}
-
-/**
  * Geo Component for Wrapping Map
  * @constructor
  * @prop {JSON} loc - Location Object {latitude, longitude}

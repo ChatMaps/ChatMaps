@@ -46,9 +46,9 @@ function Home() {
       get(ref(database, `/rooms/${path}`)).then((snapshot) => {
         if (snapshot.exists()) {
           var count = 0;
-          for (var room in snapshot.val()) {
-            count += 1;
-          }
+          snapshot.forEach(() => {
+            count++;
+          });
           setRoomCount(count);
         } else {
           setRoomCount(0);
