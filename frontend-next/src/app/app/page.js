@@ -7,7 +7,7 @@ import Drawer from '@mui/material/Drawer';
 
 // Firebase Imports
 import { auth, database } from "../../../firebase-config";
-import { ref, get, set } from "firebase/database";
+import { ref, onValue, set } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
 
 // Component Imports
@@ -43,10 +43,10 @@ function Home() {
   // Authentication Verification / Redirection if Profile Data not Filled out
   useEffect(() => {
     if (authUser && authLoading === false) {
-        get(ref(database, `users/${authUser.uid}`)).then((userData) => {
+        onValue(ref(database, `users/${authUser.uid}`), (userData) => {
             userData = userData.val();
             if (userData) {
-                setUser({...userData});
+                setUser(userData);
             } else {
                 window.location.href = "/onboarding";
             }
