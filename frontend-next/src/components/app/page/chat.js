@@ -56,7 +56,7 @@ export function ChatRoom({ roomObj, user }) {
         chatsArr.push(
           <SystemMessage
             chatObj={messages[message]}
-            key={messages[message].timestamp}
+            key={messages[message].timestamp + messages[message].user}
           />
         );
       } else {
@@ -65,7 +65,7 @@ export function ChatRoom({ roomObj, user }) {
             chatObj={messages[message]}
             user={user}
             path={"/rooms/" + chatRoomObj.path + "/" + chatRoomObj.name + "-" + chatRoomObj.timestamp}
-            key={messages[message].timestamp}
+            key={messages[message].timestamp + "-" + messages[message].user}
           />
         );
       }

@@ -11,7 +11,16 @@ import PersonIcon from '@mui/icons-material/Person';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CircleIcon from '@mui/icons-material/Circle';
 
-import { useTts, TextToSpeech } from 'tts-react'
+import { TextToSpeech } from 'tts-react'
+
+// Chat Commands Dictionary
+const chatCommands = {
+  "/peter": "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExcThtYjMxcWk2NG55YTE3OHdvNWJwcXVrZzV1ZmZkdWJ6cHBremFwdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/13w5HmyiuaZ224/giphy.gif",
+  "/shrug": "¯\\_(ツ)_/¯",
+  "/tableflip": "(╯°□°）╯︵ ┻━┻",
+  "/unflip": "┬─┬ ノ( ゜-゜ノ)",
+  "/snoop": "https://media1.tenor.com/m/cIUjlvgnFRgAAAAd/dog-snoop.gif"
+}
 
 // Colors for Messages
 const userColors = [
@@ -45,18 +54,17 @@ let dateOptions = {
  * @returns {Boolean} - Image Loaded (True) or Not (False)
  */
 function imageProcessing(url) {
-  var x = async () => {
+  var x = new Promise((resolve) => {
     var img = new Image();
     img.src = url;
-    img.onload = function() {
-      return true;
+    img.onload = () => {
+      resolve([true, url]);
     }
-    img.onerror = function() {
-      return false;
+    img.onerror = () => {
+      resolve([false, url]);
     }
-  }
-  var res = x()
-  return res
+  })
+  return x
 }
 
 
@@ -65,28 +73,42 @@ function imageProcessing(url) {
  * @param {String} message - Message to Format
  * @returns {String} - Formatted Message (IN HTML)
  */
-export function RMF(message) {
-  var URLREGEX = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g;
-  var URLmatch = message.match(URLREGEX);
-  var newMessage = URLmatch ? [] : message
-  if (URLmatch) {
-    for (var i = 0; i < URLmatch.length; i++) {
-      if (imageProcessing("https://"+URLmatch[i])) {
-        newMessage.push((<span className="mr-2">
-          {(URLmatch.length == 1) && message.split(URLmatch[i])[0].replace("https://","").replace("http://","")}
-          <img src={"https://"+URLmatch[i]} className="max-w-[100%]"/>
-          {(i == URLmatch.length || URLmatch.length == 1) && message.split(URLmatch[i])[1]}
-        </span>))
-      } else {
-        newMessage.push((<span className="mr-2">
-        {URLmatch.length == 1 && message.split(URLmatch[i])[0]}
-        <Link href={"https://"+URLmatch[i]} target="_blank" className="hover:underline">{URLmatch[i]}</Link>
-        {(i == URLmatch.length || URLmatch.length == 1) && message.split(URLmatch[i])[1]}
-      </span>))
+export async function RMF(message) {
+  var x = new Promise(async (resolve) => {
+    var URLREGEX = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g;
+    var URLmatch = message.match(URLREGEX);
+    var newMessage = URLmatch ? [] : message
+    if (URLmatch) {
+      for (var i = 0; i < URLmatch.length; i++) {
+        if (URLmatch[i].includes("chatma.ps") ) {
+          // Rich Message Formatting for Chat Maps
+          if (URLmatch[i].includes("/chat?")) {
+            var roomName = URLmatch[i].split("?")[1].split("/")[2].split("-")[0].replaceAll("%20"," ")
+            newMessage.push((<span className="italic" key={roomName}>invites you to <Link href={"https://"+URLmatch[i]} className="underline">{roomName}</Link></span>))
+          }
+        } else {
+          await imageProcessing("https://"+URLmatch[i]).then((result) => {
+            if (result[0]) {
+              newMessage.push((<span className="mr-2" key={URLmatch[i]}>
+                {(URLmatch.length == 1) && message.split(result[1])[0].replace("https://","").replace("http://","")}
+                <img src={result[1]} className="max-w-[100%]"/>
+                {(i == URLmatch.length || URLmatch.length == 1) && message.split(result[1])[1]}
+              </span>))
+            } else {
+              newMessage.push((<span className="mr-2" key={URLmatch[i]}>
+              {URLmatch.length == 1 && message.split(URLmatch[i])[0]}
+              <Link href={result[1]} target="_blank" className="hover:underline">{URLmatch[i]}</Link>
+              {(i == URLmatch.length || URLmatch.length == 1) && message.split(URLmatch[i])[1]}
+            </span>))
+            }
+          })
+        }
       }
     }
-  }
-  return newMessage
+    resolve(newMessage)
+    
+  });
+  return x
 }
 /**
  * Grabs Window Size
@@ -134,35 +156,47 @@ const generateColor = (user_str) => {
  * @returns {Object} - Chat Message Component
  */
 export function Chat({ chatObj, user, path }) {
+  const [message, setMessage] = useState([])
   function deleteMessage() {
     remove(ref(database, `${path}/chats/${chatObj.timestamp}-${chatObj.user}`))
   }
-  var messageFilterBypass = [undefined, null, '', ' ', '\'', '\"']
-  if (!messageFilterBypass.includes(chatObj.body) && (chatObj.body.length != 1 && !chatObj.body[0].match(/\W/))) {
-    var message = filter.clean(chatObj.body)
-    message = RMF(message)
-  } else {
-    var message = chatObj.body
+  
+  if (chatObj.body in chatCommands) {
+    chatObj.body = chatCommands[chatObj.body]
   }
 
-  const Speak = ({ children }) => (
-    <>{useTts({ children, autoPlay: true }).ttsChildren}</>
-  )
+  useEffect(() => {
+    // Peter Griffin Easter Egg and others
+    var messageFilterBypass = [undefined, null, '', ' ', '\'', '\"']
+    if (!messageFilterBypass.includes(chatObj.body) && (chatObj.body.length != 1 && !chatObj.body[0].match(/\W/))) {
+      var settingMessage = filter.clean(chatObj.body)
+      RMF(settingMessage).then((result) => {
+        setMessage(result)
+      })
+    } else {
+      setMessage(chatObj.body)
+    }
+  }, [])
+
   return (
-    <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
-      <div>
-        {user.uid == chatObj.uid && <DeleteOutlineIcon fontSize="" className="ml-1 mr-1 cursor-pointer" onClick={() => {deleteMessage()}}/>}
-        <span className="mr-[5px]" style={{ color: userColors[generateColor(chatObj.user)] }}>
-          <Link href={`/user?uid=${chatObj.uid}`}
-          className="hover:font-bold cursor-pointer">
-            {chatObj.user}
-          </Link>
-        </span>
-        {(typeof message == 'string' && message.substring(0,4) == "/tts")? (<TextToSpeech autoPlay={true}> {chatObj.user + " said " + message.substring(5,message.length)} </TextToSpeech>): message}
-      </div>
-      <div className="text-right text-[#d1d1d1]">
-        {new Date(chatObj.timestamp).toLocaleString(dateOptions)}
-      </div>
+    <div>
+      {message && (
+        <div className="width-[100%] bg-white rounded-lg mt-1 text-left p-1 grid grid-cols-2 mr-2">
+          <div>
+            {user.uid == chatObj.uid && <DeleteOutlineIcon fontSize="" className="ml-1 mr-1 cursor-pointer" onClick={() => {deleteMessage()}}/>}
+            <span className="mr-[5px]" style={{ color: userColors[generateColor(chatObj.user)] }}>
+              <Link href={`/user?uid=${chatObj.uid}`}
+              className="hover:font-bold cursor-pointer">
+                {chatObj.user}
+              </Link>
+            </span>
+            {(typeof message == 'string' && message.substring(0,4) == "/tts")? (<TextToSpeech autoPlay={true}> {chatObj.user + " said " + filter.clean(message.substring(5,message.length))} </TextToSpeech>): message}
+          </div>
+          <div className="text-right text-[#d1d1d1]">
+            {new Date(chatObj.timestamp).toLocaleString(dateOptions)}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

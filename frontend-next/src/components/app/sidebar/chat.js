@@ -17,7 +17,7 @@ export function Sidebar({chatRoomObj}) {
     var activeUsers = [];
     var activeUsersJSON = chatRoomObj.users.online;
     for (var user in activeUsersJSON)
-      activeUsers.push(<Member memberObj={activeUsersJSON[user]} />);
+      activeUsers.push(<Member memberObj={activeUsersJSON[user]} key={user}/>);
     var chatroomOnline = activeUsers
   }
 
@@ -29,7 +29,7 @@ export function Sidebar({chatRoomObj}) {
     var allUsers = [];
     var allUsersJSON = chatRoomObj.users.all;
     for (var user in allUsersJSON)
-      allUsers.push(<Member memberObj={allUsersJSON[user]} />);
+      allUsers.push(<Member memberObj={allUsersJSON[user]} key={user}/>);
     var chatroomUsers = allUsers
   }
   return (

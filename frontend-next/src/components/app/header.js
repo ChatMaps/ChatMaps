@@ -14,6 +14,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import CloseIcon from '@mui/icons-material/Close';
+import { useEffect } from "react";
 
 /**
  * Closes Chat
@@ -95,12 +96,14 @@ export function Header({mainTab,chatRoomObj,user,sidebarControl}) {
 
   }
 
-  // Sets User Online / Offline
-  // Stored in header for easy code maintenance and retains user online/offline throughout app
-  // Makes user online
-  if (user.invisibleStatus == false) {
-    set(ref(database, `/users/${user.uid}/lastOnline`), true)
-  }
+  useEffect(() => {
+    // Sets User Online / Offline
+    // Stored in header for easy code maintenance and retains user online/offline throughout app
+    // Makes user online
+    if (user.invisibleStatus == false) {
+      set(ref(database, `/users/${user.uid}/lastOnline`), true)
+    }
+  }, [])
 
   // Makes user offline (with last time online)
   onDisconnect(ref(database, `/users/${user.uid}/lastOnline`)).set(serverTimestamp())
@@ -152,13 +155,8 @@ export function Header({mainTab,chatRoomObj,user,sidebarControl}) {
         <ProfilePanel user={user}/>
 
         {/* Sidebar Control (for small screens) */}
-        <div
-            className="md:hidden p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center"
-            onClick={() => {sidebarControl()}}
-          >
-            <MenuIcon/>
-          </div>
-      </div>
+        {mainTab !== "profile" && (<div className="md:hidden p-2 cursor-pointer bg-cyan-500 text-white font-bold rounded-full mr-5 flex items-center" onClick={() => {sidebarControl()}}><MenuIcon/></div>)}
+        </div>
     </div>
   );
 }

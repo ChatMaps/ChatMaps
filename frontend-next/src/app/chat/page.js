@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 
 // Firebase Imports
 import { auth, database } from "../../../firebase-config";
-import { ref, onValue, set, onDisconnect, get, onChildAdded, onChildRemoved  } from "firebase/database";
+import { ref, onValue, set, onDisconnect} from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth"
 
 // Component Imports
