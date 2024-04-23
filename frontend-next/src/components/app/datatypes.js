@@ -80,21 +80,29 @@ export async function RMF(message) {
     var newMessage = URLmatch ? [] : message
     if (URLmatch) {
       for (var i = 0; i < URLmatch.length; i++) {
-        await imageProcessing("https://"+URLmatch[i]).then((result) => {
-          if (result[0]) {
-            newMessage.push((<span className="mr-2" key={URLmatch[i]}>
-              {(URLmatch.length == 1) && message.split(result[1])[0].replace("https://","").replace("http://","")}
-              <img src={result[1]} className="max-w-[100%]"/>
-              {(i == URLmatch.length || URLmatch.length == 1) && message.split(result[1])[1]}
-            </span>))
-          } else {
-            newMessage.push((<span className="mr-2" key={URLmatch[i]}>
-            {URLmatch.length == 1 && message.split(URLmatch[i])[0]}
-            <Link href={result[1]} target="_blank" className="hover:underline">{URLmatch[i]}</Link>
-            {(i == URLmatch.length || URLmatch.length == 1) && message.split(URLmatch[i])[1]}
-          </span>))
+        if (URLmatch[i].includes("chatma.ps") ) {
+          // Rich Message Formatting for Chat Maps
+          if (URLmatch[i].includes("/chat?")) {
+            var roomName = URLmatch[i].split("?")[1].split("/")[2].split("-")[0].replaceAll("%20"," ")
+            newMessage.push((<span className="italic">invites you to <Link href={"https://"+URLmatch[i]} className="underline">{roomName}</Link></span>))
           }
-        })
+        } else {
+          await imageProcessing("https://"+URLmatch[i]).then((result) => {
+            if (result[0]) {
+              newMessage.push((<span className="mr-2" key={URLmatch[i]}>
+                {(URLmatch.length == 1) && message.split(result[1])[0].replace("https://","").replace("http://","")}
+                <img src={result[1]} className="max-w-[100%]"/>
+                {(i == URLmatch.length || URLmatch.length == 1) && message.split(result[1])[1]}
+              </span>))
+            } else {
+              newMessage.push((<span className="mr-2" key={URLmatch[i]}>
+              {URLmatch.length == 1 && message.split(URLmatch[i])[0]}
+              <Link href={result[1]} target="_blank" className="hover:underline">{URLmatch[i]}</Link>
+              {(i == URLmatch.length || URLmatch.length == 1) && message.split(URLmatch[i])[1]}
+            </span>))
+            }
+          })
+        }
       }
     }
     resolve(newMessage)
@@ -158,7 +166,7 @@ export function Chat({ chatObj, user, path }) {
   }
 
   useEffect(() => {
-    // Peter Griffin Easter Egg
+    // Peter Griffin Easter Egg and others
     var messageFilterBypass = [undefined, null, '', ' ', '\'', '\"']
     if (!messageFilterBypass.includes(chatObj.body) && (chatObj.body.length != 1 && !chatObj.body[0].match(/\W/))) {
       var settingMessage = filter.clean(chatObj.body)
