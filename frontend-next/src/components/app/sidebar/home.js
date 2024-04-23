@@ -168,42 +168,42 @@ export function Sidebar({user,location,loadingLoc}) {
                   'w-[30%]',
                   selected
                     ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
-                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold bg-[#D3D3D3] drop-shadow-none'
                 )}>Nearby</Tab>
             <Tab className={({ selected }) =>
                 classNames(
                   'w-[30%]',
                   selected
                     ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
-                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold bg-[#D3D3D3] drop-shadow-none'
                 )}>My Rooms</Tab>
             <Tab className={({ selected }) =>
                 classNames(
                   'w-[30%]',
                   selected
                     ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
-                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold bg-[#D3D3D3] drop-shadow-none'
                 )}>Create</Tab>
                 <Tab className={({ selected }) =>
                 classNames(
                   'w-[30%]',
                   selected
                     ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
-                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold bg-[#D3D3D3] drop-shadow-none'
                 )}>DMs</Tab>
                 <Tab className={({ selected }) =>
                 classNames(
                   'w-[30%]',
                   selected
                     ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
-                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold bg-[#D3D3D3] drop-shadow-none'
                 )}>Friends</Tab>
                 <Tab className={({ selected }) =>
                 classNames(
                   'w-[30%]',
                   selected
                     ? 'bg-cyan-500 text-white font-bold shadow hover:bg-white/[0.6] hover:text-black'
-                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold'
+                    : 'hover:bg-cyan-500/[0.6] hover:text-white hover:font-bold bg-[#D3D3D3] drop-shadow-none'
                 )}>Requests</Tab>
                 
           </Tab.List>

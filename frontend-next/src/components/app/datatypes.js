@@ -82,13 +82,13 @@ export async function RMF(message) {
       for (var i = 0; i < URLmatch.length; i++) {
         await imageProcessing("https://"+URLmatch[i]).then((result) => {
           if (result[0]) {
-            newMessage.push((<span className="mr-2">
+            newMessage.push((<span className="mr-2" key={URLmatch[i]}>
               {(URLmatch.length == 1) && message.split(result[1])[0].replace("https://","").replace("http://","")}
               <img src={result[1]} className="max-w-[100%]"/>
               {(i == URLmatch.length || URLmatch.length == 1) && message.split(result[1])[1]}
             </span>))
           } else {
-            newMessage.push((<span className="mr-2">
+            newMessage.push((<span className="mr-2" key={URLmatch[i]}>
             {URLmatch.length == 1 && message.split(URLmatch[i])[0]}
             <Link href={result[1]} target="_blank" className="hover:underline">{URLmatch[i]}</Link>
             {(i == URLmatch.length || URLmatch.length == 1) && message.split(URLmatch[i])[1]}

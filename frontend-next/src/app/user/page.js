@@ -84,7 +84,7 @@ function UserProfile() {
       var i = 0;
       for (var interest in interests) {
         if (i < 4)
-          interestArray.push(<Interest interest={interests[interest]} />);
+          interestArray.push(<Interest interest={interests[interest]} key={interest}/>);
         i++;
       }
       setUserInterestArray(interestArray);
@@ -93,7 +93,7 @@ function UserProfile() {
       var rooms = snapshot.val().rooms;
       var roomArray = [];
       for (var room in rooms) {
-        roomArray.push(<ProfileRoom room={rooms[room]} />);
+        roomArray.push(<ProfileRoom room={rooms[room]} key={room}/>);
       }
       setUserRoomsArray(roomArray);
     });
@@ -119,7 +119,7 @@ function UserProfile() {
           {/* Left Side of Page */}
           <div className="h-dvh md:overflow-hidden">
             {/* Header */}
-            <Header user={user} />
+            <Header user={user} mainTab={"profile"} />
             {/* Main Page Section */}
             <div className="md:grid md:grid-cols-3 mr-2 h-[calc(100%-110px)] pl-5 pr-5 pt-2 max-md:mb-10">
               <div className="cols-span-1 bg-white shadow-2xl rounded-xl pt-5 max-md:pb-5">

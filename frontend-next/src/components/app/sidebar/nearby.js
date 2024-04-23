@@ -10,7 +10,7 @@ export function NearbySidebar({location}) {
     const [nearbyArr, setNearbyArr] = useState([])
     const [displayedRooms, setDisplayedRooms] = useState([])
     const [nearbyArrReady, setNearbyArrReady] = useState(false)
-    const {register, watch, setFocus} = useForm({defaultValues: {search: null}})
+    const {register, watch, setFocus} = useForm({defaultValues: {search: ""}})
 
     // Search Bar Value
     const search = watch("search")
@@ -19,7 +19,7 @@ export function NearbySidebar({location}) {
     function SearchBar() {
         return (
             <div className="w-[97%]">
-                <input type="text" placeholder="Search" {...register("search")} className="w-full p-2 border-2 border-gray-300 rounded-lg col-span-3" value={null} />
+                <input type="text" placeholder="Search" {...register("search")} className="w-full p-2 border-2 border-gray-300 rounded-lg col-span-3" value={" "} />
             </div>
         )
     }
