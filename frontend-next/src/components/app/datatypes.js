@@ -84,7 +84,7 @@ export async function RMF(message) {
           // Rich Message Formatting for Chat Maps
           if (URLmatch[i].includes("/chat?")) {
             var roomName = URLmatch[i].split("?")[1].split("/")[2].split("-")[0].replaceAll("%20"," ")
-            newMessage.push((<span className="italic">invites you to <Link href={"https://"+URLmatch[i]} className="underline">{roomName}</Link></span>))
+            newMessage.push((<span className="italic" key={roomName}>invites you to <Link href={"https://"+URLmatch[i]} className="underline">{roomName}</Link></span>))
           }
         } else {
           await imageProcessing("https://"+URLmatch[i]).then((result) => {
