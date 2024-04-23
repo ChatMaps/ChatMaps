@@ -49,6 +49,7 @@ function addToMyRooms(chatRoomObj, user) {
   );
   var path =
     chatRoomObj.path + "/" + chatRoomObj.name + "-" + chatRoomObj.timestamp;
+  user.lastOnline = serverTimestamp();
   set(ref(database, `/rooms/${path}/users/all/${user.uid}`), user);
 }
 
