@@ -21,52 +21,49 @@ export function Geo({ loc, zoom, moveable, user }) {
   const [hoverAnchor, setHoverAnchor] = useState([null,null]);
   const [nearbyMarkersFinal, setNearbyMarkers] = useState(null);
   
-  if (moveable) {
-    if (user.rooms) {
-      // Load My Rooms Markers
-      var myRoomsMarkers = Object.values(user.rooms).map((roomObj) => {
-        return (<Marker
-          key={roomObj.path + "-" + roomObj.name}
-          anchor={[roomObj.latitude, roomObj.longitude]}
-          onClick={() => {window.location.href = "/chat?room=" + roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;}}
-          style={{pointerEvents:'auto'} /* So stupid */}
-          onMouseOver={() => {setHoverText(roomObj.name);setHovering(true);setHoverAnchor([roomObj.latitude, roomObj.longitude])}}
-          onMouseOut={() => {setHovering(false)}}
-        >
-          <ChatBubbleTwoToneIcon color="primary" fontSize="large"/>
-        </Marker>)
+  if (moveable && user.rooms) {
+    // Load My Rooms Markers
+    var myRoomsMarkers = Object.values(user.rooms).map((roomObj) => {
+      return (<Marker
+        key={roomObj.path + "-" + roomObj.name}
+        anchor={[roomObj.latitude, roomObj.longitude]}
+        onClick={() => {window.location.href = "/chat?room=" + roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;}}
+        style={{pointerEvents:'auto'} /* So stupid */}
+        onMouseOver={() => {setHoverText(roomObj.name);setHovering(true);setHoverAnchor([roomObj.latitude, roomObj.longitude])}}
+        onMouseOut={() => {setHovering(false)}}
+      >
+        <ChatBubbleTwoToneIcon color="primary" fontSize="large"/>
+      </Marker>)
+    })
+  }
+
+  useEffect(() => {
+    // Load Nearby Markers
+    if (moveable && loc) {
+      const path = String(loc.latitude.toFixed(2)).replace(".", "") +"/" +String(loc.longitude.toFixed(2)).replace(".", "") +"/";
+      get(ref(database, `/rooms/${path}`)).then((snapshot) => {
+        console.log("ran")
+        if (snapshot.exists()) {
+          nearbyMarkers = snapshot.val();
+          if (nearbyMarkers) {
+            var nearbyMarkers = Object.values(nearbyMarkers).map((roomObj) => {
+              return (<Marker
+                key={roomObj.path + "-" + roomObj.name}
+                anchor={[roomObj.latitude, roomObj.longitude]}
+                onClick={() => {window.location.href = "/chat?room=" + roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;}}
+                style={{pointerEvents:'auto'} /* So stupid */}
+                onMouseOver={() => {setHoverText(roomObj.name);setHovering(true);setHoverAnchor([roomObj.latitude, roomObj.longitude])}}
+                onMouseOut={() => {setHovering(false)}}
+              >
+                <ChatBubbleTwoToneIcon color="secondary" fontSize="large"/>
+              </Marker>)
+            })
+            setNearbyMarkers(nearbyMarkers);
+          }
+        }
       })
     }
-  
-    useEffect(() => {
-      // Load Nearby Markers
-      if (loc) {
-        const path = String(loc.latitude.toFixed(2)).replace(".", "") +"/" +String(loc.longitude.toFixed(2)).replace(".", "") +"/";
-        get(ref(database, `/rooms/${path}`)).then((snapshot) => {
-          console.log("Ran")
-          if (snapshot.exists()) {
-            nearbyMarkers = snapshot.val();
-            if (nearbyMarkers) {
-              var nearbyMarkers = Object.values(nearbyMarkers).map((roomObj) => {
-                return (<Marker
-                  key={roomObj.path + "-" + roomObj.name}
-                  anchor={[roomObj.latitude, roomObj.longitude]}
-                  onClick={() => {window.location.href = "/chat?room=" + roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;}}
-                  style={{pointerEvents:'auto'} /* So stupid */}
-                  onMouseOver={() => {setHoverText(roomObj.name);setHovering(true);setHoverAnchor([roomObj.latitude, roomObj.longitude])}}
-                  onMouseOut={() => {setHovering(false)}}
-                >
-                  <ChatBubbleTwoToneIcon color="secondary" fontSize="large"/>
-                </Marker>)
-              })
-              setNearbyMarkers(nearbyMarkers);
-            }
-          }
-        })
-      }
-    }, [])
-    
-  }
+  }, [])
 
   if (!loc) {
     return <div>Getting Location...</div>;
