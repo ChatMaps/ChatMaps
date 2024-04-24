@@ -1,7 +1,7 @@
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import { database } from "../../../../firebase-config";
 import { ref, get} from "firebase/database";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ChatBubbleTwoToneIcon from '@mui/icons-material/ChatBubbleTwoTone';
 import PersonOutlineTwoToneIcon from '@mui/icons-material/PersonOutlineTwoTone';
 import { red } from '@mui/material/colors';
@@ -19,6 +19,7 @@ export function Geo({ loc, zoom, moveable, user }) {
   const [hovering, setHovering] = useState(false);
   const [hoverText, setHoverText] = useState("");
   const [hoverAnchor, setHoverAnchor] = useState([null,null]);
+  const [nearbyMarkersFinal, setNearbyMarkers] = useState(null);
   
   if (moveable) {
     if (user.rooms) {
@@ -37,31 +38,34 @@ export function Geo({ loc, zoom, moveable, user }) {
       })
     }
   
-
-    // Load Nearby Markers
-    var nearbyMarkers = null;
-    if (loc) {
-      const path = String(loc.latitude.toFixed(2)).replace(".", "") +"/" +String(loc.longitude.toFixed(2)).replace(".", "") +"/";
-      get(ref(database, `/rooms/${path}`)).then((snapshot) => {
-        if (snapshot.exists()) {
-          nearbyMarkers = snapshot.val();
-          if (nearbyMarkers) {
-            var nearbyMarkers = Object.values(nearbyMarkers).map((roomObj) => {
-              return (<Marker
-                key={roomObj.path + "-" + roomObj.name}
-                anchor={[roomObj.latitude, roomObj.longitude]}
-                onClick={() => {window.location.href = "/chat?room=" + roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;}}
-                style={{pointerEvents:'auto'} /* So stupid */}
-                onMouseOver={() => {setHoverText(roomObj.name);setHovering(true);setHoverAnchor([roomObj.latitude, roomObj.longitude])}}
-                onMouseOut={() => {setHovering(false)}}
-              >
-                <ChatBubbleTwoToneIcon color="secondary" fontSize="large"/>
-              </Marker>)
-            })
+    useEffect(() => {
+      // Load Nearby Markers
+      if (loc) {
+        const path = String(loc.latitude.toFixed(2)).replace(".", "") +"/" +String(loc.longitude.toFixed(2)).replace(".", "") +"/";
+        get(ref(database, `/rooms/${path}`)).then((snapshot) => {
+          console.log("Ran")
+          if (snapshot.exists()) {
+            nearbyMarkers = snapshot.val();
+            if (nearbyMarkers) {
+              var nearbyMarkers = Object.values(nearbyMarkers).map((roomObj) => {
+                return (<Marker
+                  key={roomObj.path + "-" + roomObj.name}
+                  anchor={[roomObj.latitude, roomObj.longitude]}
+                  onClick={() => {window.location.href = "/chat?room=" + roomObj.path + "/" + roomObj.name + "-" + roomObj.timestamp;}}
+                  style={{pointerEvents:'auto'} /* So stupid */}
+                  onMouseOver={() => {setHoverText(roomObj.name);setHovering(true);setHoverAnchor([roomObj.latitude, roomObj.longitude])}}
+                  onMouseOut={() => {setHovering(false)}}
+                >
+                  <ChatBubbleTwoToneIcon color="secondary" fontSize="large"/>
+                </Marker>)
+              })
+              setNearbyMarkers(nearbyMarkers);
+            }
           }
-        }
-      })
-    }
+        })
+      }
+    }, [])
+    
   }
 
   if (!loc) {
@@ -77,7 +81,7 @@ export function Geo({ loc, zoom, moveable, user }) {
           attribution={false}
         >
           {zoom && <ZoomControl />}
-          {moveable && nearbyMarkers}
+          {moveable && nearbyMarkersFinal}
           {moveable && myRoomsMarkers}
 
           { /* Overlay */}
