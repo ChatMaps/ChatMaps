@@ -23,3 +23,5 @@ then navigating to:
 
 http://localhost:3000
 
+NOTICE: Access to firebase from localhost has been disabled due to security considerations. To demo our app, please go to https://chatma.ps!
+
