@@ -11,6 +11,14 @@ The live version of this app can be found at:
 
 https://chatma.ps/
 
+Demo Login:<br/>
+Email: demo@chatma.ps<br/>
+Password: demoapp<br/>
+
+Please note. The demo is restricted to sending messages, and creating rooms. This is intented to ensure the demo remains an adequate example of the functionalities of this application. If you would like to test the full set of features, please make an account.
+
+
+
 A local version can be run (assuming you have Node installed) with:
 
 cd frontend-next/
